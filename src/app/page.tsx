@@ -1,100 +1,126 @@
+import Navbar from "@/components/Navbar";
 import Image from "next/image";
+
+
+// const user = localStorage.getItem("auth")
+// console.log("User Dets :", user);
+
+
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-green-50">
+      {/* Header */}
+      {/* <header className="bg-green-700 text-white py-4 px-6 flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <img src="/logo.jpeg" alt="Turf Booking Logo" className="h-10" />
+          <h1 className="text-lg font-bold">Turf Booking</h1>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <nav className="flex space-x-4">
+          <a href="/" className="hover:text-yellow-300">Home</a>
+          <a href="/turfs" className="hover:text-yellow-300">Turfs</a>
+          <a href="/messages" className="hover:text-yellow-300">Messages</a>
+          <a href="/notifications" className="hover:text-yellow-300">Notification</a>
+          <a href="/manage" className="hover:text-yellow-300">Register Your Turf</a>
+        </nav>
+        <div>
+          <img
+            src="/profile-icon.png"
+            alt="Profile"
+            className="h-10 w-10 rounded-full border-2 border-white"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        </div>
+      </header> */}
+      <Navbar />
+
+      {/* Hero Section */}
+      <section
+        className="h-64 bg-cover bg-center flex justify-center items-center"
+        style={{ backgroundImage: `url('/turf-background-image.jpg')` }}
+      >
+        <h2 className="text-3xl font-bold text-white bg-black bg-opacity-50 p-4 rounded-lg">
+          Book Your Favorite Turf Now!
+        </h2>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-12 bg-white">
+        <div className="max-w-6xl mx-auto grid grid-cols-4 gap-8 text-center">
+          {[
+            { title: "Last Minute Deals", description: "Special discounts on late bookings" },
+            { title: "Early Bird Offers", description: "Save on advanced reservations" },
+            { title: "Free Cancellation", description: "Cancel for free within 24 hours" },
+            { title: "Priority Access", description: "Get the best slots instantly" },
+          ].map((feature, index) => (
+            <div key={index} className="space-y-2">
+              <div className="h-16 w-16 mx-auto bg-green-100 rounded-full flex justify-center items-center">
+                <span className="text-green-700 font-bold text-lg">{index + 1}</span>
+              </div>
+              <h3 className="font-bold text-gray-800">{feature.title}</h3>
+              <p className="text-gray-600 text-sm">{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured Turfs Section */}
+      <section className="py-12 bg-green-50">
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-2xl font-bold text-gray-800 mb-6">Featured Turfs</h3>
+          <div className="grid grid-cols-4 gap-6">
+            {["Koval Arena", "Nut Meg", "Koval Arena", "Nut Meg"].map((turf, index) => (
+              <div key={index} className="shadow-lg rounded-lg overflow-hidden bg-white">
+                <img
+                  src={`/turfs/turf-${index + 1}.jpg`}
+                  alt={turf}
+                  className="h-32 w-full object-cover"
+                />
+                <div className="p-4">
+                  <h4 className="font-semibold text-gray-800">{turf}</h4>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-6">
+            <a href="/turfs" className="text-green-700 font-semibold hover:underline">
+              Search more...
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-green-700 text-white py-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-4 gap-8">
+          <div>
+            <h4 className="font-bold text-lg mb-4">Turf Book</h4>
+            <p className="text-sm">Book your favorite turfs with ease and convenience.</p>
+          </div>
+          <div>
+            <h4 className="font-bold text-lg mb-4">About</h4>
+            <ul className="space-y-2 text-sm">
+              <li><a href="/about" className="hover:underline">About Us</a></li>
+              <li><a href="/careers" className="hover:underline">Careers</a></li>
+              <li><a href="/press" className="hover:underline">Press</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-lg mb-4">Resources</h4>
+            <ul className="space-y-2 text-sm">
+              <li><a href="/terms" className="hover:underline">Terms & Conditions</a></li>
+              <li><a href="/privacy" className="hover:underline">Privacy Policy</a></li>
+              <li><a href="/contact" className="hover:underline">Contact Us</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold text-lg mb-4">Connect with us</h4>
+            <div className="flex space-x-4">
+              <a href="/facebook" className="hover:underline">Facebook</a>
+              <a href="/instagram" className="hover:underline">Instagram</a>
+              <a href="/twitter" className="hover:underline">Twitter</a>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
