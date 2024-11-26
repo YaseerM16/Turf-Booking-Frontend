@@ -1,6 +1,8 @@
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
-
+import StoreProvider from "./StoreProvider";
+import { useAppSelector } from "@/store/hooks";
+StoreProvider
 
 // const user = localStorage.getItem("auth")
 // console.log("User Dets :", user);
@@ -10,27 +12,6 @@ import Image from "next/image";
 export default function Home() {
   return (
     <div className="min-h-screen bg-green-50">
-      {/* Header */}
-      {/* <header className="bg-green-700 text-white py-4 px-6 flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <img src="/logo.jpeg" alt="Turf Booking Logo" className="h-10" />
-          <h1 className="text-lg font-bold">Turf Booking</h1>
-        </div>
-        <nav className="flex space-x-4">
-          <a href="/" className="hover:text-yellow-300">Home</a>
-          <a href="/turfs" className="hover:text-yellow-300">Turfs</a>
-          <a href="/messages" className="hover:text-yellow-300">Messages</a>
-          <a href="/notifications" className="hover:text-yellow-300">Notification</a>
-          <a href="/manage" className="hover:text-yellow-300">Register Your Turf</a>
-        </nav>
-        <div>
-          <img
-            src="/profile-icon.png"
-            alt="Profile"
-            className="h-10 w-10 rounded-full border-2 border-white"
-          />
-        </div>
-      </header> */}
       <Navbar />
 
       {/* Hero Section */}

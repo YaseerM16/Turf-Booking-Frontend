@@ -1,4 +1,4 @@
-import AuthNavbar from "@/components/AuthNavbar";
+import AuthNavbar from "@/components/user-auth/AuthNavbar";
 import OtpForm from "@/components/OtpForm";
 
 

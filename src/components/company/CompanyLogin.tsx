@@ -7,14 +7,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import Spinner from "../Spinner";
 import { axiosInstance } from "@/utils/constants";
+// import { setCompany } from "@/store/slices/CompanySlice";
+import { useAppDispatch } from "@/store/hooks";
 
 type Inputs = {
     email: string;
     password: string;
 };
 
-const LoginForm: React.FC = () => {
+const CompanyLoginForm: React.FC = () => {
     const router = useRouter();
+    const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(false);
     const {
         register,
@@ -26,28 +29,29 @@ const LoginForm: React.FC = () => {
         try {
             setLoading(true);
             const { data } = await axiosInstance.post(
-                "/api/v1/user/auth/login",
+                "/api/v1/company/auth/login",
                 formData
             );
 
-            if (data?.success) {
-                const user = {
-                    _id: data?.user?._id,
-                    name: data?.user?.name,
-                    email: data?.user?.email,
-                    phone: data?.user?.phone,
-                    profilePicture: data?.user?.profilePicture,
+            if (data?.loggedIn) {
+                const company = {
+                    _id: data?.company?._id,
+                    name: data?.company?.name,
+                    email: data?.company?.email,
+                    phone: data?.company?.phone,
+                    logo: data?.company?.logo,
                 };
-                localStorage.setItem("auth", JSON.stringify(user));
-                localStorage.setItem("token", JSON.stringify(data?.token));
+                localStorage.setItem("companyAuth", JSON.stringify(company));
+                // dispatch(setCompany(data.company));
+                toast.success("Logged In successfully!");
                 setLoading(false);
-                router.replace("/dashboard");
+                router.replace("/company-dashboard");
             } else {
                 toast.error(data?.message || "Login failed. Please try again.");
                 setLoading(false);
             }
         } catch (err) {
-            console.error("LoginAPI error:", err);
+            console.error("CompanyLoginAPI error:", err);
             toast.error("An error occurred during login. Please try again.");
             setLoading(false);
         }
@@ -81,7 +85,7 @@ const LoginForm: React.FC = () => {
                     </div>
 
                     <div className="mt-8 w-3/4">
-                        <h3 className="text-2xl font-semibold text-gray-900 mb-4">Log In</h3>
+                        <h3 className="text-2xl font-semibold text-gray-900 mb-4">Company Log In</h3>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div className="mb-4">
                                 <input
@@ -100,6 +104,7 @@ const LoginForm: React.FC = () => {
                                     <p className="text-red-500 text-sm">{errors.email.message}</p>
                                 )}
                             </div>
+
                             <div className="mb-4">
                                 <input
                                     type="password"
@@ -112,6 +117,14 @@ const LoginForm: React.FC = () => {
                                 {errors.password && (
                                     <p className="text-red-500 text-sm">{errors.password.message}</p>
                                 )}
+                            </div>
+                            <div className="text-right pb-3">
+                                <a
+                                    href="/forgotpassword"
+                                    className="text-sm text-green-600 hover:underline"
+                                >
+                                    Forgot Password?
+                                </a>
                             </div>
 
                             {loading ? (
@@ -159,4 +172,4 @@ const LoginForm: React.FC = () => {
     );
 };
 
-export default LoginForm;
+export default CompanyLoginForm;

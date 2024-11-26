@@ -9,8 +9,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import Spinner from "../Spinner";
 import { axiosInstance } from "@/utils/constants";
-import { setUser } from "@/store/slices/UserSlice";
-import { useDispatch } from "react-redux";
 Spinner
 
 // import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
@@ -26,7 +24,6 @@ type Inputs = {
 
 const Register: React.FC = () => {
     const router = useRouter();
-    const dispatch = useDispatch()
     const [loading, setLoading] = useState(false);
     const {
         register,
@@ -72,23 +69,14 @@ const Register: React.FC = () => {
             );
             console.log("SignUpAPI result:", data); // Debugging line
             if (data?.success) {
-                const user = {
-                    _id: data?.user?._id,
-                    name: data?.user?.name,
-                    email: data?.user?.email,
-                    phone: data?.user?.phone,
-                    profilePicture: data?.user?.profilePicture,
-                };
-                localStorage.setItem("auth", JSON.stringify(user));
-                localStorage.setItem("token", JSON.stringify(data?.token));
-                dispatch(setUser(user));
-
                 setLoading(false);
                 toast.success("Verification email sent successfully!", {
-                    onClose: () => router.replace("/checkmail"),
+                    onClose: () => router.replace(`/checkmail?type=verify`),
                 });
             }
         } catch (err: any) {
+            console.log("Error While Signup :", err);
+
             console.error('SignUpAPI error:', err); // Debugging line
             setLoading(false);
             toast.error(err.response.data.error);
@@ -170,7 +158,12 @@ const Register: React.FC = () => {
                                     type="text"
                                     placeholder="Name"
                                     className="w-full p-3 rounded-md border border-gray-300 focus:outline-green-500"
-                                    {...register('name', { required: 'Name is required' })}  // Register with validation (required)
+                                    {...register('name', {
+                                        required: 'Name is required', minLength: {
+                                            value: 4,
+                                            message: "Name must be at least 4 characters long.",
+                                        },
+                                    })}  // Register with validation (required)
                                 />
                                 {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
                             </div>

@@ -1,5 +1,5 @@
-import AuthNavbar from "@/components/AuthNavbar";
-import EmailVerification from "@/components/user/VerifyEmail";
+import AuthNavbar from "@/components/user-auth/AuthNavbar";
+import EmailVerification from "@/components/user-auth/VerifyEmail";
 
 
 export default function VerifyMail() {

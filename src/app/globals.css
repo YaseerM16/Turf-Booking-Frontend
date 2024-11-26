@@ -2,3 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* #map {
+    width: 100px;
+    /* Ensure the width covers the parent container */
+    /* height: 100px; */
+    /* Set a fixed height */
+/* }  */
