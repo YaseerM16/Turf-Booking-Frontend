@@ -1,5 +1,6 @@
 "use client"
-import React from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import React, { useState } from "react";
 import {
     FiHome,
     FiGrid,
@@ -9,11 +10,45 @@ import {
     FiHeart,
     FiLogOut,
 } from "react-icons/fi";
+import GuestNavbar from "./user-auth/GuestNavbar";
+import { axiosInstance } from "@/utils/constants";
+import { logout } from "@/store/slices/UserSlice";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Spinner from "./Spinner";
+Spinner
+
+useAppDispatch
+useAppSelector
+
 
 const Navbar: React.FC = () => {
+    const user = useAppSelector(state => state.users.user)
+    const [loading, setLoading] = useState(false);
+    const router = useRouter()
+    const dispatch = useAppDispatch()
+
+
+    const handleLogout = async () => {
+        setLoading(true)
+        try {
+            const { data } = await axiosInstance.get("/api/v1/user/logout");
+            if (data.loggedOut) {
+                setLoading(false)
+                dispatch(logout())
+                localStorage.removeItem('auth');
+                router.replace("/")
+            }
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast.error("Failed to Logout.")
+        }
+    }
+
     return (
         <nav className="bg-gray-100 shadow-md">
-            <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+            {user ? (<div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
                 {/* Logo Section */}
                 <div className="flex items-center space-x-4">
                     <img
@@ -50,21 +85,26 @@ const Navbar: React.FC = () => {
                 <div className="flex items-center space-x-6">
                     {/* Profile Icon */}
                     <img
-                        src="/profile-icon.png"
+                        src={user.profilePicture ? user.profilePicture : "logo.jpeg"}
                         alt="Profile"
                         className="h-10 w-10 rounded-full border-2 border-gray-300 shadow-md transition-transform transform hover:scale-110"
+                        onClick={() => router.replace("/profile")}
                     />
-
                     {/* Logout Button */}
-                    <button
-                        className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 shadow-md transition duration-200"
-                        onClick={() => alert("Logged out successfully")}
-                    >
-                        <FiLogOut size={18} />
-                        <span>Logout</span>
-                    </button>
+                    {loading ? (
+                        <Spinner />
+                    ) : (
+
+                        <button
+                            className="flex items-center space-x-1 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 shadow"
+                            onClick={() => handleLogout()}
+                        >
+                            <FiLogOut size={18} />
+                            <span>Logout</span>
+                        </button>
+                    )}
                 </div>
-            </div>
+            </div>) : (<GuestNavbar />)}
         </nav>
     );
 };

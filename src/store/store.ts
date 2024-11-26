@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
-// import userReducer from "./features/userSlice";
+import userReducer from "./slices/UserSlice"
+// import { useReducer } from "react";
 // import chatReducer from "./features/chatSlice";
 // import adminReducer from "./features/adminSlice";
 // import notificationReducer from "./features/notificationSlice";
@@ -7,6 +8,7 @@ import { configureStore } from "@reduxjs/toolkit";
 export const makeStore = () => {
     return configureStore({
         reducer: {
+            users: userReducer
         },
     });
 };

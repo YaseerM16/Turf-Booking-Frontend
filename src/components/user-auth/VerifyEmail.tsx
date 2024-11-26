@@ -5,6 +5,11 @@ import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { axiosInstance } from "@/utils/constants";
+import { setUser } from "@/store/slices/UserSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+useAppSelector
+
+
 
 interface QueryParams {
     type?: string;
@@ -14,6 +19,8 @@ interface QueryParams {
 
 const EmailVerification: React.FC = () => {
     const router = useRouter();
+    const dispatch = useAppDispatch()
+    const user = useAppSelector(state => state.users)
     const [loading, setLoading] = useState(false);
     const [queryObj, setQueryObj] = useState<QueryParams | null>(null);
     const [verificationFailed, setVerificationFailed] = useState(false);
@@ -23,6 +30,10 @@ const EmailVerification: React.FC = () => {
         const queryObject = Object.fromEntries(searchParams.entries()); // Get query parameters
         setQueryObj(queryObject); // Set query parameters state
     }, []);
+    useEffect(() => {
+        // Log the user state whenever it changes to verify updates
+        console.log("Updated User State:", user);
+    }, [user]); // Dependency on user state
 
     const handleVerifyEmail = async () => {
         if (!queryObj) {
@@ -39,9 +50,24 @@ const EmailVerification: React.FC = () => {
                 return;
             }
             const { data } = await axiosInstance.get("/api/v1/user/auth/verifyemail", { params: { type, token, email }, });
-
-            if (data?.success) {
+            if (data?.success && data?.forgotMail) {
                 setLoading(false);
+                toast.success("Email verified successfully!", {
+                    onClose: () => router.replace(`/change-password?email=${email}`),
+                });
+            }
+            else if (data?.success) {
+                const user = {
+                    _id: data?.user?._id,
+                    name: data?.user?.name,
+                    email: data?.user?.email,
+                    phone: data?.user?.phone,
+                    profilePicture: data?.user?.profilePicture,
+                };
+                localStorage.setItem("auth", JSON.stringify(user));
+                setLoading(false);
+
+                dispatch(setUser(data.user));
                 toast.success("Email verified successfully!", {
                     onClose: () => router.replace("/"),
                 });
