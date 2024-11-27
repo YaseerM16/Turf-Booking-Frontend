@@ -1,14 +1,19 @@
 "use client";
 
 import Map from "@/components/map/Map";
+import Spinner from "@/components/Spinner";
+import { axiosInstance } from "@/utils/constants";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+
 interface FormInputs {
     companyName: string;
     companyEmail: string;
+    phone: number;
     password: string;
     confirmPassword: string;
     location?: { latitude: number; longitude: number };
@@ -23,17 +28,45 @@ const CompanyRegistration: React.FC = () => {
     const { register, handleSubmit, watch, formState: { errors }, setError, clearErrors } = useForm<FormInputs>();
     const [showMap, setShowMap] = useState(false);
     const [location, setLocation] = useState<Marker | null>(null); // Track selected location
-    const [isLocationSelected, setIsLocationSelected] = useState(false); // Track if the location was selected
+    const [isLocationSelected, setIsLocationSelected] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const router = useRouter()
 
-    const onSubmit: SubmitHandler<FormInputs> = (data) => {
-        if (!location) {
-            setError("location", { type: "manual", message: "Please select a location on the map." });
-            return;
+    const onSubmit: SubmitHandler<FormInputs> = async (formData: FormInputs) => {
+        try {
+            if (!location) {
+                setError("location", { type: "manual", message: "Please select a location on the map." });
+                return;
+            }
+            setLoading(true);
+            const formDataWithLocation = {
+                ...formData,
+                companyname: formData.companyName, // Rename 'name' to 'companyname'
+                companyemail: formData.companyEmail,
+                location: {
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                },
+            };
+            const { data } = await axiosInstance.post(
+                "/api/v1/company/auth/register",
+                formDataWithLocation
+            );
+            // Debugging line
+            if (data?.success) {
+                setLoading(false);
+                toast.success("Verification email sent successfully!", {
+                    onClose: () => router.replace(`/checkmail?type=verify`),
+                });
+            }
+
+        } catch (err: any) {
+            console.log("Error While Register Company :", err);
+
+            console.error('SignUpAPI error:', err); // Debugging line
+            setLoading(false);
+            toast.error(err.response.data.error);
         }
-
-        console.log("Form Data:", data);
-        console.log("Location Data:", location);
-        alert("Company Registered Successfully!");
     };
 
     const handleLocationRequest = () => {
@@ -55,7 +88,7 @@ const CompanyRegistration: React.FC = () => {
 
     return (
         <>
-            <ToastContainer position="top-center" autoClose={500} hideProgressBar={true} />
+            <ToastContainer position="top-center" autoClose={1000} hideProgressBar={true} />
             <div className="flex h-screen">
                 {/* Left Section */}
                 <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
@@ -100,6 +133,22 @@ const CompanyRegistration: React.FC = () => {
                                 {errors.companyEmail && (
                                     <p className="text-red-500 text-sm">{errors.companyEmail.message}</p>
                                 )}
+                            </div>
+
+                            <div className="mb-4">
+                                <input
+                                    type="text"
+                                    placeholder="Phone"
+                                    className="w-full p-3 rounded-md border border-gray-300 focus:outline-green-500"
+                                    {...register('phone', {
+                                        required: 'Phone number is required',  // Required validation
+                                        pattern: {
+                                            value: /^[0-9]{10}$/,  // Regular expression to match 10 digits (adjust as needed)
+                                            message: 'Invalid phone number, must be 10 digits',  // Custom error message
+                                        },
+                                    })}
+                                />
+                                {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
                             </div>
 
                             {/* Password */}
@@ -148,12 +197,16 @@ const CompanyRegistration: React.FC = () => {
                             </div>
 
                             {/* Submit Button */}
-                            <button
-                                type="submit"
-                                className="w-full bg-green-700 text-white py-3 rounded-md hover:bg-green-800"
-                            >
-                                Register
-                            </button>
+                            {loading ? (
+                                <Spinner />
+                            ) : (
+                                <button
+                                    type="submit"
+                                    className="w-full bg-green-700 text-white py-3 rounded-md hover:bg-green-800"
+                                >
+                                    Register
+                                </button>
+                            )}
                         </form>
                     </div>
 

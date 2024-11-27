@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./slices/UserSlice"
+import companyReducer from "./slices/CompanySlice"
 // import { useReducer } from "react";
 // import chatReducer from "./features/chatSlice";
 // import adminReducer from "./features/adminSlice";
@@ -8,7 +9,8 @@ import userReducer from "./slices/UserSlice"
 export const makeStore = () => {
     return configureStore({
         reducer: {
-            users: userReducer
+            users: userReducer,
+            companies: companyReducer
         },
     });
 };

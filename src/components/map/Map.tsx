@@ -63,6 +63,7 @@ export default function Map({ onPinLocation }: MapProps) {
 
             return () => {
                 // Cleanup map when component unmounts
+                mapRef.current?.off();
                 mapRef.current?.remove();
                 mapRef.current = null;
             };
