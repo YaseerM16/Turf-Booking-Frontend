@@ -1,39 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import Link from "next/link";
+import Sidebar from "./SideBar";
+
+
 
 const AdminDashboard: React.FC = () => {
+    const [activeTab, setActiveTab] = useState<string>("/dashboard");
+
+    // Function to handle tab click and set active tab
+    const handleTabClick = (tab: string) => {
+        setActiveTab(tab);
+    };
     return (
         <div className="h-screen flex flex-col bg-gray-100">
             {/* Sidebar */}
             <div className="flex">
-                <aside className="w-64 bg-green-700 text-white flex flex-col justify-between">
-                    <div className="p-6">
-                        <h1 className="text-2xl font-bold mb-6">Turf Booking</h1>
-                        <nav>
-                            <ul className="space-y-4">
-                                <li className="bg-green-800 px-4 py-2 rounded-md font-medium">Dashboard</li>
-                                <li className="hover:bg-green-600 px-4 py-2 rounded-md font-medium">
-                                    Bookings
-                                </li>
-                                <li className="hover:bg-green-600 px-4 py-2 rounded-md font-medium">
-                                    User Management
-                                </li>
-                                <li className="hover:bg-green-600 px-4 py-2 rounded-md font-medium">
-                                    Company Management
-                                </li>
-                                <li className="hover:bg-green-600 px-4 py-2 rounded-md font-medium">
-                                    Company Profile
-                                </li>
-                            </ul>
-                        </nav>
-                    </div>
-                    <div className="p-6">
-                        <button className="w-full bg-red-500 px-4 py-2 rounded-md font-medium hover:bg-red-600">
-                            Log Out
-                        </button>
-                    </div>
-                </aside>
+                <Sidebar activeTab={activeTab} handleTabClick={handleTabClick} />
 
                 {/* Main Content */}
                 <main className="flex-1 p-8">

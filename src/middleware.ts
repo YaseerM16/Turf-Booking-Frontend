@@ -15,52 +15,43 @@ export function middleware(req: NextRequest) {
     }
 
     const userRole = decodedToken?.userRole;
+    console.log("User Role :", userRole);
+
 
     // Define route groups
     const publicRoutes = ["/login", "/signup", "/verifymail", "/checkmail", "/forgotpassword"];
     const userRoutes = ["/profile"];
-    const companyRoutes = ["/company/login", "/company/register", "/company/dashboard"];
-    const adminRoutes = ["/admin/login", "/admin/dashboard"];
+    const companyPublic = ["/company/login", "/company/register"];
+    const companyProtected = ["/company/dashboard"];
+    const adminPublic = ["/admin/login"];
+    const adminProtected = ["/admin/dashboard"];
 
     const currentPath = req.nextUrl.pathname;
 
-    // Handle routing based on user role
-    if (token) {
-        // Redirect users away from public routes
-        if (publicRoutes.includes(currentPath)) {
-            return NextResponse.redirect(new URL("/", req.url));
-        }
-
-        if (userRole === "user") {
-            // Restrict access to user-only routes
-            if (!userRoutes.includes(currentPath)) {
-                return NextResponse.redirect(new URL("/profile", req.url));
-            }
-        } else if (userRole === "company") {
-            // Redirect away from company login if already logged in
-            if (currentPath === "/company/login") {
-                return NextResponse.redirect(new URL("/company/dashboard", req.url));
-            }
-            // Restrict access to company-only routes
-            if (!companyRoutes.includes(currentPath)) {
-                return NextResponse.redirect(new URL("/company/dashboard", req.url));
-            }
-        } else if (userRole === "admin") {
-            // Redirect away from admin login if already logged in
-            if (currentPath === "/admin/login") {
-                return NextResponse.redirect(new URL("/admin/dashboard", req.url));
-            }
-            // Restrict access to admin-only routes
-            if (!adminRoutes.includes(currentPath)) {
-                return NextResponse.redirect(new URL("/admin/dashboard", req.url));
-            }
-        }
-    } else {
-        // If no token, restrict access to protected routes
-        if (
-            [...userRoutes, ...companyRoutes, ...adminRoutes].includes(currentPath)
-        ) {
+    // Handle routing if no token or userRole
+    if (!token || !userRole) {
+        // Restrict access to userRoutes, companyProtected, and adminProtected
+        if (userRoutes.includes(currentPath)) {
             return NextResponse.redirect(new URL("/login", req.url));
+        }
+        if (companyProtected.includes(currentPath)) {
+            return NextResponse.redirect(new URL("/company/login", req.url));
+        }
+        if (adminProtected.includes(currentPath)) {
+            return NextResponse.redirect(new URL("/admin/login", req.url));
+        }
+    }
+
+    // Additional handling for authenticated users
+    if (token && userRole) {
+        if (userRole === "user" && !userRoutes.includes(currentPath)) {
+            return NextResponse.redirect(new URL("/profile", req.url));
+        }
+        if (userRole === "company" && companyPublic.includes(currentPath)) {
+            return NextResponse.redirect(new URL("/company/dashboard", req.url));
+        }
+        if (userRole === "admin" && adminPublic.includes(currentPath)) {
+            return NextResponse.redirect(new URL("/admin/dashboard", req.url));
         }
     }
 
