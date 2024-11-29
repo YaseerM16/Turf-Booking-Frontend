@@ -84,12 +84,14 @@ const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loa
                                     message: "Invalid email address.",
                                 },
                             })}
-                            className="w-full px-4 py-2 border rounded-lg"
+                            className="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed"
+                            readOnly
                         />
                         {errors.email && (
                             <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                         )}
                     </div>
+
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                         <input

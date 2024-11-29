@@ -85,6 +85,22 @@ const CompanyRegistration: React.FC = () => {
         setShowMap(false);
         setIsLocationSelected(false); // Reset location selection state when closing the map
     };
+    const handleSetCurrentLocation = () => {
+        const userLocation = localStorage.getItem("USER_LOCATION");
+        if (userLocation) {
+            const { latitude, longitude } = JSON.parse(userLocation);
+            if (latitude && longitude) {
+                // Use the `updateMarker` function indirectly by invoking `handlePinLocation`
+                handlePinLocation({ latitude, longitude });
+            } else {
+                console.error("Invalid USER_LOCATION data in localStorage.");
+            }
+        } else {
+            console.error("USER_LOCATION not found in localStorage.");
+        }
+    };
+
+
 
     return (
         <>

@@ -29,7 +29,7 @@ const CompanyDashboard: React.FC = () => {
             const { data } = await axiosInstance.get("/api/v1/company/logout");
             if (data.loggedOut) {
                 dispatch(logout())
-                localStorage.removeItem('companyAuth');
+                localStorage.removeItem('company');
                 setLoading(false)
                 toast.error("You're Logged Out!", {
                     onClose: () => router.replace("/company/login")
@@ -138,11 +138,14 @@ const CompanyDashboard: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                        <img
-                            src="/turf-banner.jpeg"
-                            alt="Turf Banner"
-                            className="h-10 w-auto"
-                        />
+                        <div className="flex">
+                            <img
+                                src="/logo.jpeg"
+                                alt="Turf Banner"
+                                className="h-10 w-auto"
+                            />
+                            <p>Banner Image</p>
+                        </div>
                     </header>
 
                     {/* Main Dashboard Content */}

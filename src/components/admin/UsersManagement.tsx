@@ -4,6 +4,8 @@ import { axiosInstance } from "@/utils/constants";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./SideBar";
+import Swal from 'sweetalert2';
+
 Sidebar
 
 const UserManagement: React.FC = () => {
@@ -14,13 +16,14 @@ const UserManagement: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [totalUsers, setTotalUsers] = useState<number>(0);
+    const [searchQuery, setSearchQuery] = useState<string>("");
     const usersPerPage = 10;
 
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
     };
 
-    const fetchUsers = async (page: number) => {
+    const fetchUsers = async (page: number, searchQuery: string) => {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
@@ -41,28 +44,47 @@ const UserManagement: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchUsers(currentPage);
-    }, [currentPage]);
+        fetchUsers(currentPage, searchQuery);
+    }, [currentPage, searchQuery]);
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-700 border-solid"></div>
-            </div>
-        );
-    }
 
     const handleToggleBlock = async (email: string, userId: string) => {
         try {
-            setSpinLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/admin/user-toggle-block?email=${email}&userId=${userId}`
-            );
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to proceed?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed!',
+                cancelButtonText: 'No, cancel!',
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                timerProgressBar: true,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    setSpinLoading(true);
+                    const { data } = await axiosInstance.get(
+                        `/api/v1/admin/user-toggle-block?email=${email}&userId=${userId}`
+                    );
 
-            if (data?.success) {
-                toast.success("User Block or Unblocked successfully :", { onClose: () => fetchUsers(currentPage) })
-                console.log("Response Data :- ", data);
-            }
+                    if (data?.success) {
+                        toast.success("User Block or Unblocked successfully :", { onClose: () => fetchUsers(currentPage, searchQuery) })
+                        console.log("Response Data :- ", data);
+                    }
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Action canceled.',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            });
+
 
         } catch (error) {
             console.error("Error fetching user data:", error);
@@ -88,6 +110,7 @@ const UserManagement: React.FC = () => {
                 draggable
                 pauseOnHover
             />
+
             <div className="flex min-h-screen">
                 <Sidebar activeTab={activeTab} handleTabClick={handleTabClick} />
                 <div className="flex-1 flex flex-col">
@@ -98,7 +121,20 @@ const UserManagement: React.FC = () => {
 
                     <main className="flex-1 overflow-auto mt-6 p-6">
                         <div className="bg-white shadow-md rounded-lg p-6">
-                            <table className="w-full text-left border-collapse">
+                            {/* Search Input */}
+                            <div className="mb-4">
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)} // Update the search query on input change
+                                    className="w-full p-3 border border-gray-300 rounded-md"
+                                    placeholder="Search by name or email"
+                                />
+                            </div>
+
+                            {loading ? (<div className="flex justify-center items-center h-screen">
+                                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-700 border-solid"></div>
+                            </div>) : (<table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-green-700 text-white">
                                         <th className="px-4 py-3">#</th>
@@ -146,7 +182,8 @@ const UserManagement: React.FC = () => {
                                         </td>
                                     </tr>)}
                                 </tbody>
-                            </table>
+                            </table>)}
+
 
                             {/* Pagination controls */}
                             <div className="flex justify-between items-center mt-4">
