@@ -4,11 +4,10 @@ import Link from "next/link";
 import Sidebar from "./SideBar";
 import { axiosInstance } from "@/utils/constants";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
+import Map from "./ComapanyLocationMap";
 import "react-toastify/dist/ReactToastify.css";
-import Swal from 'sweetalert2';
-
-
-
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 const RegisteredCompanies: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>("/dashboard");
@@ -17,26 +16,20 @@ const RegisteredCompanies: React.FC = () => {
     const [spinLoading, setSpinLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [totalUsers, setTotalUsers] = useState<number>(0);
-    const usersPerPage = 10;
+    const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
+    const companiesPerPage = 10;
 
     const fetchUsers = async (page: number) => {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
-                `/api/v1/admin/get-registered-companies?page=${page}&limit=${usersPerPage}`
+                `/api/v1/admin/get-registered-companies?page=${page}&limit=${companiesPerPage}`
             );
 
             if (data?.success) {
-                toast.success("Companies Data is Getting")
-                console.log("Companies :", data);
-
                 setCompanies(data.companies);
-                setTotalUsers(data.totalCompany);
-                // setTotalPages(Math.ceil(data.totalUsers / usersPerPage));
+                setTotalPages(Math.ceil(data.totalCompany / companiesPerPage));
             }
-
-
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
@@ -48,7 +41,6 @@ const RegisteredCompanies: React.FC = () => {
         fetchUsers(currentPage);
     }, [currentPage]);
 
-    // Function to handle tab click and set active tab
     const handleTabClick = (tab: string) => {
         setActiveTab(tab);
     };
@@ -57,76 +49,78 @@ const RegisteredCompanies: React.FC = () => {
         setCurrentPage(page);
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-700 border-solid"></div>
-            </div>
-        );
-    }
-
-    const handleApprove = async () => {
+    const handleApprove = async (companyId: string, companyEmail: string) => {
         Swal.fire({
-            title: 'Are you sure?',
-            text: 'Do you want to proceed?',
-            icon: 'warning',
-            showCancelButton: true, // Only define this once
-            confirmButtonText: 'Yes, proceed!',
-            cancelButtonText: 'No, cancel!',
-            toast: true, // For toast-style
-            position: 'top-end',
-            timer: 3000, // Optional: Duration for the toast
-            timerProgressBar: true,
-        }).then((result) => {
+            title: "Are you sure?",
+            text: "Do you want to proceed?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, proceed!",
+            cancelButtonText: "No, cancel!",
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                // Handle confirmed action here
+                try {
+                    const { data } = await axiosInstance.patch(
+                        "/api/v1/admin/approve-company",
+                        {
+                            companyId,
+                            companyEmail,
+                        }
+                    );
 
+                    if (data?.success) {
+                        toast.success("Company approved successfully!", {
+                            onClose: () => fetchUsers(currentPage)
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error approving the company:", error);
+                    toast.error("Failed to approve the company.");
+                }
             } else if (result.dismiss === Swal.DismissReason.cancel) {
-                // Handle cancellation
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: 'info',
-                    title: 'Action canceled.',
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
+                toast.info("Action canceled.");
             }
         });
-    }
+    };
+
+    const handleLocationClick = (company: any) => {
+        setSelectedCompany(company);
+    };
+
+    const closeModal = () => {
+        setSelectedCompany(null);
+    };
+
+
 
     return (
         <>
-            <ToastContainer
-                position="top-center"
-                autoClose={1000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+            <ToastContainer position="top-center" autoClose={1000} />
             <div className="flex min-h-screen">
                 <Sidebar activeTab={activeTab} handleTabClick={handleTabClick} />
                 <div className="flex-1 flex flex-col">
                     <header className="bg-yellow-100 p-6 rounded-lg shadow-md">
-                        <h1 className="text-2xl font-semibold text-gray-800">Registered Companies</h1>
-                        <p className="text-gray-600">List of companies registered in the system</p>
+                        <h1 className="text-2xl font-semibold text-gray-800">
+                            Registered Companies
+                        </h1>
+                        <p className="text-gray-600">
+                            List of companies registered in the system
+                        </p>
                     </header>
 
                     <main className="flex-1 overflow-auto mt-6 p-6">
                         <div className="bg-white shadow-md rounded-lg p-6">
-                            <table className="w-full text-left border-collapse">
+                            {loading ? (<div className="flex justify-center items-center h-screen">
+                                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-700 border-solid"></div>
+                            </div>) : (<table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-green-700 text-white">
-                                        <th className="px-4 py-3">#</th>
-                                        <th className="px-4 py-3">Company Name</th>
-                                        <th className="px-4 py-3">Email</th>
-                                        <th className="px-4 py-3">Phone</th>
-                                        <th className="px-4 py-3">Action</th>
-                                        <th className="px-4 py-3">Location</th>
+                                        <th className="px-4 py-3 text-center">#</th>
+                                        <th className="px-4 py-3 text-center">Company Name</th>
+                                        <th className="px-4 py-3 text-center">Email</th>
+                                        <th className="px-4 py-3 text-center">Phone</th>
+                                        <th className="px-4 py-3 text-center">Action</th>
+                                        <th className="px-4 py-3 text-center">Location</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -136,24 +130,29 @@ const RegisteredCompanies: React.FC = () => {
                                             className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
                                                 } hover:bg-yellow-50`}
                                         >
-                                            <td className="border px-4 py-3">{index + 1}</td>
-                                            <td className="border px-4 py-3">{company.companyname}</td>
-                                            <td className="border px-4 py-3">{company.companyemail}</td>
-                                            <td className="border px-4 py-3">{company.phone}</td>
-                                            <td className="border px-4 py-3">
+                                            <td className="border px-4 py-3 text-center">{index + 1}</td>
+                                            <td className="border px-4 py-3 text-center">{company.companyname}</td>
+                                            <td className="border px-4 py-3 text-center">{company.companyemail}</td>
+                                            <td className="border px-4 py-3 text-center">{company.phone}</td>
+                                            <td className="border px-4 py-3 text-center">
                                                 <button
-                                                    className=" text-white px-4 py-2 rounded-md font-medium bg-green-500 hover:bg-green-600"
-                                                    onClick={() => handleApprove()}
+                                                    className="text-white px-4 py-2 rounded-md font-medium bg-green-500 hover:bg-green-600 inline-block"
+                                                    onClick={() => handleApprove(company._id, company.companyemail)}
                                                 >
-                                                    {/* {user.isActive ? "Block" : "Unblock"} */}
                                                     Approve
                                                 </button>
                                             </td>
-                                            {/* <td className="border px-4 py-3">{company.location}</td> */}
+                                            <td className="border px-4 py-3 text-center">
+                                                <FaMapMarkerAlt
+                                                    className="text-green-700 cursor-pointer inline-block"
+                                                    onClick={() => handleLocationClick(company)}
+                                                />
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
-                            </table>
+                            </table>)}
+
                             <div className="flex justify-between items-center mt-4">
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
@@ -179,19 +178,35 @@ const RegisteredCompanies: React.FC = () => {
                     </main>
                 </div>
             </div>
-            <footer className="bg-gray-800 text-white py-4">
-                <div className="container mx-auto text-center">
-                    <p>© 2024 Turf Booking. All rights reserved.</p>
-                    <p>
-                        <a href="/terms" className="underline">
-                            Terms & Conditions
-                        </a>
-                    </p>
+
+            {/* Modal for Map */}
+            {selectedCompany && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg shadow-lg w-3/4 p-6 relative">
+                        <button
+                            className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+                            onClick={closeModal}
+                        >
+                            &times;
+                        </button>
+                        <div className="flex gap-4">
+                            <img
+                                src={selectedCompany.profilePicture}
+                                alt={selectedCompany.companyname}
+                                className="w-24 h-24 object-cover rounded-lg"
+                            />
+                            <div>
+                                <h2 className="text-2xl font-bold">{selectedCompany.companyname}</h2>
+                                <p>Email: {selectedCompany.companyemail}</p>
+                                <p>Phone: {selectedCompany.phone}</p>
+                            </div>
+                        </div>
+                        <Map location={selectedCompany.location} profilePicture={"/logo.jpeg"} companyName={selectedCompany.companyname} />
+                    </div>
                 </div>
-            </footer>
+            )}
         </>
     );
-
 };
 
 export default RegisteredCompanies;
