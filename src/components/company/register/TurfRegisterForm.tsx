@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import "react-calendar/dist/Calendar.css";
 import dynamic from "next/dynamic";
@@ -30,9 +30,10 @@ interface TurfRegisterFormProps {
     onSubmit: (data: TurfRegisterFormData) => void;
     handleLocationRequest: () => void;
     MapValidate: Marker | null;
+    MapIsSelected: boolean;
 }
 
-const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLocationRequest, MapValidate }) => {
+const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLocationRequest, MapValidate, MapIsSelected }) => {
     const {
         register,
         handleSubmit,
@@ -57,6 +58,12 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
             location: null
         },
     });
+    useEffect(() => {
+        // Clear location error when MapValidate becomes true
+        if (MapIsSelected) {
+            clearErrors("location");
+        }
+    }, [MapIsSelected]);
 
     const selectedFacilities = watch("selectedFacilities");
     const workingDays = watch("workingDays");
@@ -87,35 +94,40 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
         }
     };
 
+    // console.log("MapValidate:", MapValidate, "MapIsSelected:", MapIsSelected);
 
     const handleFormSubmit = (data: any) => {
         try {
-            // Check if no images are selected
-            console.log("MapValidate val:", MapValidate);
+            clearErrors("location"); // Clear location errors at the start
 
             if (!data.images || data.images.length === 0) {
                 setError("images", { type: "manual", message: "Please upload at least one turf image" });
-            } else if (!data.workingDays || data.workingDays.length === 0) {
-                setError("workingDays", { type: "manual", message: "Select Atleast One working day !" })
-            } else if (!data.selectedFacilities || data.selectedFacilities.length === 0) {
-                setError("selectedFacilities", { type: "manual", message: "Select Atleast One Facility !" })
+                return;
             }
-            //  else if (!MapValidate) {
-            //     setError("location", { type: "manual", message: "Provide Turf Location !" })
 
-            // }
-            else {
-                if (!MapValidate) {
-                    setError("location", { type: "manual", message: "Provide Turf Location !" })
-                    return
-                }
-                clearErrors("location")
-                onSubmit(data); // If images are selected, submit the form
+            if (!data.workingDays || data.workingDays.length === 0) {
+                setError("workingDays", { type: "manual", message: "Select at least one working day!" });
+                return;
+            }
+
+            if (!data.selectedFacilities || data.selectedFacilities.length === 0) {
+                setError("selectedFacilities", { type: "manual", message: "Select at least one facility!" });
+                return;
+            }
+
+            if (MapValidate) {
+                // console.log("Map is valid and location is selected:", MapValidate);
+                clearErrors("location");
+                onSubmit(data); // Pass data to parent
+            } else {
+                // console.log("Map is not valid or location not selected");
+                setError("location", { type: "manual", message: "Provide turf location!" });
             }
         } catch (error) {
-            console.log("Error While Submitting from the Turf Form :", error);
+            console.error("Error while submitting the form:", error);
         }
     };
+
 
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-6">

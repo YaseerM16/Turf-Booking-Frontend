@@ -38,32 +38,41 @@ const TurfRegister: React.FC = () => {
         clearErrors("location");
     };
 
+
     const handleCloseMap = () => {
         setShowMap(false);
         setIsLocationSelected(false); // Reset location selection state when closing the map
     };
+
+    const handleMapInteraction = (locationData: any) => {
+        if (locationData) {
+            setIsLocationSelected(true);
+        } else {
+            setIsLocationSelected(false);
+        }
+    };
     ///register-turf
     const handleFormSubmit = async (data: any) => {
-        console.log(data);
-        console.log("Locationdate :", location);
 
         // Handle form submission logic here, e.g., API call
         try {
+            const formDataWithLocation = {
+                ...data,
+                location: {
+                    latitude: location?.latitude,
+                    longitude: location?.longitude,
+                },
+            };
+            console.log("Full Form :-", formDataWithLocation);
 
+            // console.log("From is Submitting in TurfRegister :", data);
 
-            if (!location) {
-                toast.error("Please Set the Location :")
-                setError("location", { type: "manual", message: "Please select a location on the map." });
-                return;
-            }
+            // if (!location) {
+            //     toast.error("Please Set the Location :")
+            //     setError("location", { type: "manual", message: "Please select a location on the map." });
+            //     return;
+            // }
             // setLoading(true);
-            // const formDataWithLocation = {
-            //     ...data,
-            //     location: {
-            //         latitude: location.latitude,
-            //         longitude: location.longitude,
-            //     },
-            // };
             // const { data } = await axiosInstance.post(
             //     "/api/v1/company/auth/register",
 
@@ -99,7 +108,11 @@ const TurfRegister: React.FC = () => {
                     <h1 className="text-2xl lg:text-3xl font-bold text-center mb-4 lg:mb-6 text-green-800">
                         REGISTER TURF
                     </h1>
-                    <TurfRegisterForm onSubmit={handleFormSubmit} handleLocationRequest={handleLocationRequest} MapValidate={location}
+                    <TurfRegisterForm
+                        onSubmit={handleFormSubmit}
+                        handleLocationRequest={handleLocationRequest}
+                        MapValidate={location}
+                        MapIsSelected={isLocationSelected}
                     />
                 </div>
 
