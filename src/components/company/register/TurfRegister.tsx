@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TurfRegisterForm from "./TurfRegisterForm";
 import { toast, ToastContainer } from "react-toastify";
 import { useForm } from "react-hook-form";
@@ -9,8 +9,18 @@ import { axiosInstance } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
+import Spinner from "@/components/Spinner";
+import FireLoading from "@/components/FireLoading";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setCompany } from "@/store/slices/CompanySlice";
 
-const Map = dynamic(() => import("@/components/map/Map"), { ssr: false });
+
+
+const Map = dynamic(() => import("@/components/map/Map"), {
+    ssr: false, loading: () => (<div className="mb-4" style={{ marginBottom: 100 }}>
+        <FireLoading />
+    </div>)
+});
 
 
 
@@ -20,79 +30,99 @@ interface Marker {
 }
 
 const TurfRegister: React.FC = () => {
-    const [showMap, setShowMap] = useState(false);
+    const company = useAppSelector((state) => state.companies);
+    const companyId: any = company.company?._id
+    const dispatch = useAppDispatch()
+    console.log("Company Id :", companyId);
+    useEffect(() => {
+        const storedCompany = localStorage.getItem("companyAuth");
+        if (storedCompany) {
+            dispatch(setCompany(JSON.parse(storedCompany)));
+        }
+    }, [dispatch]);
     const router = useRouter()
+    const [showMap, setShowMap] = useState(false);
+    const [loading, setLoading] = useState(false)
     const [location, setLocation] = useState<Marker | null>(null); // Track selected location
     const [isLocationSelected, setIsLocationSelected] = useState(false);
+
+
     const handleLocationRequest = () => {
         toast.info("Please enable location services for a more precise location.");
         setShowMap(true);
     };
-    const { register, handleSubmit, watch, formState: { errors }, setError, clearErrors } = useForm();
+    const { clearErrors } = useForm();
 
 
     const handlePinLocation = (pinnedLocation: Marker) => {
         setLocation(pinnedLocation);
-        setIsLocationSelected(true); // Mark location as selected
+        setIsLocationSelected(true);
         toast.success("Location pinned successfully!");
         clearErrors("location");
     };
 
-
     const handleCloseMap = () => {
         setShowMap(false);
-        setIsLocationSelected(false); // Reset location selection state when closing the map
+        localStorage.removeItem("USER_MARKER")
+        setIsLocationSelected(false);
     };
 
-    const handleMapInteraction = (locationData: any) => {
-        if (locationData) {
-            setIsLocationSelected(true);
-        } else {
-            setIsLocationSelected(false);
-        }
-    };
-    ///register-turf
-    const handleFormSubmit = async (data: any) => {
-
-        // Handle form submission logic here, e.g., API call
+    const handleFormSubmit = async (formSubmitted: any) => {
         try {
-            const formDataWithLocation = {
-                ...data,
-                location: {
-                    latitude: location?.latitude,
-                    longitude: location?.longitude,
+            console.log("formSubmitted : ", formSubmitted);
+
+            const formData = new FormData();
+
+            // Append files (images) to FormData
+            if (formSubmitted.images && formSubmitted.images.length > 0) {
+                formSubmitted.images.forEach((file: File, index: number) => {
+                    formData.append(`TurfImages`, file); // Backend should handle multiple files under 'TurfImages'
+                });
+            }
+
+            // Append other form fields to FormData
+            formData.append("location", JSON.stringify({
+                latitude: location?.latitude,
+                longitude: location?.longitude,
+            }));
+            formData.append("turfName", formSubmitted.turfName);
+            formData.append("price", formSubmitted.price);
+            formData.append("turfSize", formSubmitted.turfSize);
+            formData.append("turfType", formSubmitted.turfType);
+            formData.append("workingDays", JSON.stringify(formSubmitted.workingDays));
+            formData.append("selectedFacilities", JSON.stringify(formSubmitted.selectedFacilities));
+            formData.append("fromTime", formSubmitted.fromTime);
+            formData.append("toTime", formSubmitted.toTime);
+            formData.append("description", formSubmitted.description);
+            formData.append("games", formSubmitted.selectedGames)
+            formData.append("companyId", companyId);
+
+            console.log("FormData to Submit:", formData);
+
+            setLoading(true);
+
+            const { data } = await axiosInstance.post("/api/v1/company/register-turf", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
                 },
-            };
-            console.log("Full Form :-", formDataWithLocation);
+            });
 
-            // console.log("From is Submitting in TurfRegister :", data);
+            console.log("Response Data:", data);
 
-            // if (!location) {
-            //     toast.error("Please Set the Location :")
-            //     setError("location", { type: "manual", message: "Please select a location on the map." });
-            //     return;
-            // }
-            // setLoading(true);
-            // const { data } = await axiosInstance.post(
-            //     "/api/v1/company/auth/register",
-
-            // );
-            // Debugging line
-            // if (data?.success) {
-            //     // setLoading(false);
-            //     toast.success("Verification email sent successfully!", {
-            //         onClose: () => router.replace(`/checkmail?type=verify`),
-            //     });
-            // }
-
+            if (data?.success) {
+                setLoading(false);
+                toast.success("Verification email sent successfully!", {
+                    onClose: () => router.replace(`/checkmail?type=verify`),
+                });
+            }
         } catch (err: any) {
-            console.log("Error While Register Company :", err);
-
-            console.error('SignUpAPI error:', err); // Debugging line
-            // setLoading(false);
-            toast.error(err.response.data.error);
+            console.error("Error While Register Company:", err);
+            toast.error(err.response?.data?.error || "Something went wrong!");
+        } finally {
+            setLoading(false);
         }
     };
+
 
 
 
@@ -104,16 +134,20 @@ const TurfRegister: React.FC = () => {
                 className="h-screen w-full bg-cover bg-center bg-no-repeat flex justify-center items-center overflow-auto"
                 style={{ backgroundImage: `url('/turf-background-image.jpg')` }}
             >
-                <div className="bg-green-200 bg-opacity-60 backdrop-blur-lg shadow-xl rounded-lg p-3 w-full max-w-7xl h-full max-h-[90vh] overflow-y-auto lg:px-8 lg:py-10">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-center mb-4 lg:mb-6 text-green-800">
+                <div className="bg-green-200 bg-opacity-60 backdrop-blur-lg shadow-xl rounded-lg w-full max-w-7xl h-full max-h-[90vh] overflow-y-auto lg:px-8 lg:py-10">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-center lg:mb-6 text-green-800">
                         REGISTER TURF
                     </h1>
-                    <TurfRegisterForm
-                        onSubmit={handleFormSubmit}
-                        handleLocationRequest={handleLocationRequest}
-                        MapValidate={location}
-                        MapIsSelected={isLocationSelected}
-                    />
+                    {loading ?
+                        <FireLoading />
+                        : <TurfRegisterForm
+                            onSubmit={handleFormSubmit}
+                            handleLocationRequest={handleLocationRequest}
+                            MapValidate={location}
+                            MapIsSelected={isLocationSelected}
+                        />
+                    }
+
                 </div>
 
                 {showMap && (
@@ -142,13 +176,3 @@ const TurfRegister: React.FC = () => {
 export default TurfRegister;
 
 
-//Spinner
-// <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
-//     <div className="relative flex justify-center items-center h-32 w-32">
-//         <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-600 border-solid"></div>
-//         <div className="absolute bg-gradient-to-r from-green-500 to-green-700 rounded-full h-20 w-20 flex justify-center items-center">
-//             <span className="text-white text-lg font-semibold">Turf</span>
-//         </div>
-//     </div>
-//     <p className="mt-4 text-green-800 text-lg font-medium">Registering your turf...</p>
-// </div>

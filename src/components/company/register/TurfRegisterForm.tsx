@@ -5,6 +5,8 @@ import { useForm, Controller } from "react-hook-form";
 import "react-calendar/dist/Calendar.css";
 import dynamic from "next/dynamic";
 import "react-toastify/dist/ReactToastify.css";
+import { FaTrash } from 'react-icons/fa';
+
 
 
 const Calendar = dynamic(() => import("react-calendar"), { ssr: false });
@@ -23,6 +25,7 @@ interface TurfRegisterFormData {
     fromTime: string;
     toTime: string;
     selectedFacilities: string[];
+    selectedGames: string[];
     location: Marker | null;
 }
 
@@ -55,6 +58,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
             fromTime: "",
             toTime: "",
             selectedFacilities: [],
+            selectedGames: [],
             location: null
         },
     });
@@ -66,6 +70,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
     }, [MapIsSelected]);
 
     const selectedFacilities = watch("selectedFacilities");
+    const selectedGames = watch("selectedGames");
     const workingDays = watch("workingDays");
 
     const handleFacilityToggle = (facility: string) => {
@@ -75,6 +80,14 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
 
         clearErrors("selectedFacilities")
         setValue("selectedFacilities", updatedFacilities);
+    };
+    const handleGameToggle = (game: string) => {
+        const updatedGames = selectedGames.includes(game)
+            ? selectedGames.filter((f) => f !== game)
+            : [...selectedGames, game];
+
+        clearErrors("selectedGames")
+        setValue("selectedGames", updatedGames);
     };
 
     const handleDayToggle = (day: string) => {
@@ -86,12 +99,32 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
         setValue("workingDays", updatedDays);
     };
 
+
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
-            clearErrors("images")
-            const files = Array.from(event.target.files);
-            setValue("images", files); // Update the form state manually
+            clearErrors("images");
+            const newFiles = Array.from(event.target.files);
+
+            // Get the existing files from the state
+            const currentImages = watch("images") || [];
+
+            // Combine the current files with the new ones, ensuring no duplicates
+            const updatedImages = [...currentImages, ...newFiles];
+
+            // Update the form state with the combined file list
+            setValue("images", updatedImages);
         }
+    };
+
+    const handleDeleteImage = (index: number) => {
+        // Get the current list of images
+        const currentImages = watch("images") || [];
+
+        // Remove the deleted image
+        const updatedImages = currentImages.filter((_: File, i: number) => i !== index);
+
+        // Update the form state with the new images list
+        setValue("images", updatedImages);
     };
 
     // console.log("MapValidate:", MapValidate, "MapIsSelected:", MapIsSelected);
@@ -112,6 +145,11 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
 
             if (!data.selectedFacilities || data.selectedFacilities.length === 0) {
                 setError("selectedFacilities", { type: "manual", message: "Select at least one facility!" });
+                return;
+            }
+
+            if (!data.selectedGames || data.selectedGames.length === 0) {
+                setError("selectedGames", { type: "manual", message: "Select at least one supported game!" });
                 return;
             }
 
@@ -214,7 +252,27 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                         />
                         {errors.images && <p className="text-red-500 text-lg mt-2">{errors.images.message}</p>}
                     </div>
+                    {/* Preview images */}
+                    <div className="mt-4 flex flex-wrap">
+                        {Array.from(watch("images") || []).map((file: File, index: number) => (
+                            <div key={index} className="relative inline-block mr-4 mb-2">
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={`Preview ${index}`}
+                                    className="w-24 h-24 object-cover rounded-lg"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => handleDeleteImage(index)}
+                                    className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
 
                 <div className="p-4 rounded-lg shadow-lg bg-white">
                     <h2 className="text-xl font-semibold text-green-800 mb-4">Facilities</h2>
@@ -231,7 +289,20 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                         ))}
                     </div>
                     {errors.selectedFacilities && <p className="text-red-500 text-lg mt-2">{errors.selectedFacilities.message}</p>}
-
+                </div>
+                <div className="flex flex-col space-y-6">
+                    <div className="p-4 rounded-lg shadow-lg bg-white">
+                        <h2 className="text-xl font-semibold text-green-800 mb-4">Location</h2>
+                        <button
+                            type="button"
+                            onClick={handleLocationRequest}
+                            className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
+                        >
+                            Select Location
+                        </button>
+                        {errors.location && <p className="text-red-500 text-lg mt-2">{errors.location.message}</p>}
+                        {MapValidate && <p className="text-green-500 text-lg mt-2">Location Selected</p>}
+                    </div>
                 </div>
 
             </div>
@@ -279,18 +350,39 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
 
                     </div>
                 </div>
-                <div className="flex flex-col space-y-6">
-                    <div className="p-4 rounded-lg shadow-lg bg-white">
-                        <h2 className="text-xl font-semibold text-green-800 mb-4">Location</h2>
-                        <button
-                            type="button"
-                            onClick={handleLocationRequest}
-                            className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
-                        >
-                            Select Location
-                        </button>
-                        {errors.location && <p className="text-red-500 text-lg mt-2">{errors.location.message}</p>}
+
+                {/* Supported Games Section */}
+                <div className="p-4 rounded-lg shadow-lg bg-white">
+                    <h2 className="text-xl font-semibold text-green-800 mb-4">Supported Games</h2>
+                    <div className="flex flex-wrap gap-4">
+                        {[
+                            "Cricket",
+                            "Football",
+                            "Multi-purpose",
+                            "Basketball",
+                            "Tennis",
+                            "Badminton",
+                            "Hockey",
+                            "Volleyball",
+                        ].map((game) => (
+                            <button
+                                key={game}
+                                type="button"
+                                className={`px-4 py-2 rounded-lg font-bold text-sm ${selectedGames.includes(game)
+                                    ? "bg-green-600 text-white"
+                                    : "bg-gray-300 text-green-800"
+                                    }`}
+                                onClick={() => handleGameToggle(game)}
+                            >
+                                {game}
+                            </button>
+                        ))}
                     </div>
+                    {errors.selectedGames && (
+                        <p className="text-red-500 text-lg mt-2">
+                            {errors.selectedGames.message}
+                        </p>
+                    )}
                 </div>
             </div>
             <div className="flex justify-center items-center col-span-full">
