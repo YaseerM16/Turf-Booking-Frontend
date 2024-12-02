@@ -30,6 +30,9 @@ const UserManagement: React.FC = () => {
                 `/api/v1/admin/get-users?page=${page}&limit=${usersPerPage}&searchQry=${searchQuery}`
             );
 
+            console.log("res Data :", data);
+
+
             if (data?.success) {
                 setUsers(data.users);
                 setTotalUsers(data.totalUsers);
