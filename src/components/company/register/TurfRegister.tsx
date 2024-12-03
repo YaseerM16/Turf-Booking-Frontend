@@ -13,12 +13,15 @@ import Spinner from "@/components/Spinner";
 import FireLoading from "@/components/FireLoading";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setCompany } from "@/store/slices/CompanySlice";
+import Header from "../CompanyHeader";
+import Sidebar from "../CompanySidebar";
+
 
 
 
 const Map = dynamic(() => import("@/components/map/Map"), {
     ssr: false, loading: () => (<div className="mb-4" style={{ marginBottom: 100 }}>
-        <FireLoading />
+        <FireLoading renders={"Loading Map"} />
     </div>)
 });
 
@@ -111,8 +114,8 @@ const TurfRegister: React.FC = () => {
 
             if (data?.success) {
                 setLoading(false);
-                toast.success("Verification email sent successfully!", {
-                    onClose: () => router.replace(`/checkmail?type=verify`),
+                toast.success("Turf Registered successfully!", {
+                    onClose: () => router.replace("/company/turf-management"),
                 });
             }
         } catch (err: any) {
@@ -125,51 +128,56 @@ const TurfRegister: React.FC = () => {
 
 
 
-
-
     return (
         <>
             <ToastContainer position="top-center" autoClose={1000} hideProgressBar={true} />
-            <div
-                className="h-screen w-full bg-cover bg-center bg-no-repeat flex justify-center items-center overflow-auto"
-                style={{ backgroundImage: `url('/turf-background-image.jpg')` }}
-            >
-                <div className="bg-green-200 bg-opacity-60 backdrop-blur-lg shadow-xl rounded-lg w-full max-w-7xl h-full max-h-[90vh] overflow-y-auto lg:px-8 lg:py-10">
-                    <h1 className="text-2xl lg:text-3xl font-bold text-center lg:mb-6 text-green-800">
-                        REGISTER TURF
-                    </h1>
-                    {loading ?
-                        <FireLoading />
-                        : <TurfRegisterForm
-                            onSubmit={handleFormSubmit}
-                            handleLocationRequest={handleLocationRequest}
-                            MapValidate={location}
-                            MapIsSelected={isLocationSelected}
-                        />
-                    }
+            <div className="flex h-screen">
+                {/* Sidebar */}
+                <Sidebar />
 
-                </div>
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col">
+                    <Header />
+                    <div
+                        className="h-screen w-full bg-cover bg-center bg-no-repeat flex justify-center items-center overflow-auto m-0 pt-0"
+                        style={{ backgroundImage: `url('/turf-background-image.jpg')` }}
+                    >
+                        <div className="bg-green-200 bg-opacity-60 backdrop-blur-lg shadow-xl rounded-lg w-full max-w-7xl h-full max-h-[90vh] overflow-y-auto lg:px-8 lg:py-10">
+                            <h1 className="text-2xl lg:text-3xl font-bold text-center lg:mb-6 text-green-800">
+                                REGISTER TURF
+                            </h1>
+                            {loading ?
+                                <FireLoading renders={"Registering Turf"} />
+                                : <TurfRegisterForm
+                                    onSubmit={handleFormSubmit}
+                                    handleLocationRequest={handleLocationRequest}
+                                    MapValidate={location}
+                                    MapIsSelected={isLocationSelected}
+                                />
+                            }
 
-                {showMap && (
-                    <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center p-4">
-                        <div className="relative w-full h-[50%] md:h-[60%] lg:h-[70%] max-w-full md:max-w-3xl rounded-md shadow-lg overflow-hidden">
-                            <Map onPinLocation={handlePinLocation} />
-
-                            {/* Button Controls */}
-                            <div className="absolute bottom-4 left-4 space-x-2 md:space-x-4">
-                                <button
-                                    onClick={handleCloseMap}
-                                    className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md hover:bg-red-600 text-sm md:text-base"
-                                >
-                                    Close Map
-                                </button>
-                            </div>
                         </div>
+                        {showMap && (
+                            <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center p-4">
+                                <div className="relative w-full h-[50%] md:h-[60%] lg:h-[70%] max-w-full md:max-w-3xl rounded-md shadow-lg overflow-hidden">
+                                    <Map onPinLocation={handlePinLocation} />
+
+                                    {/* Button Controls */}
+                                    <div className="absolute bottom-4 left-4 space-x-2 md:space-x-4">
+                                        <button
+                                            onClick={handleCloseMap}
+                                            className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md hover:bg-red-600 text-sm md:text-base"
+                                        >
+                                            Close Map
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                )}
+                </div>
             </div>
         </>
-
     );
 };
 
