@@ -9,6 +9,7 @@ import Spinner from "../Spinner";
 import { axiosInstance } from "@/utils/constants";
 // import { setCompany } from "@/store/slices/CompanySlice";
 import { useAppDispatch } from "@/store/hooks";
+import { setCompany } from "@/store/slices/CompanySlice";
 
 type Inputs = {
     email: string;
@@ -34,18 +35,14 @@ const CompanyLoginForm: React.FC = () => {
             );
 
             if (data?.loggedIn) {
-                const company = {
-                    _id: data?.company?._id,
-                    name: data?.company?.name,
-                    email: data?.company?.email,
-                    phone: data?.company?.phone,
-                    logo: data?.company?.logo,
-                };
-                localStorage.setItem("companyAuth", JSON.stringify(company));
-                // dispatch(setCompany(data.company));
-                toast.success("Logged In successfully!");
+                console.log("response CompnayLogin :", data);
+                localStorage.setItem("companyAuth", JSON.stringify(data.company));
+                dispatch(setCompany(data.company));
                 setLoading(false);
-                router.replace("/company-dashboard");
+                toast.success("Logged In successfully!", {
+                    onClose: () => router.replace("/company/dashboard")
+                });
+
             } else {
                 toast.error(data?.message || "Login failed. Please try again.");
                 setLoading(false);
@@ -61,7 +58,7 @@ const CompanyLoginForm: React.FC = () => {
         <>
             <ToastContainer
                 position="top-center"
-                autoClose={5000}
+                autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick

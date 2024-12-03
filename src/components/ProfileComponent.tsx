@@ -181,10 +181,11 @@ const ProfileComponent: React.FC = () => {
                                     <input
                                         type="email"
                                         value={user?.email || ""}
-                                        className="w-full px-4 py-2 text-center bg-white border border-gray-300 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-green-500"
+                                        className="w-full px-4 py-2 text-center bg-gray-100 text-gray-600 border border-gray-300 rounded-md shadow focus:outline-none cursor-not-allowed"
                                         readOnly
                                     />
                                 </div>
+
                                 {/* Phone */}
                                 <div className="text-center p-4 bg-green-50 rounded-lg shadow-md border border-green-300">
                                     <label className="block text-sm font-bold text-green-800 mb-2">
