@@ -5,6 +5,8 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./SideBar";
 import Swal from 'sweetalert2';
+import Pagination from "../Pagination";
+Pagination
 
 Sidebar
 
@@ -192,28 +194,11 @@ const UserManagement: React.FC = () => {
                             </table>)}
 
 
-                            {/* Pagination controls */}
-                            <div className="flex justify-between items-center mt-4">
-                                <button
-                                    onClick={() => handlePageChange(currentPage - 1)}
-                                    disabled={currentPage === 1}
-                                    className="bg-green-700 text-white px-4 py-2 rounded-md font-medium disabled:bg-gray-400"
-                                >
-                                    Previous
-                                </button>
-
-                                <span className="text-gray-700 font-semibold">
-                                    Page {currentPage} of {totalPages}
-                                </span>
-
-                                <button
-                                    onClick={() => handlePageChange(currentPage + 1)}
-                                    disabled={currentPage === totalPages}
-                                    className="bg-green-700 text-white px-4 py-2 rounded-md font-medium disabled:bg-gray-400"
-                                >
-                                    Next
-                                </button>
-                            </div>
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={handlePageChange}
+                            />
                         </div>
                     </main>
                 </div>

@@ -14,8 +14,6 @@ const companySlice = createSlice({
     initialState,
     reducers: {
         setCompany: (state, action: PayloadAction<CompanyData['company']>) => {
-            console.log("stated company");
-
             state.company = action.payload
         },
         logout: (state) => {

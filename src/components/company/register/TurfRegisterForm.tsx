@@ -63,7 +63,6 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
         },
     });
     useEffect(() => {
-        // Clear location error when MapValidate becomes true
         if (MapIsSelected) {
             clearErrors("location");
         }
@@ -105,29 +104,19 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
             clearErrors("images");
             const newFiles = Array.from(event.target.files);
 
-            // Get the existing files from the state
             const currentImages = watch("images") || [];
 
-            // Combine the current files with the new ones, ensuring no duplicates
             const updatedImages = [...currentImages, ...newFiles];
 
-            // Update the form state with the combined file list
             setValue("images", updatedImages);
         }
     };
 
     const handleDeleteImage = (index: number) => {
-        // Get the current list of images
         const currentImages = watch("images") || [];
-
-        // Remove the deleted image
         const updatedImages = currentImages.filter((_: File, i: number) => i !== index);
-
-        // Update the form state with the new images list
         setValue("images", updatedImages);
     };
-
-    // console.log("MapValidate:", MapValidate, "MapIsSelected:", MapIsSelected);
 
     const handleFormSubmit = (data: any) => {
         try {
@@ -154,11 +143,9 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
             }
 
             if (MapValidate) {
-                // console.log("Map is valid and location is selected:", MapValidate);
                 clearErrors("location");
-                onSubmit(data); // Pass data to parent
+                onSubmit(data);
             } else {
-                // console.log("Map is not valid or location not selected");
                 setError("location", { type: "manual", message: "Provide turf location!" });
             }
         } catch (error) {
@@ -186,7 +173,11 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                         <label className="block text-sm font-semibold text-green-900 mb-2">Description</label>
                         <textarea
                             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-green-400"
-                            {...register("description", { required: "Description is required" })}
+                            {...register("description", {
+                                required: "Description is required",
+                                minLength: { value: 10, message: "Description must be at least 10 characters" },
+                                maxLength: { value: 500, message: "Description must be at most 500 characters" }
+                            })}
                         />
                         {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
                     </div>
@@ -226,13 +217,27 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm font-semibold text-green-900 mb-2">Price</label>
+                        <label className="block text-sm font-semibold text-green-900 mb-2">Price Per Hour</label>
                         <input
                             type="number"
                             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-green-400"
                             {...register("price", { required: "Price is required" })}
                         />
                         {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
+                    </div>
+                    <div className="flex flex-col space-y-6">
+                        <div className="p-4 rounded-lg shadow-lg bg-white">
+                            <h2 className="text-xl font-semibold text-green-800 mb-4">Location</h2>
+                            <button
+                                type="button"
+                                onClick={handleLocationRequest}
+                                className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
+                            >
+                                Select Location
+                            </button>
+                            {errors.location && <p className="text-red-500 text-lg mt-2">{errors.location.message}</p>}
+                            {MapValidate && <p className="text-green-500 text-lg mt-2">Location Selected</p>}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -241,6 +246,25 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
             <div className="space-y-6">
                 <div className="p-4 rounded-lg shadow-lg bg-white">
                     <h2 className="text-xl font-semibold text-green-800 mb-4">Facilities</h2>
+                    <div className="flex flex-wrap gap-4">
+                        {["Lighting", "Seating", "Changing Rooms", "Washrooms", "Parking", "Refreshment Kiosk", "Wi-Fi", "Coaching", "Equipment Rentals", "Rest Areas"].map((facility) => (
+                            <button
+                                key={facility}
+                                type="button"
+                                className={`px-4 py-2 rounded-lg font-bold text-sm ${selectedFacilities.includes(facility) ? "bg-green-600 text-white" : "bg-gray-300 text-green-800"}`}
+                                onClick={() => handleFacilityToggle(facility)}
+                            >
+                                {facility}
+                            </button>
+                        ))}
+                    </div>
+                    {errors.selectedFacilities && <p className="text-red-500 text-lg mt-2">{errors.selectedFacilities.message}</p>}
+                </div>
+                <div className="p-4 rounded-lg shadow-lg bg-white">
+
+
+                    {/* Image */}
+                    <h2 className="text-xl font-semibold text-green-800 mb-4">Images</h2>
                     <div className="mb-4">
                         <label htmlFor="turfImages" className="block text-sm font-semibold text-green-900 mb-2">Turf Images</label>
                         <input
@@ -272,39 +296,6 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                         ))}
                     </div>
                 </div>
-
-
-                <div className="p-4 rounded-lg shadow-lg bg-white">
-                    <h2 className="text-xl font-semibold text-green-800 mb-4">Facilities</h2>
-                    <div className="flex flex-wrap gap-4">
-                        {["Lighting", "Seating", "Changing Rooms", "Washrooms", "Parking", "Refreshment Kiosk", "Wi-Fi", "Coaching", "Equipment Rentals", "Rest Areas"].map((facility) => (
-                            <button
-                                key={facility}
-                                type="button"
-                                className={`px-4 py-2 rounded-lg font-bold text-sm ${selectedFacilities.includes(facility) ? "bg-green-600 text-white" : "bg-gray-300 text-green-800"}`}
-                                onClick={() => handleFacilityToggle(facility)}
-                            >
-                                {facility}
-                            </button>
-                        ))}
-                    </div>
-                    {errors.selectedFacilities && <p className="text-red-500 text-lg mt-2">{errors.selectedFacilities.message}</p>}
-                </div>
-                <div className="flex flex-col space-y-6">
-                    <div className="p-4 rounded-lg shadow-lg bg-white">
-                        <h2 className="text-xl font-semibold text-green-800 mb-4">Location</h2>
-                        <button
-                            type="button"
-                            onClick={handleLocationRequest}
-                            className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
-                        >
-                            Select Location
-                        </button>
-                        {errors.location && <p className="text-red-500 text-lg mt-2">{errors.location.message}</p>}
-                        {MapValidate && <p className="text-green-500 text-lg mt-2">Location Selected</p>}
-                    </div>
-                </div>
-
             </div>
 
             {/* Right Column (Working Slots) */}
@@ -393,7 +384,6 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                     Register Turf
                 </button>
             </div>
-
         </form>
     );
 };
