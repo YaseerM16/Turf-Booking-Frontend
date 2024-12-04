@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from "next/navigation";
+import { axiosInstance } from '@/utils/constants';
+import TurfDetailsForm from '@/components/company/management/turf-management/TurfDetailsForm';
+import TurfDetailsPage from '@/components/company/management/turf-management/TurfDetailsPage';
 
 
 export default function TurfDetails() {
@@ -11,22 +14,62 @@ export default function TurfDetails() {
     const params = useParams();
     const turfId = params?.turfId;
 
-    useEffect(() => {
-        if (turfId) { // Ensure `turfId` is defined /get-turf-details
-            // Fetch turf details from API
-            console.log("Turf Id :", turfId);
+    // useEffect(() => {
+    // if (turfId) { // Ensure `turfId` is defined /get-turf-details
+    // Fetch turf details from API
+    // console.log("Turf Id :", turfId);
 
-            // fetch(`/api/turfs/${turfId}`) // Replace with your actual API endpoint
-            //     .then((res) => res.json())
-            //     .then((data) => {
-            //         setTurf(data);
-            //         setLoading(false);
-            //     })
-            //     .catch((err) => {
-            //         console.error(err);
-            //         setLoading(false);
-            //     });
+    // fetch(`/api/turfs/${turfId}`) // Replace with your actual API endpoint
+    //     .then((res) => res.json())
+    //     .then((data) => {
+    //         setTurf(data);
+    //         setLoading(false);
+    //     })
+    //     .catch((err) => {
+    //         console.error(err);
+    //         setLoading(false);
+    //     });
+    // try {
+    //     setLoading(true);
+    //     const { data } = await axiosInstance.get(
+    //         `/api/v1/company/get-turfs?companyId=${company?._id}`
+    //     );
+
+    //     if (data?.success) {
+    //         setTurfs(data.turfs);
+    //         setLoading(false)
+    //     }
+
+    // } catch (error) {
+    //     console.error("Error fetching Turfs [] data:", error);
+    // } finally {
+    //     setLoading(false);
+    // }
+    // }
+    // }, [turfId]);
+
+    async function fetchTurfs(turfId: any) {
+        try {
+            setLoading(true);
+            const { data } = await axiosInstance.get(
+                `/api/v1/company/get-turf-details?turfId=${turfId}`
+            );
+            if (data?.success) {
+                const setTurfDets = { turf: data.turf }
+                setTurf(setTurfDets);
+                setLoading(false)
+            }
+
+        } catch (error) {
+            console.error("Error fetching Turfs [] data:", error);
+        } finally {
+            setLoading(false);
         }
+    };
+
+
+    useEffect(() => {
+        fetchTurfs(turfId);
     }, [turfId]);
 
     if (loading) {
@@ -39,10 +82,7 @@ export default function TurfDetails() {
 
     return (
         <div>
-            <h1>{turf.turfName}</h1>
-            <p>Size: {turf.turfSize}</p>
-            <p>Price: {turf.price}</p>
-            <p>Workings: {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}</p>
+            <TurfDetailsPage turf={turf} />
         </div>
     );
 }

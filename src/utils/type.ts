@@ -31,6 +31,37 @@ export type Company = {
     };
 };
 
+export type TurfDetails = {
+    companyId: string;
+    createdAt: string;
+    description: string;
+    facilities: string[]; // Array of strings
+    images: string[]; // Array of URLs (strings)
+    isActive: boolean;
+    isBlocked: boolean;
+    isDelete: boolean;
+    location: {
+        latitude: number;
+        longitude: number;
+    };
+    price: number;
+    turfName: string;
+    turfSize: string;
+    turfType: string;
+    updatedAt: string;
+    workingSlots: {
+        fromTime: string; // Time in HH:mm format
+        toTime: string; // Time in HH:mm format
+        workingDays: string[]; // Array of working days
+    };
+    __v: number;
+    _id: string;
+};
+
+export type TurfData = {
+    turf?: TurfDetails | null
+}
+
 export type CompanyData = {
     company?: Company | null
 }

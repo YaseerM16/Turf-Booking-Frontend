@@ -97,7 +97,7 @@ const TurfRegister: React.FC = () => {
             formData.append("fromTime", formSubmitted.fromTime);
             formData.append("toTime", formSubmitted.toTime);
             formData.append("description", formSubmitted.description);
-            formData.append("games", formSubmitted.selectedGames)
+            formData.append("games", JSON.stringify(formSubmitted.selectedGames))
             formData.append("companyId", companyId);
 
             console.log("FormData to Submit:", formData);
@@ -114,9 +114,9 @@ const TurfRegister: React.FC = () => {
 
             if (data?.success) {
                 setLoading(false);
-                toast.success("Turf Registered successfully!", {
-                    onClose: () => router.replace("/company/turf-management"),
-                });
+                toast.success("Turf Registered successfully!");
+                setTimeout(() => router.replace("/company/turf-management"), 1500);
+
             }
         } catch (err: any) {
             console.error("Error While Register Company:", err);
