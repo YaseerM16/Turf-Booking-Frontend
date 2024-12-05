@@ -36,6 +36,7 @@ export type TurfDetails = {
     createdAt: string;
     description: string;
     facilities: string[]; // Array of strings
+    supportedGames: string[]; // Array of strings
     images: string[]; // Array of URLs (strings)
     isActive: boolean;
     isBlocked: boolean;
