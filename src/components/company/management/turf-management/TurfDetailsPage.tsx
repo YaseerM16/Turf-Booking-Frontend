@@ -68,13 +68,6 @@ const TurfDetailsPage: React.FC<TurfDetailsProps> = ({ turf }) => {
     }, []);
 
 
-
-    // const [turfs, setTurfs] = useState([
-    //     { id: 1, size: "5v5", type: "Close Turf", price: 750, workingHours: "5 AM - 12 PM" },
-    //     { id: 2, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
-    //     { id: 3, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
-    // ]);
-
     const handleEdit = (id: number) => {
         console.log("Edit turf with ID:", id);
         // Logic to edit turf

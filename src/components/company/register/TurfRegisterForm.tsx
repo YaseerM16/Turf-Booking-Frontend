@@ -271,6 +271,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit, handleLoc
                             id="turfImages"
                             type="file"
                             multiple
+                            accept="image/*"
                             className="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-green-400"
                             onChange={handleImageUpload}
                         />
