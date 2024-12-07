@@ -4,7 +4,6 @@ import TurfRegisterForm from "./TurfRegisterForm";
 import { toast, ToastContainer } from "react-toastify";
 import { useForm } from "react-hook-form";
 import "react-toastify/dist/ReactToastify.css";
-// import Map from "@/components/map/Map";
 import { axiosInstance } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
@@ -24,7 +23,6 @@ const Map = dynamic(() => import("@/components/map/Map"), {
         <FireLoading renders={"Loading Map"} />
     </div>)
 });
-
 
 
 interface Marker {
@@ -72,7 +70,7 @@ const TurfRegister: React.FC = () => {
 
     const handleFormSubmit = async (formSubmitted: any) => {
         try {
-            console.log("formSubmitted : ", formSubmitted);
+            // console.log("formSubmitted : ", formSubmitted);
 
             const formData = new FormData();
 
@@ -83,10 +81,11 @@ const TurfRegister: React.FC = () => {
                 });
             }
 
+
             // Append other form fields to FormData
             formData.append("location", JSON.stringify({
-                latitude: location?.latitude,
-                longitude: location?.longitude,
+                latitude: formSubmitted.location?.latitude,
+                longitude: formSubmitted.location?.longitude,
             }));
             formData.append("turfName", formSubmitted.turfName);
             formData.append("price", formSubmitted.price);
@@ -100,8 +99,6 @@ const TurfRegister: React.FC = () => {
             formData.append("games", JSON.stringify(formSubmitted.selectedGames))
             formData.append("companyId", companyId);
 
-            console.log("FormData to Submit:", formData);
-
             setLoading(true);
 
             const { data } = await axiosInstance.post("/api/v1/company/register-turf", formData, {
@@ -110,13 +107,13 @@ const TurfRegister: React.FC = () => {
                 },
             });
 
-            console.log("Response Data:", data);
+            // console.log("Response Data:", data);
 
             if (data?.success) {
-                setLoading(false);
-                toast.success("Turf Registered successfully!");
-                setTimeout(() => router.replace("/company/turf-management"), 1500);
-
+                // setLoading(false);
+                // toast.success("Turf Registered successfully!");
+                // setTimeout(() => router.replace("/company/turf-management"), 1500);
+                return { success: true }
             }
         } catch (err: any) {
             console.error("Error While Register Company:", err);
@@ -130,7 +127,7 @@ const TurfRegister: React.FC = () => {
 
     return (
         <>
-            <ToastContainer position="top-center" autoClose={1000} hideProgressBar={true} />
+            <ToastContainer position="top-center" autoClose={3000} hideProgressBar={true} />
             <div className="flex h-screen">
                 {/* Sidebar */}
                 <Sidebar />

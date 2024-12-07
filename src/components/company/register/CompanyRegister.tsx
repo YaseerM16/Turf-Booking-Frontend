@@ -107,12 +107,12 @@ const CompanyRegistration: React.FC = () => {
             <ToastContainer position="top-center" autoClose={1000} hideProgressBar={true} />
             <div className="flex h-screen">
                 {/* Left Section */}
-                <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
-                    <div className="text-center pt-8">
+                <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center overflow-auto min-h-screen">
+                    <div className="text-center pt-12 mt-5">
                         <img
                             src="/logo.jpeg"
                             alt="Logo"
-                            className="h-16 mx-auto mb-4"
+                            className="h-16 mx-auto mb-4 mt-12"
                         />
                         <h2 className="text-xl font-medium text-gray-800">
                             Welcome to <span className="text-green-600">TURF</span>
@@ -218,7 +218,7 @@ const CompanyRegistration: React.FC = () => {
                             ) : (
                                 <button
                                     type="submit"
-                                    className="w-full bg-green-700 text-white py-3 rounded-md hover:bg-green-800"
+                                    className="w-full mb-5 bg-green-700 text-white py-3 rounded-md hover:bg-green-800"
                                 >
                                     Register
                                 </button>

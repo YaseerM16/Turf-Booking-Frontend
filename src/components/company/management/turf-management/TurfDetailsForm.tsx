@@ -1,3 +1,4 @@
+import Spinner from "@/components/Spinner";
 import { availableFacilities, availableGames, axiosInstance } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
 import React, { useState } from "react";
@@ -5,6 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 availableFacilities
 availableGames
+Spinner
 
 type TurfDetailsProps = {
     turf: TurfData; // Define the type for the props
@@ -39,7 +41,9 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     });
     const [isEditable, setIsEditable] = useState(false);
     const [turfDetails, setTurfDetails] = useState<TurfData>(turf);
+    const [loading, setLoading] = useState<boolean>(false)
     const [existingImages, setExistingImages] = useState<string[]>(turf.turf?.images || []);
+
 
     const handleEdit = () => {
         setIsEditable(!isEditable);
@@ -64,6 +68,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const handleDeleteExistingImage = async (index: number) => {
         try {
             console.log("INdex :", index);
+            setLoading(true)
             const formData = { turfId: turf.turf?._id, index }
 
             const { data } = await axiosInstance.patch("/api/v1/company/delete-turf-image", formData, {
@@ -76,10 +81,13 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
             console.log("Response Data:", data);
 
             if (data?.success) {
+                console.log("Result from delete Image :", data);
+
                 // setLoading(false);
                 // const updatedImages = existingImages.filter((_, i) => i !== index);
                 setExistingImages(data.images);
-                toast.success("Turf Registered successfully!");
+                setLoading(false)
+                toast.success("Turf Image Deleted successfully!");
                 // setTimeout(() => router.replace("/company/turf-management"), 1500);
             }
         } catch (error) {
@@ -110,7 +118,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
         setValue("supportedGames", updatedSupportives)
     };
 
-    const onSubmit = (data: TurfDetails) => {
+    const onSubmit = async (data: TurfDetails) => {
         setIsEditable(false);
         if (!data.facilities || data.facilities.length === 0) {
             setError("facilities", { type: "manual", message: "Select at least one facility!" });
@@ -126,9 +134,24 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
             return
         }
         console.log("new Images :", newImages);
-        console.log("Existing Images :", existingImages);
-
         clearErrors()
+        console.log("edited Form :-", data);
+        // "/api/v1/company/edit-turf"
+        // try {
+        //     const formData = new FormData()
+
+        //     const response = await axiosInstance.put("/api/v1/company/edit-turf", data, {
+        //         headers: {
+        //             "Content-Type": "multipart/form-data",
+        //         },
+        //         withCredentials: true
+        //     });
+
+        // } catch (error) {
+
+        // }
+
+
     };
 
     return (
@@ -297,6 +320,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
 
                             {/* Error display */}
                             {errors.images && <span className="text-red-500 text-sm">{errors.images.message}</span>}
+                            {loading ? <Spinner /> : ""}
 
                             {/* Existing Images */}
                             <div className="mt-4">

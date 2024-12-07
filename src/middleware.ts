@@ -22,7 +22,7 @@ export function middleware(req: NextRequest) {
     const publicRoutes = ["/login", "/signup", "/verifymail", "/checkmail", "/forgotpassword"];
     const userRoutes = ["/profile"];
     const companyPublic = ["/company/login", "/company/register"];
-    const companyProtected = ["/company/dashboard"];
+    const companyProtected = ["/company/dashboard", "/company/register-turf"];
     const adminPublic = ["/admin/login"];
     const adminProtected = ["/admin/dashboard"];
 
