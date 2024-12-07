@@ -1,23 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import Sidebar from "./SideBar";
 
 
 
 const AdminDashboard: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<string>("/dashboard");
 
     // Function to handle tab click and set active tab
-    const handleTabClick = (tab: string) => {
-        setActiveTab(tab);
-    };
     return (
         <div className="h-screen flex flex-col bg-gray-100">
             {/* Sidebar */}
             <div className="flex">
-                <Sidebar activeTab={activeTab} handleTabClick={handleTabClick} />
+                <Sidebar />
 
                 {/* Main Content */}
                 <main className="flex-1 p-8">
