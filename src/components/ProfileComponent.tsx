@@ -62,9 +62,19 @@ const ProfileComponent: React.FC = () => {
                     router.replace("/")
                 }
             }
-        } catch (error) {
-            console.error("Error updating profile:", error);
-            toast.error("Failed to update profile details.")
+        } catch (error: any) {
+            if (error.status === 403) {
+                toast.error(`${error.response.data.message}`)
+                const response: any = await axiosInstance.get("/api/v1/user/logout");
+                if (response.data.loggedOut) {
+                    dispatch(logout())
+                    localStorage.removeItem('auth');
+                    setLoading(false)
+                    toast.warn("you're Logging Out ...!", { onClose: () => router.replace("/") })
+                }
+            } else {
+                console.log("Error While Updating Details :", error);
+            }
         }
     };
 

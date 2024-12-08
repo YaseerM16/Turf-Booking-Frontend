@@ -14,15 +14,16 @@ const RegisteredCompanies: React.FC = () => {
     const [companies, setCompanies] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [searchQuery, setSearchQuery] = useState<string>("");
     const [totalPages, setTotalPages] = useState<number>(1);
     const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
     const companiesPerPage = 10;
 
-    const fetchUsers = async (page: number) => {
+    const fetchUsers = async (page: number, searchQry: string) => {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
-                `/api/v1/admin/get-registered-companies?page=${page}&limit=${companiesPerPage}`
+                `/api/v1/admin/get-registered-companies?page=${page}&limit=${companiesPerPage}&searchQry=${searchQry}`
             );
 
             if (data?.success) {
@@ -37,8 +38,8 @@ const RegisteredCompanies: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchUsers(currentPage);
-    }, [currentPage]);
+        fetchUsers(currentPage, searchQuery);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
@@ -65,7 +66,7 @@ const RegisteredCompanies: React.FC = () => {
 
                     if (data?.success) {
                         toast.success("Company approved successfully!", {
-                            onClose: () => fetchUsers(currentPage)
+                            onClose: () => fetchUsers(currentPage, searchQuery)
                         });
                     }
                 } catch (error) {
@@ -105,6 +106,19 @@ const RegisteredCompanies: React.FC = () => {
 
                     <main className="flex-1 overflow-auto mt-6 p-6">
                         <div className="bg-white shadow-md rounded-lg p-6">
+                            {/* Search Input */}
+                            <div className="mb-4">
+                                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                                    Search by Company Name or Email
+                                </label>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)} // Update the search query on input change
+                                    className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Enter company name or email to search..."
+                                />
+                            </div>
                             {loading ? <FireLoading renders={"Retrieveing Registered Companies"} /> : (<table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-green-700 text-white">

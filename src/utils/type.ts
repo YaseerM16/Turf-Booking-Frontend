@@ -21,6 +21,7 @@ export type Company = {
     isActive: boolean;
     isVerified: boolean;
     isApproved: boolean;
+    isBlocked: boolean;
     verifyToken?: string;
     verifyTokenExpiry?: Date;
     forgotPasswordToken?: string;

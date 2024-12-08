@@ -8,21 +8,33 @@ import Map from "./ComapanyLocationMap";
 import "react-toastify/dist/ReactToastify.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import FireLoading from "../FireLoading";
+import { Company } from "@/utils/type"
 
 
-const RegisteredCompanies: React.FC = () => {
-    const [companies, setCompanies] = useState<any[]>([]);
+const ApprovedCompanies: React.FC = () => {
+    const [companies, setCompanies] = useState<Company[] | []>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
+    const [searchQuery, setSearchQuery] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
+    const [filter, setFilter] = useState<string>("all");
     const companiesPerPage = 10;
 
-    const fetchUsers = async (page: number) => {
+    const fetchCompanies = async (page: number, searchQry: string, filter: string) => {
         try {
             setLoading(true);
+
+            let query = `page=${page}&limit=${companiesPerPage}`;
+            if (searchQuery) {
+                query += `&searchQry=${searchQuery}`;
+            }
+            if (filter && filter !== "all") {
+                query += `&filter=${filter}`;
+            }
+
             const { data } = await axiosInstance.get(
-                `/api/v1/admin/get-registered-companies?page=${page}&limit=${companiesPerPage}`
+                `/api/v1/admin/get-approved-companies?${query}`
             );
 
             if (data?.success) {
@@ -37,45 +49,11 @@ const RegisteredCompanies: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchUsers(currentPage);
-    }, [currentPage]);
+        fetchCompanies(currentPage, searchQuery, filter);
+    }, [currentPage, searchQuery, filter]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-    };
-
-    const handleApprove = async (companyId: string, companyEmail: string) => {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "Do you want to proceed?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonText: "Yes, proceed!",
-            cancelButtonText: "No, cancel!",
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                try {
-                    const { data } = await axiosInstance.patch(
-                        "/api/v1/admin/approve-company",
-                        {
-                            companyId,
-                            companyEmail,
-                        }
-                    );
-
-                    if (data?.success) {
-                        toast.success("Company approved successfully!", {
-                            onClose: () => fetchUsers(currentPage)
-                        });
-                    }
-                } catch (error) {
-                    console.error("Error approving the company:", error);
-                    toast.error("Failed to approve the company.");
-                }
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                toast.info("Action canceled.");
-            }
-        });
     };
 
     const handleLocationClick = (company: any) => {
@@ -86,6 +64,53 @@ const RegisteredCompanies: React.FC = () => {
         setSelectedCompany(null);
     };
 
+    const handleToggleBlock = async (email: string, companyId: string) => {
+        try {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to proceed?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed!',
+                cancelButtonText: 'No, cancel!',
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                timerProgressBar: true,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    setLoading(true);
+                    console.log("Email :", email);
+                    console.log("CompanID :", companyId);
+
+                    const { data } = await axiosInstance.get(
+                        `/api/v1/admin/company-toggle-block?email=${email}&companyId=${companyId}`
+                    );
+
+                    if (data?.success) {
+                        toast.success("Company Block Status Toggled successfully ✅", { onClose: () => fetchCompanies(currentPage, searchQuery, filter) })
+                        console.log("Response Data :- ", data);
+                    }
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Action canceled.',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            });
+
+
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -96,24 +121,53 @@ const RegisteredCompanies: React.FC = () => {
                 <div className="flex-1 flex flex-col">
                     <header className="bg-yellow-100 p-6 rounded-lg shadow-md">
                         <h1 className="text-2xl font-semibold text-gray-800">
-                            Registered Companies
+                            Approved Companies
                         </h1>
                         <p className="text-gray-600">
-                            List of companies registered in the system
+                            List of companies Approved in the system
                         </p>
                     </header>
 
                     <main className="flex-1 overflow-auto mt-6 p-6">
                         <div className="bg-white shadow-md rounded-lg p-6">
-                            {loading ? <FireLoading renders={"Retrieveing Registered Companies"} /> : (<table className="w-full text-left border-collapse">
+                            {/* Search Input */}
+                            <div className="mb-4">
+                                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                                    Search by Company Name or Email
+                                </label>
+                                <input
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)} // Update the search query on input change
+                                    className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="Enter company name or email to search..."
+                                />
+                            </div>
+                            {/* Filter Dropdown */}
+                            <div className="mb-4">
+                                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                                    Filter by Status
+                                </label>
+                                <select
+                                    value={filter}
+                                    onChange={(e) => setFilter(e.target.value)}
+                                    className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                >
+                                    <option value="all">All</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            {loading ? <FireLoading renders={"Retrieveing Approved Companies"} /> : (<table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-green-700 text-white">
                                         <th className="px-4 py-3 text-center">#</th>
                                         <th className="px-4 py-3 text-center">Company Name</th>
                                         <th className="px-4 py-3 text-center">Email</th>
                                         <th className="px-4 py-3 text-center">Phone</th>
-                                        <th className="px-4 py-3 text-center">Action</th>
                                         <th className="px-4 py-3 text-center">Location</th>
+                                        <th className="px-4 py-3 text-center">Status</th>
+                                        <th className="px-4 py-3 text-center">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -127,19 +181,27 @@ const RegisteredCompanies: React.FC = () => {
                                             <td className="border px-4 py-3 text-center">{company.companyname}</td>
                                             <td className="border px-4 py-3 text-center">{company.companyemail}</td>
                                             <td className="border px-4 py-3 text-center">{company.phone}</td>
-                                            <td className="border px-4 py-3 text-center">
-                                                <button
-                                                    className="text-white px-4 py-2 rounded-md font-medium bg-green-500 hover:bg-green-600 inline-block"
-                                                    onClick={() => handleApprove(company._id, company.companyemail)}
-                                                >
-                                                    Approve
-                                                </button>
-                                            </td>
+
                                             <td className="border px-4 py-3 text-center">
                                                 <FaMapMarkerAlt
                                                     className="text-green-700 cursor-pointer inline-block"
                                                     onClick={() => handleLocationClick(company)}
                                                 />
+                                            </td>
+                                            <td className="border px-4 py-3 text-center">
+                                                <span
+                                                    className={`${company.isActive ? "text-green-600" : "text-red-600"} font-semibold`}
+                                                >
+                                                    {company.isActive ? "Active" : "Inactive"}
+                                                </span>
+                                            </td>
+                                            <td className="border px-4 py-3 text-center">
+                                                <button
+                                                    className={`${company.isActive ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"} text-white px-4 py-2 rounded-md font-medium`}
+                                                    onClick={() => handleToggleBlock(company.companyemail, company._id)}
+                                                >
+                                                    {company.isActive ? "Block" : "Unblock"}
+                                                </button>
                                             </td>
                                         </tr>
                                     ))}
@@ -202,4 +264,4 @@ const RegisteredCompanies: React.FC = () => {
     );
 };
 
-export default RegisteredCompanies;
+export default ApprovedCompanies;
