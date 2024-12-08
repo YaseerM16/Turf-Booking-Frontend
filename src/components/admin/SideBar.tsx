@@ -78,7 +78,7 @@ const Sidebar: React.FC = () => {
                             <li
                                 className={`${isActive('/admin/approved-companies')} px-4 py-2 rounded-md font-medium`}
                             >
-                                <Link href="/admin/approved-companies">Registered Companies</Link>
+                                <Link href="/admin/approved-companies">Approved Companies</Link>
                             </li>
                         </ul>
                     </nav>

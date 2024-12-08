@@ -19,17 +19,25 @@ const UserManagement: React.FC = () => {
     const [totalPages, setTotalPages] = useState<number>(1);
     const [totalUsers, setTotalUsers] = useState<number>(0);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [filter, setFilter] = useState<string>("all"); // "all", "active", "inactive"
+
     const usersPerPage = 10;
 
-    const handleTabClick = (tab: string) => {
-        setActiveTab(tab);
-    };
 
-    const fetchUsers = async (page: number, searchQuery: string) => {
+    const fetchUsers = async (page: number, searchQuery: string, filter: string) => {
         try {
             setLoading(true);
+
+            let query = `page=${page}&limit=${usersPerPage}`;
+            if (searchQuery) {
+                query += `&searchQry=${searchQuery}`;
+            }
+            if (filter && filter !== "all") {
+                query += `&filter=${filter}`;
+            }
+
             const { data } = await axiosInstance.get(
-                `/api/v1/admin/get-users?page=${page}&limit=${usersPerPage}&searchQry=${searchQuery}`
+                `/api/v1/admin/get-users?${query}`
             );
 
             console.log("res Data :", data);
@@ -49,8 +57,8 @@ const UserManagement: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchUsers(currentPage, searchQuery);
-    }, [currentPage, searchQuery]);
+        fetchUsers(currentPage, searchQuery, filter);
+    }, [currentPage, searchQuery, filter]);
 
 
     const handleToggleBlock = async (email: string, userId: string) => {
@@ -74,7 +82,7 @@ const UserManagement: React.FC = () => {
                     );
 
                     if (data?.success) {
-                        toast.success("User Block or Unblocked successfully :", { onClose: () => fetchUsers(currentPage, searchQuery) })
+                        toast.success("User Block Status Toggled successfully ✅", { onClose: () => fetchUsers(currentPage, searchQuery, filter) })
                         console.log("Response Data :- ", data);
                     }
 
@@ -117,7 +125,7 @@ const UserManagement: React.FC = () => {
             />
 
             <div className="flex min-h-screen">
-                <Sidebar activeTab={activeTab} handleTabClick={handleTabClick} />
+                <Sidebar />
                 <div className="flex-1 flex flex-col">
                     <header className="bg-yellow-100 p-6 rounded-lg shadow-md">
                         <h1 className="text-2xl font-semibold text-gray-800">User Management</h1>
@@ -140,6 +148,21 @@ const UserManagement: React.FC = () => {
                                 />
                             </div>
 
+                            {/* Filter Dropdown */}
+                            <div className="mb-4">
+                                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                                    Filter by Status
+                                </label>
+                                <select
+                                    value={filter}
+                                    onChange={(e) => setFilter(e.target.value)}
+                                    className="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                >
+                                    <option value="all">All</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
 
                             {loading ? (<div className="flex justify-center items-center h-screen">
                                 <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-700 border-solid"></div>

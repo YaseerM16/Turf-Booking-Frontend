@@ -35,7 +35,6 @@ const CompanyLoginForm: React.FC = () => {
             );
 
             if (data?.loggedIn) {
-                console.log("response CompnayLogin :", data);
                 localStorage.setItem("companyAuth", JSON.stringify(data.company));
                 dispatch(setCompany(data.company));
                 setLoading(false);
@@ -47,9 +46,8 @@ const CompanyLoginForm: React.FC = () => {
                 toast.error(data?.message || "Login failed. Please try again.");
                 setLoading(false);
             }
-        } catch (err) {
-            console.error("CompanyLoginAPI error:", err);
-            toast.error("An error occurred during login. Please try again.");
+        } catch (err: any) {
+            toast.error(`${err.response.data.message}`);
             setLoading(false);
         }
     };

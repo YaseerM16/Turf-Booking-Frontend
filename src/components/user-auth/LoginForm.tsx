@@ -51,10 +51,12 @@ const LoginForm: React.FC = () => {
                 toast.error(data?.message || "Login failed. Please try again.");
                 setLoading(false);
             }
-        } catch (err) {
-            console.error("LoginAPI error:", err);
-            toast.error("An error occurred during login. Please try again.");
+        } catch (err: any) {
+            toast.error(`${err.response.data.message}`);
             setLoading(false);
+        } finally {
+            setLoading(false);
+
         }
     };
 
