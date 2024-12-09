@@ -184,6 +184,14 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                 return;
             }
 
+            if (data.images.length > 5) {
+                Swal.fire({
+                    icon: "warning", // Specifies the warning icon
+                    title: "Maximum 5 Turf Images Allowed ..!",
+                })
+                return
+            }
+
             if (location) {
                 clearErrors("location");
                 const response: any = await onSubmit(data);
@@ -448,11 +456,11 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
             {/* Conditional Map Rendering */}
             {showMap && (
                 <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center">
-                    <div className="relative w-full h-[70%] max-w-3xl rounded-md shadow-lg overflow-hidden">
+                    <div className="relative w-full h-[75%] max-w-3xl rounded-md shadow-lg overflow-hidden">
                         <Map onPinLocation={handlePinLocation} />
 
                         {/* Button Controls */}
-                        <div className="absolute bottom-4 left-4 space-x-4">
+                        <div className="mx-48 absolute bottom-4 left-4 space-x-4 flex justify-end">
                             <button
                                 onClick={handleCloseMap}
                                 className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
