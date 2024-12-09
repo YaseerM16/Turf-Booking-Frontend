@@ -90,6 +90,12 @@ const Sidebar: React.FC = () => {
                                 Turf Management
                             </li>
                             <li
+                                className={`font-semibold p-2 rounded ${isActive('/slot-management')}`}
+                                onClick={() => router.replace('/company/slot-management')}
+                            >
+                                Slot Management
+                            </li>
+                            <li
                                 className={`font-semibold p-2 rounded ${isActive('/company/profile')}`}
                                 onClick={() => router.replace('/company/profile')}
                             >
@@ -106,6 +112,7 @@ const Sidebar: React.FC = () => {
                         <>
                             <li className="text-gray-400 bg-gray-300 p-2 rounded cursor-not-allowed">Bookings</li>
                             <li className="text-gray-400 bg-gray-300 p-2 rounded cursor-not-allowed">Turf Management</li>
+                            <li className="text-gray-400 bg-gray-300 p-2 rounded cursor-not-allowed">Slot Management</li>
                             <li className="text-gray-400 bg-gray-300 p-2 rounded cursor-not-allowed">Company Profile</li>
                             <li className="text-gray-400 bg-gray-300 p-2 rounded cursor-not-allowed">Messages</li>
                         </>

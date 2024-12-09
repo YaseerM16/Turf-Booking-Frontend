@@ -1,9 +1,10 @@
 import Spinner from "@/components/Spinner";
 import { availableFacilities, availableGames, axiosInstance } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 availableFacilities
 availableGames
 Spinner
@@ -28,19 +29,21 @@ interface TurfDetails {
 
 const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [newImages, setNewImages] = useState<File[]>([]);
-
-    const { control, handleSubmit, register, setError, clearErrors, watch, setValue, formState: { errors } } = useForm<TurfDetails>({
+    const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
+    const { control, handleSubmit, register, setError, clearErrors, reset, watch, setValue, formState: { errors } } = useForm<TurfDetails>({
         defaultValues: {
             turfName: turf.turf?.turfName,
             facilities: turf.turf?.facilities,
             supportedGames: turf.turf?.supportedGames,
             images: [],
             turfType: turf.turf?.turfType,
-            turfSize: turf.turf?.turfSize
+            turfSize: turf.turf?.turfSize,
+            description: turf.turf?.description
         }
     });
     const [isEditable, setIsEditable] = useState(false);
     const [turfDetails, setTurfDetails] = useState<TurfData>(turf);
+    const imageInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState<boolean>(false)
     const [existingImages, setExistingImages] = useState<string[]>(turf.turf?.images || []);
 
@@ -118,14 +121,16 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
         setValue("supportedGames", updatedSupportives)
     };
 
-    const onSubmit = async (data: TurfDetails) => {
+    const onSubmit = async (turfDet: TurfDetails) => {
         setIsEditable(false);
-        if (!data.facilities || data.facilities.length === 0) {
+        if (!turfDet.facilities || turfDet.facilities.length === 0) {
             setError("facilities", { type: "manual", message: "Select at least one facility!" });
+            setIsEditable(true)
             return;
         }
-        if (!data.supportedGames || data.supportedGames.length === 0) {
+        if (!turfDet.supportedGames || turfDet.supportedGames.length === 0) {
             setError("supportedGames", { type: "manual", message: "Select at least one supported games!" });
+            setIsEditable(true)
             return;
         }
         if (newImages.length == 0 && existingImages.length == 0) {
@@ -133,23 +138,73 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
             setIsEditable(true)
             return
         }
-        console.log("new Images :", newImages);
+        // console.log("new Images :", newImages);
         clearErrors()
-        console.log("edited Form :-", data);
+        // console.log("edited Form :-", data);
         // "/api/v1/company/edit-turf"
-        // try {
-        //     const formData = new FormData()
+        try {
+            const formData = new FormData()
 
-        //     const response = await axiosInstance.put("/api/v1/company/edit-turf", data, {
-        //         headers: {
-        //             "Content-Type": "multipart/form-data",
-        //         },
-        //         withCredentials: true
-        //     });
+            // Append files (images) to FormData
+            console.log("Data Edited Images :", newImages);
 
-        // } catch (error) {
 
-        // }
+            if (newImages && newImages.length > 0) {
+                newImages.forEach((file: File) => {
+                    formData.append(`TurfImages`, file); // Backend should handle multiple files under 'TurfImages'
+                });
+            }
+            formData.append("turfId", JSON.stringify(turf.turf?._id))
+            formData.append("turfName", turfDet.turfName);
+            formData.append("price", JSON.stringify(turfDet.pricePerHour));
+            formData.append("turfSize", turfDet.turfSize);
+            formData.append("turfType", turfDet.turfType);
+            formData.append("selectedFacilities", JSON.stringify(turfDet.facilities));
+            formData.append("games", JSON.stringify(turfDet.supportedGames))
+            formData.append("description", turfDet.description);
+            formData.append("companyId", company?._id);
+
+
+
+            const { data } = await axiosInstance.put("/api/v1/company/edit-turf", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true
+            });
+            if (data?.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Turf Details Updated Successfully!',
+                    toast: true,
+                    position: 'top-start',
+                    showConfirmButton: false,
+                    timer: 2000, // 2 seconds
+                    timerProgressBar: true,
+                });
+
+                console.log("Updated RESULT :", data.turf);
+                const updatedTurf: TurfDetails = data.turf
+                setExistingImages(updatedTurf.images)
+                setNewImages([])
+                if (imageInputRef.current) {
+                    imageInputRef.current.value = ""; // Reset the file input value
+                }
+                reset({
+                    turfName: updatedTurf.turfName,
+                    facilities: updatedTurf.facilities,
+                    supportedGames: updatedTurf.supportedGames,
+                    turfType: updatedTurf.turfType,
+                    turfSize: updatedTurf.turfSize,
+                    description: updatedTurf.description
+                })
+            }
+            //if (isRegistered) res.status(200).json({ success: true, turf: isRegistered });
+
+
+        } catch (error) {
+            console.log("Error While Edit Turf : ", error);
+        }
 
 
     };
@@ -254,6 +309,20 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                 />
                                 {errors.pricePerHour && <span className="text-red-500 text-sm">{errors.pricePerHour.message}</span>}
                             </div>
+
+                            <div className="mb-4">
+                                <label className="block text-gray-600 font-medium mb-1">Turf Description</label>
+                                <textarea
+                                    {...register("description", { required: "Turf description is required" })}
+                                    name="description"
+                                    defaultValue={turfDetails.turf?.description}
+                                    readOnly={!isEditable}
+                                    className={`w-full p-2 border rounded resize-none ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
+                                    rows={3} // Adjust the rows attribute to control the height of the textarea
+                                />
+                                {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
+                            </div>
+
                         </div>
 
                         {/* Middle Column - Facilities and Supported Games */}
@@ -315,6 +384,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                 multiple
                                 disabled={!isEditable}
                                 onChange={handleNewImages}
+                                ref={imageInputRef}
                                 className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
                             />
 
