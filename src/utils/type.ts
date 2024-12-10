@@ -1,5 +1,7 @@
 export type ReactSetState = React.Dispatch<React.SetStateAction<string>>;
 
+// https://nominatim.openstreetmap.org/reverse?lat=17.406498&lon=78.4772439&format=json
+
 export type User = {
     _id: string;
     name: string;
