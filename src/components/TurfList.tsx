@@ -2,138 +2,128 @@ import React from "react";
 
 const TurfList = () => {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gradient-to-br from-green-200 via-yellow-100 to-green-50">
+            {/* Header Section */}
+            <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-md">
+                <h1 className="text-2xl font-bold text-center">Find Your Perfect Turf</h1>
+            </header>
+
             {/* Search Bar */}
-            <div className="bg-white shadow p-4 sticky top-0 z-10">
-                <div className="container mx-auto flex justify-center items-center gap-4">
+            <div className="container mx-auto flex flex-col items-center py-8">
+                <div className="w-11/12 md:w-3/4 flex items-center gap-4 bg-white rounded-lg shadow-lg p-4">
                     <input
                         type="text"
-                        placeholder="Search Turf/Location/Rate"
-                        className="w-2/3 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="Search by Turf, Location, or Price"
+                        className="flex-grow p-3 border-none rounded-md focus:outline-none text-gray-700"
                     />
-                    <button className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700">
+                    <button className="px-6 py-3 bg-green-700 text-white font-medium rounded-md hover:bg-green-800 shadow-md">
                         Search
                     </button>
                 </div>
             </div>
 
-            {/* Filters Sidebar */}
-            <div className="flex">
-                <div className="container mx-auto mt-6 grid grid-cols-4 gap-4">
-                    <aside className="col-span-1 bg-white p-4 rounded-lg shadow-md max-w-[70%]">
-                        <h2 className="text-lg font-semibold text-gray-700 mb-4">Filters</h2>
-
+            {/* Main Content */}
+            <div className="container mx-auto grid grid-cols-12 gap-6 p-6">
+                {/* Filters Sidebar */}
+                <aside className="col-span-12 md:col-span-3 bg-white p-6 rounded-lg shadow-md">
+                    <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
+                    <div className="space-y-6">
                         {/* Type Filter */}
-                        <div className="mb-4">
-                            <h3 className="text-gray-600 font-medium mb-2">Type</h3>
+                        <div>
+                            <h3 className="text-green-600 font-medium mb-2">Type</h3>
                             <div className="space-y-2">
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
                                     Open
                                 </label>
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
                                     Indoor
                                 </label>
                             </div>
                         </div>
-
                         {/* Price Filter */}
-                        <div className="mb-4">
-                            <h3 className="text-gray-600 font-medium mb-2">Price</h3>
+                        <div>
+                            <h3 className="text-green-600 font-medium mb-2">Price Range</h3>
                             <div className="space-y-2">
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
-                                    750 - 800
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
+                                    ₹750 - ₹1000
                                 </label>
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
-                                    1000 - 1200
-                                </label>
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
-                                    1200 - 1600
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
+                                    ₹1000 - ₹1500
                                 </label>
                             </div>
                         </div>
-
                         {/* Size Filter */}
                         <div>
-                            <h3 className="text-gray-600 font-medium mb-2">Size</h3>
+                            <h3 className="text-green-600 font-medium mb-2">Size</h3>
                             <div className="space-y-2">
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
                                     5s
                                 </label>
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
                                     6s
                                 </label>
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
                                     7s
                                 </label>
-                                <label className="flex items-center text-sm text-gray-600">
-                                    <input type="checkbox" className="mr-2" />
+                                <label className="flex items-center text-gray-700">
+                                    <input type="checkbox" className="mr-2 text-green-600" />
                                     11s
                                 </label>
                             </div>
                         </div>
-                    </aside>
+                    </div>
+                </aside>
 
-                    {/* Turf Cards */}
-                    <main className="col-span-3 grid grid-cols-3 gap-4">
-                        {/* Example Turf Card */}
-                        {Array.from({ length: 9 }).map((_, idx) => (
-                            <div
-                                key={idx}
-                                className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow transform hover:-translate-y-1"
-                            >
+                {/* Turf Cards Section */}
+                <main className="col-span-12 md:col-span-9 grid grid-cols-2 md:grid-cols-2 gap-6">
+                    {Array.from({ length: 6 }).map((_, idx) => (
+                        <div
+                            key={idx}
+                            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow"
+                        >
+                            <div className="relative">
                                 <img
-                                    src="https://via.placeholder.com/300x200"
+                                    src={`https://source.unsplash.com/300x200/?football,turf,${idx}`}
                                     alt="Turf"
-                                    className="rounded-t-lg w-full h-32 object-cover"
+                                    className="w-full h-32 object-cover rounded-t-lg"
                                 />
-                                <div className="p-4 space-y-3">
-                                    <h2 className="text-base font-semibold text-gray-800">Kovai Arena</h2>
-                                    <p className="text-sm text-gray-600 flex items-center">
-                                        <span className="material-icons text-green-600 mr-2">
-                                            location_on
-                                        </span>
-                                        Ramanathapuram, Kovai
-                                    </p>
-                                    <p className="text-sm text-gray-600 flex items-center">
-                                        <span className="material-icons text-green-600 mr-2">
-                                            access_time
-                                        </span>
-                                        6 AM to 12 PM
-                                    </p>
-                                    <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 w-full">
-                                        View Details
-                                    </button>
-                                </div>
+                                <span className="absolute top-2 left-2 px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-full">
+                                    ₹1000/hour
+                                </span>
                             </div>
-                        ))}
-                    </main>
-                </div>
+                            <div className="p-4 space-y-3">
+                                <h3 className="text-lg font-semibold text-green-700">Turf Name #{idx + 1}</h3>
+                                <p className="text-sm text-gray-500">📍 Location: Turf City #{idx + 1}</p>
+                                <p className="text-sm text-gray-500">⏰ Timings: 6:00 AM - 10:00 PM</p>
+                                <button className="w-full py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700">
+                                    Book Now
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </main>
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-center mt-6">
-                <nav className="flex gap-2">
-                    <button className="px-3 py-1 bg-green-600 text-white rounded">
+            <div className="flex justify-center items-center py-6">
+                <nav className="flex space-x-2">
+                    <button className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700">
                         Previous
                     </button>
-                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded">
+                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded-md">
                         1
                     </button>
-                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded">
+                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded-md">
                         2
                     </button>
-                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded">
-                        3
-                    </button>
-                    <button className="px-3 py-1 bg-green-600 text-white rounded">
+                    <button className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700">
                         Next
                     </button>
                 </nav>
