@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { RRule } from "rrule";
 
 interface TurfDetailsType {
     workingDays: string[];
@@ -13,9 +12,11 @@ const AvailableSlots: React.FC = () => {
         workingDays: ["Sunday", "Friday", "Saturday", "Thursday"], // Example working days
     };
 
+
+
     const [currentDate, setCurrentDate] = useState<Date | null>(null);
     const [selectedDay, setSelectedDay] = useState<string>("");
-    const [workingDays, setWorkingDays] = useState<{ day: string; date: string }[]>([]);
+    const [workingDays, setWorkingDays] = useState<string[]>([]);
     const [workingSlots, setWorkingSlots] = useState<string[]>([]);
     const [selectedSlots, setSelectedSlots] = useState<{ [key: string]: string[] }>({}); // Track selected slots by day
 
@@ -25,36 +26,7 @@ const AvailableSlots: React.FC = () => {
 
     useEffect(() => {
         if (currentDate) {
-            const dayMapping: { [key: string]: any } = {
-                SUNDAY: RRule.SU,
-                MONDAY: RRule.MO,
-                TUESDAY: RRule.TU,
-                WEDNESDAY: RRule.WE,
-                THURSDAY: RRule.TH,
-                FRIDAY: RRule.FR,
-                SATURDAY: RRule.SA,
-            };
-
-            const rule = new RRule({
-                freq: RRule.WEEKLY,
-                dtstart: currentDate,
-                byweekday: turfDetails.workingDays.map((day) => dayMapping[day.toUpperCase()]),
-                count: 7,
-            });
-
-            const allDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-            // Remove duplicates by using a Map
-            const uniqueWorkingDays = Array.from(
-                new Map(
-                    rule.all().map((date: Date) => [
-                        allDays[date.getDay()],
-                        { day: allDays[date.getDay()], date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }) }
-                    ])
-                ).values()
-            );
-
-            setWorkingDays(uniqueWorkingDays);
+            setWorkingDays(turfDetails.workingDays);
         }
     }, [currentDate]);
 
@@ -120,14 +92,13 @@ const AvailableSlots: React.FC = () => {
                         {workingDays.length === 0 ? (
                             <p>Loading working days...</p>
                         ) : (
-                            workingDays.map((dayObj, index) => (
+                            workingDays.map((day, index) => (
                                 <button
                                     key={index}
-                                    className={`py-2 px-4 rounded-md bg-green-500 text-white ${selectedDay === dayObj.day ? "bg-green-700" : ""}`}
-                                    onClick={() => setSelectedDay(dayObj.day)}
+                                    className={`py-2 px-4 rounded-md bg-green-500 text-white ${selectedDay === day ? "bg-green-700" : ""}`}
+                                    onClick={() => setSelectedDay(day)}
                                 >
-                                    <span className="block font-semibold">{dayObj.day}</span>
-                                    <span className="block text-sm text-green-200">{dayObj.date}</span>
+                                    <span className="block font-semibold">{day}</span>
                                 </button>
                             ))
                         )}

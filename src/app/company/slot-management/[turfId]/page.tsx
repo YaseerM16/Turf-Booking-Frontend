@@ -3,51 +3,18 @@
 import { useEffect, useState } from 'react';
 import { useParams } from "next/navigation";
 import { axiosInstance } from '@/utils/constants';
-import SlotDetailsPage from '@/components/company/management/slot-management/SlotDetailsPage';
-
+import TurfSlots from '@/components/company/management/slot-management/TurfSlots';
+import Sidebar from '@/components/company/CompanySidebar';
+import Header from '@/components/company/CompanyHeader';
 
 export default function TurfDetails() {
-    // const { turfId } = router.query; // Access `turfId` from the URL
     const [turf, setTurf] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const turfId = params?.turfId;
 
-    // useEffect(() => {
-    // if (turfId) { // Ensure `turfId` is defined /get-turf-details
-    // Fetch turf details from API
-    // console.log("Turf Id :", turfId);
 
-    // fetch(`/api/turfs/${turfId}`) // Replace with your actual API endpoint
-    //     .then((res) => res.json())
-    //     .then((data) => {
-    //         setTurf(data);
-    //         setLoading(false);
-    //     })
-    //     .catch((err) => {
-    //         console.error(err);
-    //         setLoading(false);
-    //     });
-    // try {
-    //     setLoading(true);
-    //     const { data } = await axiosInstance.get(
-    //         `/api/v1/company/get-turfs?companyId=${company?._id}`
-    //     );
-
-    //     if (data?.success) {
-    //         setTurfs(data.turfs);
-    //         setLoading(false)
-    //     }
-
-    // } catch (error) {
-    //     console.error("Error fetching Turfs [] data:", error);
-    // } finally {
-    //     setLoading(false);
-    // }
-    // }
-    // }, [turfId]);
-
-    async function fetchTurfs(turfId: any) {
+    async function fetchTurfDetails(turfId: any) {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
@@ -68,7 +35,7 @@ export default function TurfDetails() {
 
 
     useEffect(() => {
-        fetchTurfs(turfId);
+        fetchTurfDetails(turfId);
     }, [turfId]);
 
     if (loading) {
@@ -80,8 +47,24 @@ export default function TurfDetails() {
     }
 
     return (
-        <div>
-            <SlotDetailsPage turf={turf} />
-        </div>
+        <>
+            <div className="flex h-screen">
+                {/* Sidebar */}
+                <Sidebar />
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col">
+                    <Header />
+                    <TurfSlots workingSlots={turf.turf?.workingSlots} />
+                </div>
+            </div>
+
+            {/* Footer */}
+            <footer className="bg-green-700 text-white py-4">
+                <div className="container mx-auto text-center">
+                    <p className="text-sm">© 2024 Turf Booking. All rights reserved.</p>
+                </div>
+            </footer>
+        </>
     );
 }

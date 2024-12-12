@@ -115,7 +115,7 @@ const TurfDetail: React.FC = () => {
                                 <p className="text-green-800 text-3xl font-bold">₹{turfDetails.price}</p>
                                 <p className="text-gray-600 text-lg">Per Hour</p>
                                 <button className="mt-4 px-6 py-3 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 shadow-md">
-                                    Book Now
+                                    Book your Slot
                                 </button>
                             </div>
                         </div>
@@ -153,22 +153,6 @@ const TurfDetail: React.FC = () => {
                             </div>
                         </div>
                     </div>
-
-                    {/* Images Section */}
-                    {/* <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h2 className="text-green-700 text-lg font-bold mb-4">Gallery</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {turfDetails.images.map((image, idx) => (
-                            <img
-                                key={idx}
-                                src={image}
-                                alt={`Turf Image ${idx + 1}`}
-                                className="w-full h-40 object-cover rounded-lg shadow-md"
-                            />
-                        ))}
-                    </div>
-                </div> */}
-
                     {/* Image with clickable */}
 
                     <div className="bg-white rounded-lg shadow-lg p-6">

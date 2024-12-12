@@ -44,6 +44,7 @@ export type TurfDetails = {
     isActive: boolean;
     isBlocked: boolean;
     isDelete: boolean;
+    address: string;
     location: {
         latitude: number;
         longitude: number;
