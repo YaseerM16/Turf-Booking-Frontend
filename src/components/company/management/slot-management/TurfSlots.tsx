@@ -7,10 +7,6 @@ interface WorkingSlots {
     workingDays: string[];
 }
 
-type slotsData = {
-
-}
-
 const TurfSlots = ({ workingSlots }: { workingSlots: any }) => {
     const [selectedDay, setSelectedDay] = useState<string>("");
     const [slots, setSlots] = useState<string[]>([]);

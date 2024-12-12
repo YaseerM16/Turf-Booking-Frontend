@@ -5,11 +5,13 @@ import { useParams } from "next/navigation";
 import { axiosInstance } from '@/utils/constants';
 import TurfDetailsForm from '@/components/company/management/turf-management/TurfDetailsForm';
 import TurfDetailsPage from '@/components/company/management/turf-management/TurfDetailsPage';
+import axios from 'axios';
 
 
 export default function TurfDetails() {
     // const { turfId } = router.query; // Access `turfId` from the URL
     const [turf, setTurf] = useState<any>(null);
+    const [address, setAddress] = useState<string>("")
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const turfId = params?.turfId;
@@ -57,6 +59,9 @@ export default function TurfDetails() {
             if (data?.success) {
                 const setTurfDets = { turf: data.turf }
                 setTurf(setTurfDets);
+                const response = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${data.turf.location.latitude}%2C${data.turf.location.longitude}&key=ba8938b3f8ce4c78bc0b4fda6c81b721`)
+                setAddress(response.data.results[0].formatted)
+                // console.log("Adress Response :", response.data.results[0].formatted);
                 setLoading(false)
             }
 
@@ -66,6 +71,9 @@ export default function TurfDetails() {
             setLoading(false);
         }
     };
+
+    console.log("ADDRESS in state :", address);
+
 
 
     useEffect(() => {
@@ -79,6 +87,14 @@ export default function TurfDetails() {
     if (!turf) {
         return <p>Turf not found.</p>;
     }
+
+    // useEffect(() => {
+    //     if (turf) retrieveAddress();
+    //     else {
+    //         console.log("Turf is not getting and returnring :");
+    //         return
+    //     }
+    // }, [])
 
     return (
         <div>

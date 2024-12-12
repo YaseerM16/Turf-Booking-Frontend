@@ -45,29 +45,29 @@ const SlotDetailsPage: React.FC<TurfDetailsProps> = ({ turf }) => {
     // }, [dispatch]);
 
 
-    async function fetchTurfs() {
-        try {
-            setLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/company/get-turfs?companyId=${company?._id}`
-            );
+    // async function fetchTurfs() {
+    //     try {
+    //         setLoading(true);
+    //         const { data } = await axiosInstance.get(
+    //             `/api/v1/company/get-turfs?companyId=${company?._id}`
+    //         );
 
-            if (data?.success) {
-                setTurfs(data.turfs);
-                setLoading(false)
-            }
+    //         if (data?.success) {
+    //             setTurfs(data.turfs);
+    //             setLoading(false)
+    //         }
 
-        } catch (error) {
-            console.error("Error fetching Turfs [] data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //     } catch (error) {
+    //         console.error("Error fetching Turfs [] data:", error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
 
-    useEffect(() => {
-        fetchTurfs();
-    }, []);
+    // useEffect(() => {
+    //     fetchTurfs();
+    // }, []);
 
 
     const handleEdit = (id: number) => {
@@ -103,7 +103,6 @@ const SlotDetailsPage: React.FC<TurfDetailsProps> = ({ turf }) => {
                 <div className="flex-1 flex flex-col">
                     <Header />
                     <TurfSlots workingSlots={turf.turf?.workingSlots} />
-                    {/* <TurfDetailsForm turf={turf} /> */}
                 </div>
             </div>
 
