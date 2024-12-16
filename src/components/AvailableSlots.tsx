@@ -1,170 +1,219 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import React, { useState, useEffect, useMemo } from "react";
+import { TurfDetails } from "@/utils/type";
+import { axiosInstance } from "@/utils/constants";
+import { SlotDetails } from "@/utils/type";
+import FireLoading from "./FireLoading";
+import BookingSummary from "./BookingSummary";
+import { BsCurrencyRupee } from 'react-icons/bs';
 
-interface TurfDetailsType {
-    workingDays: string[];
+
+
+interface TurfDetailsProps {
+    turf: TurfDetails | null;
 }
 
-const AvailableSlots: React.FC = () => {
-    const turfDetails: TurfDetailsType = {
-        workingDays: ["Sunday", "Friday", "Saturday", "Thursday"], // Example working days
-    };
+export const daysOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf }) => {
+    const [loading, setLoading] = useState<boolean>(false);
 
-
-    const [currentDate, setCurrentDate] = useState<Date | null>(null);
     const [selectedDay, setSelectedDay] = useState<string>("");
+    const [date, setDate] = useState<string>("");
     const [workingDays, setWorkingDays] = useState<string[]>([]);
-    const [workingSlots, setWorkingSlots] = useState<string[]>([]);
-    const [selectedSlots, setSelectedSlots] = useState<{ [key: string]: string[] }>({}); // Track selected slots by day
+    const [workingSlots, setWorkingSlots] = useState<SlotDetails[]>([]);
+    const [selectedSlots, setSelectedSlots] = useState<SlotDetails[]>([]);
+    // console.log("Selected Slots :::", selectedSlots);
+    // Existing states
+    const [showSummary, setShowSummary] = useState(false);
 
-    useEffect(() => {
-        setCurrentDate(new Date());
-    }, []);
-
-    useEffect(() => {
-        if (currentDate) {
-            setWorkingDays(turfDetails.workingDays);
-        }
-    }, [currentDate]);
-
-    const generateWorkingSlots = () => {
-        const startTime = 6;
-        const endTime = 23;
-        const slotsArray: string[] = [];
-
-        for (let i = startTime; i < endTime; i++) {
-            const fromTime = `${i}:00`;
-            const toTime = `${i + 1}:00`;
-            slotsArray.push(`${fromTime} - ${toTime}`);
-        }
-
-        setWorkingSlots(slotsArray);
+    const handleProceedToBooking = () => {
+        setShowSummary(true); // Show the summary
     };
 
+    const handleCancelPayment = () => {
+        setShowSummary(false)
+        // alert("Payment is Cancelled !!")
+    }
+
     useEffect(() => {
-        if (selectedDay) {
-            generateWorkingSlots();
+        if (turf?.workingSlots?.workingDays) {
+            const todayIndex = new Date().getDay(); // Get the current day index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+
+            const sortedDays = [...turf.workingSlots.workingDays].sort((a, b) => {
+                const indexA = daysOrder.indexOf(a);
+                const indexB = daysOrder.indexOf(b);
+
+                // Calculate days from today
+                const daysUntilA = (indexA - todayIndex + 7) % 7;
+                const daysUntilB = (indexB - todayIndex + 7) % 7;
+
+                return daysUntilA - daysUntilB;
+            });
+
+            setWorkingDays(sortedDays);
         }
-    }, [selectedDay]);
+    }, [turf?.workingSlots?.workingDays]);
 
-    const toggleSlotSelection = (slot: string) => {
-        setSelectedSlots((prev) => {
-            const updatedSlots = { ...prev };
 
-            // Check if the selected day already exists in the state
-            if (!updatedSlots[selectedDay]) {
-                updatedSlots[selectedDay] = []; // If not, initialize the array
+
+    const memoizedSlots = useMemo(() => ({} as Record<string, any[]>), []);
+
+    const fetchSlotsByDay = async (turfId: string, day: string) => {
+        if (memoizedSlots[day]) {
+            setSelectedDay(day);
+            setWorkingSlots(memoizedSlots[day]);
+            if (memoizedSlots[day].length > 0) {
+                setDate(memoizedSlots[day][0]?.date || "");
             }
-
-            const currentSlots = updatedSlots[selectedDay];
-
-            // Check if the slot is already selected
-            const index = currentSlots.indexOf(slot);
-            if (index > -1) {
-                // If already selected, remove it
-                currentSlots.splice(index, 1);
-            } else {
-                // Otherwise, add it to the array for that day
-                currentSlots.push(slot);
+            return;
+        }
+        try {
+            setLoading(true);
+            const { data } = await axiosInstance.get(
+                `/api/v1/user/get-slots-by-day?turfId=${turfId}&day=${day}`
+            );
+            if (data?.success) {
+                setDate(data.slots[0]?.date || "");
+                memoizedSlots[day] = data.slots;
+                setSelectedDay(day);
+                setWorkingSlots(data.slots);
             }
-
-            // Reassign to ensure changes are reflected in the state
-            updatedSlots[selectedDay] = [...currentSlots];
-
-            return updatedSlots;
-        });
+        } catch (error) {
+            console.error("Error fetching Turf's Slot[] data:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    console.log("Selected Slots :", selectedSlots);
+    const toggleSlotSelection = (slot: SlotDetails) => {
+        const alreadySelected = selectedSlots.find((s) => s._id === slot._id);
+
+        if (alreadySelected) {
+            // Deselect slot
+            setSelectedSlots((prev) =>
+                prev.filter((s) => s._id !== slot._id)
+            );
+        } else {
+            // Select slot
+            setSelectedSlots((prev) => [...prev, slot]);
+            let arr = 10
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-100 via-yellow-50 to-green-50">
-            <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-lg">
-                <h1 className="text-3xl font-bold text-center">Available Slots</h1>
-            </header>
-            <main className="p-6">
-                <div className="mb-6">
-                    <h2 className="text-xl font-semibold">Select a Day</h2>
-                    <div className="flex space-x-4 mt-4">
-                        {workingDays.length === 0 ? (
-                            <p>Loading working days...</p>
-                        ) : (
-                            workingDays.map((day, index) => (
-                                <button
-                                    key={index}
-                                    className={`py-2 px-4 rounded-md bg-green-500 text-white ${selectedDay === day ? "bg-green-700" : ""}`}
-                                    onClick={() => setSelectedDay(day)}
-                                >
-                                    <span className="block font-semibold">{day}</span>
-                                </button>
-                            ))
-                        )}
-                    </div>
-                </div>
-                {selectedDay && (
-                    <div>
-                        <h3 className="text-2xl font-semibold mb-4">Available Slots for {selectedDay}</h3>
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {workingSlots.length === 0 ? (
-                                <p>Loading available slots...</p>
-                            ) : (
-                                workingSlots.map((slot, index) => {
-                                    const isBooked = index % 3 === 0; // Example logic for booked slots
-                                    const isSelected = selectedSlots[selectedDay]?.includes(slot);
-
-                                    return (
+            {showSummary ? <BookingSummary selectedSlots={selectedSlots} price={Number(turf?.price)} onCancel={handleCancelPayment} onProceedToPayment={handleProceedToBooking} turfId={turf?._id!} companyId={turf?.companyId!} /> :
+                <>
+                    <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-lg">
+                        <h1 className="text-3xl font-bold text-center">Available Slots</h1>
+                    </header>
+                    <main className="p-6">
+                        <div className="mb-6">
+                            <h2 className="text-xl font-semibold">Select a Day</h2>
+                            <div className="flex space-x-4 mt-4">
+                                {workingDays.length === 0 ? (
+                                    <p>Loading working days...</p>
+                                ) : (
+                                    workingDays.map((day, index) => (
                                         <button
                                             key={index}
-                                            disabled={isBooked}
-                                            className={`flex flex-col items-center justify-center p-3 rounded-md shadow-md border-2 transition-all duration-300
-                                                ${isBooked
-                                                    ? "bg-red-100 border-red-400 cursor-not-allowed"
-                                                    : isSelected
-                                                        ? "bg-blue-200 border-blue-400"
-                                                        : "bg-green-100 border-green-400 hover:bg-green-200"
-                                                }`}
-                                            onClick={() => !isBooked && toggleSlotSelection(slot)}
+                                            className={`py-2 px-4 rounded-md bg-green-500 text-white ${selectedDay === day ? "bg-green-700" : ""}`}
+                                            onClick={() => fetchSlotsByDay(turf?._id!, day)}
                                         >
-                                            <div
-                                                className={`flex items-center justify-center w-8 h-8 font-bold rounded-full mb-2
-                                                    ${isBooked
-                                                        ? "bg-red-400 text-white"
-                                                        : isSelected
-                                                            ? "bg-blue-400 text-white"
-                                                            : "bg-green-400 text-white"
-                                                    }`}
-                                            >
-                                                {index + 1}
-                                            </div>
-                                            <p className="text-sm font-medium text-gray-700">{slot}</p>
-                                            <span
-                                                className={`text-xs mt-1 ${isBooked ? "text-red-500" : isSelected ? "text-blue-500" : "text-green-500"}`}
-                                            >
-                                                {isBooked ? "Booked" : isSelected ? "Selected" : "Available"}
-                                            </span>
+                                            <span className="block font-semibold">{day}</span>
                                         </button>
-                                    );
-                                })
-                            )}
+                                    ))
+                                )}
+                            </div>
                         </div>
-                        {selectedSlots[selectedDay]?.length > 0 && (
-                            <div className="mt-6">
-                                <h4 className="text-lg font-semibold">Selected Slots</h4>
-                                <ul className="list-disc list-inside mt-2">
-                                    {selectedSlots[selectedDay].map((slot, index) => (
-                                        <li key={index}>{slot}</li>
-                                    ))}
-                                </ul>
+                        {selectedDay && (
+                            <div>
+                                <h3 className="text-2xl flex font-semibold mb-4">
+                                    Available Slots for
+                                    <span className="text-green-700 bg-yellow-200 font-bold px-3 py-2 rounded-full ml-2 shadow-lg">
+                                        {new Date(date).toLocaleDateString("en-US", {
+                                            weekday: "short",
+                                            month: "short",
+                                            day: "numeric",
+                                        })}
+                                    </span>
+                                    <div className="flex text-white bg-green-800 font-bold px-3 py-2 rounded-full ml-2 shadow-lg">
+                                        <BsCurrencyRupee className="mr-1" /> {turf?.price} / hour
+                                    </div>
+                                </h3>
+                                {loading ? (
+                                    <FireLoading renders={"Fetching Slots"} />
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 max-w-5xl mx-auto bg-[url('./turf-background-image.jpg')] bg-cover bg-center bg-no-repeat p-6 rounded-lg shadow-lg backdrop-blur-md justify-items-center">
+                                        {workingSlots.length === 0 ? (
+                                            <p className="col-span-full text-center text-gray-700 text-lg font-medium">
+                                                Loading available slots...
+                                            </p>
+                                        ) : (
+                                            workingSlots.map((slot: SlotDetails, index: number) => {
+                                                const isSelected = selectedSlots.some((s) => s._id === slot._id);
+                                                const isUnavailable = slot.isUnavail;  // Check for the isUnavail flag
+
+                                                return (
+                                                    <button
+                                                        key={slot._id}
+                                                        disabled={slot.isBooked || isUnavailable}  // Disable button if booked or unavailable
+                                                        onClick={() => toggleSlotSelection(slot)}
+                                                        className={`relative flex flex-col items-center justify-between w-36 h-28 rounded-md transition-all duration-300
+                        ${slot.isBooked
+                                                                ? "bg-red-300 text-gray-500 cursor-not-allowed"
+                                                                : isUnavailable
+                                                                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"  // Grey for unavailable slots
+                                                                    : isSelected
+                                                                        ? "bg-yellow-400 text-blue-900 shadow-xl scale-105"
+                                                                        : "bg-green-200 text-green-900 hover:shadow-xl hover:scale-105"
+                                                            }`}
+                                                    >
+                                                        {/* Slot Time */}
+                                                        <p className="p-3 mt-5 text-center font-semibold text-lg">{slot.slot}</p>
+
+                                                        {/* Status Indicator */}
+                                                        <div
+                                                            className={`absolute bottom-2 text-xs font-medium px-3 py-1 rounded-full
+                        ${slot.isBooked
+                                                                    ? "bg-red-600 text-white"
+                                                                    : isUnavailable
+                                                                        ? "bg-gray-500 text-white"  // Status for unavailable slots
+                                                                        : isSelected
+                                                                            ? "bg-white text-green-700 border border-green-500"
+                                                                            : "bg-green-500 text-white"
+                                                                }`}
+                                                        >
+                                                            {slot.isBooked ? "Booked" : isUnavailable ? "Unavailable" : isSelected ? "Selected" : "Available"}
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })
+                                        )}
+                                    </div>
+
+
+                                )}
                             </div>
                         )}
-                    </div>
-                )}
-            </main>
+
+                        {selectedSlots.length > 0 && (
+                            <div className="flex justify-center mt-8">
+                                <button
+                                    onClick={handleProceedToBooking}
+                                    className="bg-gradient-to-r from-green-600 to-yellow-500 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 hover:shadow-xl"
+                                >
+                                    Proceed to Booking
+                                </button>
+                            </div>
+                        )}
+                    </main>
+                </>
+            }
         </div>
     );
 };
 
-export default dynamic(() => Promise.resolve(AvailableSlots), { ssr: false });
+export default AvailableSlots;

@@ -1,18 +1,20 @@
+"use client";
+
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import ProfileComponent from '@/components/ProfileComponent';
-import TurfList from '@/components/TurfList';
+// import TurfList from '@/components/TurfList';
 import { axiosInstance } from '@/utils/constants';
-import { useParams } from "next/navigation";
 import React, { useEffect, useState } from 'react';
-import { TurfData } from "@/utils/type"
+import { TurfDetails } from "@/utils/type"
 import FireLoading from '@/components/FireLoading';
+import TurfList from '@/components/TurfList';
 FireLoading
-
 const ProfilePage = () => {
 
     const [loading, setLoading] = useState<boolean>(false)
-    const [turf, setTurf] = useState<TurfData>()
+    const [turfs, setTurfs] = useState<TurfDetails[] | null>(null)
+    console.log("TURFS :", turfs);
+
 
     async function fetchTurfs() {
         try {
@@ -21,11 +23,7 @@ const ProfilePage = () => {
                 `/api/v1/user/get-turfs`
             );
             if (data?.success) {
-                const setTurfDets = { turf: data.turf }
-                setTurf(setTurfDets);
-                // const response = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${data.turf.location.latitude}%2C${data.turf.location.longitude}&key=ba8938b3f8ce4c78bc0b4fda6c81b721`)
-                // setAddress(response.data.results[0].formatted)
-                // console.log("Adress Response :", response.data.results[0].formatted);
+                setTurfs(data.turfs);
                 setLoading(false)
             }
 
@@ -35,24 +33,14 @@ const ProfilePage = () => {
             setLoading(false);
         }
     };
-
-
     useEffect(() => {
         fetchTurfs();
     }, []);
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
-
-    if (!turf) {
-        return <p>Turf not found.</p>;
-    }
-
     return (
         <>
             <Navbar />
-            {loading ? <FireLoading renders={'Fetching Turfs'} /> : <TurfList />}
+            {loading ? <FireLoading renders={'Fetching Turfs'} /> : <TurfList turfs={turfs} />}
             <Footer />
         </>
     );

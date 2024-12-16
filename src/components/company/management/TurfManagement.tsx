@@ -3,13 +3,15 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../CompanySidebar";
 import { axiosInstance } from "@/utils/constants";
 import { logout } from "@/store/slices/UserSlice";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import { setCompany } from "@/store/slices/CompanySlice";
 import Header from "../CompanyHeader";
 import { AiOutlinePlus } from "react-icons/ai";
 import FireLoading from "@/components/FireLoading";
+import Swal from "sweetalert2";
+import "react-toastify/dist/ReactToastify.css";
 
 useRouter
 Sidebar
@@ -23,6 +25,7 @@ const TurfManagement: React.FC = () => {
     const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
     console.log("Company @ localstorage :", company);
     const [turfs, setTurfs] = useState<any[]>([]);
+    const [spinLoading, setSpinLoading] = useState<boolean>(false)
 
 
     // useEffect(() => {
@@ -65,31 +68,119 @@ const TurfManagement: React.FC = () => {
     //     { id: 3, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
     // ]);
 
-    const handleEdit = (id: number) => {
-        console.log("Edit turf with ID:", id);
-        // Logic to edit turf
+    // Sample implementation of block/unblock methods
+    const handleBlockTurf = async (turfId: string) => {
+        try {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to proceed?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed!',
+                cancelButtonText: 'No, cancel!',
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                timerProgressBar: true,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    setSpinLoading(true);
+                    const { data } = await axiosInstance.patch(
+                        `/api/v1/company/block-turf?turfId=${turfId}`
+                    );
+
+
+                    if (data?.success) {
+                        setSpinLoading(false)
+                        // setSelectedSlot(null)
+                        // fetchSlotsByDay(turf?._id, day)
+                        fetchTurfs()
+                        toast.success("Turf Blocked successfully ✅", { onClick: () => setSpinLoading(false) })
+                        console.log("Response Data :- ", data);
+                    }
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Action canceled.',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            });
+
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        } finally {
+            setSpinLoading(false)
+        }
     };
 
-    const handleDelete = (id: number) => {
-        console.log("Delete turf with ID:", id);
-        // Logic to delete turf
+    const handleUnblockTurf = async (turfId: string) => {
+        try {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you want to proceed?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, proceed!',
+                cancelButtonText: 'No, cancel!',
+                toast: true,
+                position: 'top-end',
+                timer: 3000,
+                timerProgressBar: true,
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    setSpinLoading(true);
+                    const { data } = await axiosInstance.patch(
+                        `/api/v1/company/Un-block-turf?turfId=${turfId}`
+                    );
+
+
+                    if (data?.success) {
+                        setSpinLoading(false)
+                        // setSelectedSlot(null)
+                        // fetchSlotsByDay(turf?._id, day)
+                        fetchTurfs()
+                        toast.success("Turf Un Blocked successfully ✅", { onClick: () => setSpinLoading(false) })
+                        console.log("Response Data :- ", data);
+                    }
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'info',
+                        title: 'Action canceled.',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+                }
+            });
+
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        } finally {
+            setSpinLoading(false)
+        }
     };
 
-    const handleAddTurf = () => {
-        console.log("Add a new turf");
-        // Logic to add a new turf
-    };
-    // const company = useAppSelector((state) => state.companies);
-
-    // useEffect(() => {
-    //     const storedCompany = localStorage.getItem("companyAuth");
-    //     if (storedCompany) {
-    //         dispatch(setCompany(JSON.parse(storedCompany)));
-    //     }
-    // }, [dispatch]);
 
     return (
         <>
+            <ToastContainer
+                position="top-center"
+                autoClose={1000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
             <div className="flex h-screen">
                 {/* Sidebar */}
                 <Sidebar />
@@ -118,7 +209,7 @@ const TurfManagement: React.FC = () => {
                                 </button>
                             </div>
                             {loading ? <FireLoading renders={"Fetching Turfs"} /> : (
-                                < div className="w-full mt-8 overflow-y-auto">
+                                <div className="w-full mt-8 overflow-y-auto">
                                     <div className="space-y-6">
                                         {turfs.map((turf) => (
                                             <div
@@ -147,19 +238,40 @@ const TurfManagement: React.FC = () => {
                                                     </div>
                                                 </div>
 
-                                                {/* View Button */}
-                                                <div className="flex justify-center mt-4">
+                                                {/* Action Buttons */}
+                                                <div className="flex justify-center mt-4 gap-4">
+                                                    {/* View Button */}
                                                     <button
                                                         className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
                                                         onClick={() => router.replace(`/company/turf-management/${turf._id}`)}
                                                     >
                                                         View Turf
                                                     </button>
+
+                                                    {/* Block/Unblock Button */}
+                                                    {turf.isBlocked ? (
+                                                        <button
+                                                            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
+                                                            onClick={() => handleUnblockTurf(turf._id)}
+                                                        >
+                                                            Unblock Turf
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
+                                                            onClick={() => handleBlockTurf(turf._id)}
+                                                        >
+                                                            Block Turf
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                </div>)}
+                                </div>
+                            )}
+
+
                         </div>
                     </div>
                 </div>

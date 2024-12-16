@@ -1,16 +1,26 @@
-import React from "react";
+"use client";
 
-const TurfList = () => {
+import { TurfDetails } from "@/utils/type";
+import { useRouter } from "next/navigation";
+import { FaClock, FaMapMarkerAlt } from "react-icons/fa";
+useRouter
+interface TurfListProps {
+    turfs: TurfDetails[] | null;
+}
+const TurfList: React.FC<TurfListProps> = ({ turfs }) => {
+
+    const router = useRouter()
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-200 via-yellow-100 to-green-50">
             {/* Header Section */}
             <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-md">
-                <h1 className="text-2xl font-bold text-center">Find Your Perfect Turf</h1>
+                <h1 className="text-3xl font-bold text-center">Find Your Perfect Turf</h1>
             </header>
 
             {/* Search Bar */}
-            <div className="container mx-auto flex flex-col items-center py-8">
-                <div className="w-11/12 md:w-3/4 flex items-center gap-4 bg-white rounded-lg shadow-lg p-4">
+            <div className="container w-11/12 md:w-3/4 mx-auto flex flex-col items-center py-8">
+                <div className="flex items-center gap-4 bg-white rounded-lg shadow-lg p-4 w-full">
                     <input
                         type="text"
                         placeholder="Search by Turf, Location, or Price"
@@ -23,9 +33,10 @@ const TurfList = () => {
             </div>
 
             {/* Main Content */}
-            <div className="container mx-auto grid grid-cols-12 gap-6 p-6">
+            <div className="container w-full md:w-5/6 mx-auto grid grid-cols-12 gap-8 p-2">
+
                 {/* Filters Sidebar */}
-                <aside className="col-span-12 md:col-span-3 bg-white p-6 rounded-lg shadow-md">
+                <aside className="col-span-12 md:col-span-2 bg-white p-6 rounded-lg shadow-md"> {/* Decreased width here */}
                     <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
                     <div className="space-y-6">
                         {/* Type Filter */}
@@ -82,54 +93,71 @@ const TurfList = () => {
                 </aside>
 
                 {/* Turf Cards Section */}
-                <main className="col-span-12 md:col-span-9 grid grid-cols-2 md:grid-cols-2 gap-6">
-                    {Array.from({ length: 6 }).map((_, idx) => (
-                        <div
-                            key={idx}
-                            className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-shadow"
-                        >
-                            <div className="relative">
-                                <img
-                                    src={`https://source.unsplash.com/300x200/?football,turf,${idx}`}
-                                    alt="Turf"
-                                    className="w-full h-32 object-cover rounded-t-lg"
-                                />
-                                <span className="absolute top-2 left-2 px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-full">
-                                    ₹1000/hour
-                                </span>
+                <main className="col-span-12 md:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"> {/* Increased width here */}
+                    {turfs && turfs.length > 0 ? (
+                        turfs.map((turf: TurfDetails, idx: number) => (
+                            <div
+                                key={turf._id || idx}
+                                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow transform hover:scale-105 w-full sm:w-60 lg:w-72"
+                            >
+                                <div className="relative">
+                                    <img
+                                        src={turf.images[0] || `https://source.unsplash.com/400x250/?football,turf,${idx}`}
+                                        alt={turf.turfName || "Turf"}
+                                        className="w-full h-32 object-cover rounded-t-lg"
+                                    />
+                                    <span className="absolute top-2 left-2 px-4 py-2 bg-green-700 text-white text-sm font-bold rounded-full shadow-lg">
+                                        ₹{turf.price}/hour
+                                    </span>
+                                </div>
+                                <div className="p-6 space-y-4">
+                                    <h3 className="text-xl font-semibold text-green-700 truncate">
+                                        {turf.turfName || `Turf Name #${idx + 1}`}
+                                    </h3>
+                                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                                        <FaMapMarkerAlt className="text-green-500" />
+                                        {turf.address || `Turf City #${idx + 1}`}
+                                    </p>
+                                    <p className="text-sm text-gray-500 flex items-center gap-2">
+                                        <FaClock className="text-green-500" />
+                                        {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
+                                    </p>
+                                    <button className="w-full py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700"
+                                        onClick={() => router.push(`/turfs/${turf._id}`)}
+                                    >
+                                        Book Now
+                                    </button>
+                                </div>
                             </div>
-                            <div className="p-4 space-y-3">
-                                <h3 className="text-lg font-semibold text-green-700">Turf Name #{idx + 1}</h3>
-                                <p className="text-sm text-gray-500">📍 Location: Turf City #{idx + 1}</p>
-                                <p className="text-sm text-gray-500">⏰ Timings: 6:00 AM - 10:00 PM</p>
-                                <button className="w-full py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700">
-                                    Book Now
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        <p className="text-center col-span-2 text-gray-500">No turfs available</p>
+                    )}
                 </main>
             </div>
 
             {/* Pagination */}
             <div className="flex justify-center items-center py-6">
                 <nav className="flex space-x-2">
-                    <button className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                         Previous
                     </button>
-                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded-md">
+                    <button className="px-4 py-2 bg-white border border-green-600 text-green-600 rounded-md">
                         1
                     </button>
-                    <button className="px-3 py-1 bg-white border border-green-600 text-green-600 rounded-md">
+                    <button className="px-4 py-2 bg-white border border-green-600 text-green-600 rounded-md">
                         2
                     </button>
-                    <button className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
                         Next
                     </button>
                 </nav>
             </div>
         </div>
     );
+
+
 };
+
 
 export default TurfList;
