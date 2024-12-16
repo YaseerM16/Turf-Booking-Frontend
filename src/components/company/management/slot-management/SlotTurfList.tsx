@@ -1,12 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { axiosInstance } from "@/utils/constants";
-import { logout } from "@/store/slices/UserSlice";
-import { toast } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
-import { setCompany } from "@/store/slices/CompanySlice";
-import { AiOutlinePlus } from "react-icons/ai";
 import FireLoading from "@/components/FireLoading";
 import Sidebar from "../../CompanySidebar";
 import Header from "../../CompanyHeader";
@@ -16,21 +12,10 @@ Sidebar
 useAppDispatch
 
 const SlotTurfList: React.FC = () => {
-    const dispatch = useAppDispatch()
-    // const company = useAppSelector((state) => state.companies);
     const router = useRouter()
     const [loading, setLoading] = useState(false);
     const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
-    console.log("Company @ localstorage :", company);
     const [turfs, setTurfs] = useState<any[]>([]);
-
-
-    // useEffect(() => {
-    //     const storedCompany = localStorage.getItem("companyAuth");
-    //     if (storedCompany) {
-    //         dispatch(setCompany(JSON.parse(storedCompany)));
-    //     }
-    // }, [dispatch]);
 
 
     async function fetchTurfs() {
@@ -56,39 +41,6 @@ const SlotTurfList: React.FC = () => {
     useEffect(() => {
         fetchTurfs();
     }, []);
-
-
-
-    // const [turfs, setTurfs] = useState([
-    //     { id: 1, size: "5v5", type: "Close Turf", price: 750, workingHours: "5 AM - 12 PM" },
-    //     { id: 2, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
-    //     { id: 3, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
-    // ]);
-
-    const handleEdit = (id: number) => {
-        console.log("Edit turf with ID:", id);
-        // Logic to edit turf
-    };
-
-    const handleDelete = (id: number) => {
-        console.log("Delete turf with ID:", id);
-        // Logic to delete turf
-    };
-
-    const handleAddTurf = () => {
-        console.log("Add a new turf");
-        // Logic to add a new turf
-    };
-    console.log(turfs);
-
-    // const company = useAppSelector((state) => state.companies);
-
-    // useEffect(() => {
-    //     const storedCompany = localStorage.getItem("companyAuth");
-    //     if (storedCompany) {
-    //         dispatch(setCompany(JSON.parse(storedCompany)));
-    //     }
-    // }, [dispatch]);
 
     return (
         <>

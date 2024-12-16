@@ -6,9 +6,14 @@ import { axiosInstance } from '@/utils/constants';
 import TurfSlots from '@/components/company/management/slot-management/TurfSlots';
 import Sidebar from '@/components/company/CompanySidebar';
 import Header from '@/components/company/CompanyHeader';
+import { TurfData } from '@/utils/type';
+
+type TurfDetailsProps = {
+    turf: TurfData | null; // Define the type for the props
+};
 
 export default function TurfDetails() {
-    const [turf, setTurf] = useState<any>(null);
+    const [turf, setTurf] = useState<TurfData | null>(null);
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const turfId = params?.turfId;
@@ -55,7 +60,7 @@ export default function TurfDetails() {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     <Header />
-                    <TurfSlots workingSlots={turf.turf?.workingSlots} />
+                    <TurfSlots turf={turf.turf} />
                 </div>
             </div>
 

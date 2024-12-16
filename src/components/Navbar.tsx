@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "./Spinner";
 Spinner
+// useRouter
 
 useAppDispatch
 useAppSelector
@@ -65,13 +66,13 @@ const Navbar: React.FC = () => {
                 <ul className="flex items-center space-x-8 text-sm font-medium">
                     {[
                         { icon: <FiHome size={20} />, label: "Home" },
-                        { icon: <FiGrid size={20} />, label: "Turfs" },
+                        { icon: <FiGrid size={20} />, label: "Turfs", route: "/turfs" },
                         { icon: <FiHeart size={20} />, label: "Favourite Turf" },
                         { icon: <FiMessageSquare size={20} />, label: "Messages" },
                         { icon: <FiBell size={20} />, label: "Notification" },
-                        { icon: <FiUser size={20} />, label: "MyBookings" },
+                        { icon: <FiUser size={20} />, label: "MyBookings", route: "/my-bookings" },
                     ].map((item, index) => (
-                        <li key={index} className="relative group">
+                        <li key={index} className="relative group" onClick={() => router.replace(item.route || "")}>
                             <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
                                 {item.icon}
                                 <span>{item.label}</span>

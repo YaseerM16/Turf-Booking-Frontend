@@ -63,6 +63,20 @@ export type TurfDetails = {
     _id: string;
 };
 
+export type SlotDetails = {
+    isUnavail: boolean;
+    turfId: string,
+    day: string,
+    date: Date,
+    slot: string,
+    isBooked: boolean,
+    _id: string,
+}
+
+export type SlotData = {
+    slot?: SlotDetails | null
+}
+
 export type TurfData = {
     turf?: TurfDetails | null
 }

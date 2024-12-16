@@ -17,7 +17,7 @@ import Sidebar from "../../CompanySidebar";
 import { TurfData } from "../../../../utils/type"
 import TurfDetailsForm from "../turf-management/TurfDetailsForm";
 import TurfSlots from "./TurfSlots";
-
+import { WorkingSlots } from "./TurfSlots"
 
 useRouter
 Sidebar
@@ -35,6 +35,7 @@ const SlotDetailsPage: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [loading, setLoading] = useState(false);
     const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
     const [turfs, setTurfs] = useState<any[]>([]);
+    // console.log("Turf in the SlotListPage :", turf);
 
 
     // useEffect(() => {
@@ -102,7 +103,8 @@ const SlotDetailsPage: React.FC<TurfDetailsProps> = ({ turf }) => {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     <Header />
-                    <TurfSlots workingSlots={turf.turf?.workingSlots} />
+                    <TurfSlots turf={turf.turf} />
+
                 </div>
             </div>
 
