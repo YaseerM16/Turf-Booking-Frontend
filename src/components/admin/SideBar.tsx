@@ -34,7 +34,7 @@ const Sidebar: React.FC = () => {
     }
 
     const isActive = (route: string) => {
-        return pathname.includes(route) ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-green-300';
+        return pathname!.includes(route) ? 'bg-green-500 text-white' : 'text-gray-700 hover:bg-green-300';
     };
 
     return (

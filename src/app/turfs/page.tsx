@@ -11,36 +11,37 @@ import TurfList from '@/components/TurfList';
 FireLoading
 const ProfilePage = () => {
 
-    const [loading, setLoading] = useState<boolean>(false)
-    const [turfs, setTurfs] = useState<TurfDetails[] | null>(null)
-    console.log("TURFS :", turfs);
+    // const [loading, setLoading] = useState<boolean>(false)
+    // const [turfs, setTurfs] = useState<TurfDetails[] | null>(null)
+    // console.log("TURFS :", turfs);
 
 
-    async function fetchTurfs() {
-        try {
-            setLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/user/get-turfs`
-            );
-            if (data?.success) {
-                setTurfs(data.turfs);
-                setLoading(false)
-            }
+    // async function fetchTurfs() {
+    //     try {
+    //         setLoading(true);
+    //         const { data } = await axiosInstance.get(
+    //             `/api/v1/user/get-turfs`
+    //         );
+    //         if (data?.success) {
+    //             setTurfs(data.turfs);
+    //             setLoading(false)
+    //         }
 
-        } catch (error) {
-            console.error("Error fetching Turfs [] data:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-    useEffect(() => {
-        fetchTurfs();
-    }, []);
+    //     } catch (error) {
+    //         console.error("Error fetching Turfs [] data:", error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     fetchTurfs();
+    // }, []);
 
     return (
         <>
             <Navbar />
-            {loading ? <FireLoading renders={'Fetching Turfs'} /> : <TurfList turfs={turfs} />}
+            <TurfList />
             <Footer />
         </>
     );

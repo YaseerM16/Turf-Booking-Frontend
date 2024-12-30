@@ -7,9 +7,14 @@ import { useEffect, useState } from "react";
 const BookingSuccess: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const bookingDetsGot = searchParams?.get("bookingDets")
+    console.log("Boking Dets Got :", bookingDetsGot);
+
 
     // Decode and parse booking details
-    const rawDets = decodeURIComponent(searchParams.get("bookingDets")!);
+    const rawDets = decodeURIComponent(searchParams!.get("bookingDets")!);
+    console.log("RawDets :", rawDets);
+
     const bookingDets = JSON.parse(rawDets);
     console.log("Booking Details in Success Page:", bookingDets);
 

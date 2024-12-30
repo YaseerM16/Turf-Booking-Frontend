@@ -1,31 +1,38 @@
 'use client'
 
-
 import { useEffect, useRef, useState } from "react";
 import { FRONTEND_DOMAIN, PayU } from "@/utils/constants"
 import { generateTxnId } from "@/utils/generateTxnld";
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import PayUApiCalls from "@/utils/PayUApiCalls";
+import Cookies from "js-cookie";
+
 
 type Props = {
     BookedData: any;
 };
+const accessToken = Cookies.get("token")
+// console.log("summa log ;");
+
+// console.log("ACCESS Token in PayUComponent :) :", accessToken);
 
 const PayUComponent = ({ BookedData }: Props) => {
+    // console.log("BookedData prop :", BookedData);
+
     const [hash, setHash] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null); // State to track error
-    const userDet = JSON.parse(localStorage.getItem("auth") as string);
+    // const userDet = JSON.parse(localStorage.getItem("auth") as string);
     const txnidRef = useRef(generateTxnId(8)); // txnid is created once
     const txnid = txnidRef.current;
 
-    // console.log("BookedData:", BookedData);
+    // console.log("BookedData: in PayUComp :", BookedData);
 
     const amount = BookedData.amount || 0;
     const productinfo = BookedData.productinfo || "";
     const udf1 = BookedData.userId || "";
     const { name = "", email = "", phone = "" } = BookedData.userDet || {};
-    const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData.selectedSlots))}`;
+    const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
     const furl = `${FRONTEND_DOMAIN}/api/paymentFailure`;
     const udf2 = BookedData.companyId || "nil";
     const udf3 = BookedData.selectedSlots || "nil";
@@ -68,7 +75,7 @@ const PayUComponent = ({ BookedData }: Props) => {
                 setHash(res.hash);
                 requestSentRef.current = true;
 
-                toast.success("Payment hash generated successfully!");
+                // toast.success("Payment hash generated successfully!");
             } catch (error: any) {
                 console.error("Payment Error: " + error.message);
                 // setError("Failed to generate payment hash. Please try again.");

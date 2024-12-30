@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import "react-toastify/dist/ReactToastify.css";
 import { axiosInstance } from "@/utils/constants";
 import { useRouter } from "next/navigation";
-import "react-toastify/dist/ReactToastify.css";
+// import "react-toastify/dist/ReactToastify.css";
 import dynamic from "next/dynamic";
 import Spinner from "@/components/Spinner";
 import FireLoading from "@/components/FireLoading";
@@ -15,16 +15,6 @@ import { setCompany } from "@/store/slices/CompanySlice";
 import Header from "../CompanyHeader";
 import Sidebar from "../CompanySidebar";
 
-
-
-
-const Map = dynamic(() => import("@/components/map/Map"), {
-    ssr: false, loading: () => (<div className="mb-4" style={{ marginBottom: 100 }}>
-        <FireLoading renders={"Loading Map"} />
-    </div>)
-});
-
-
 interface Marker {
     latitude: number;
     longitude: number;
@@ -32,15 +22,8 @@ interface Marker {
 
 const TurfRegister: React.FC = () => {
     const company = useAppSelector((state) => state.companies);
-    const companyId: any = company.company?._id
+    // const companyId: any = company.company?._id
     const dispatch = useAppDispatch()
-    console.log("Company Id :", companyId);
-    useEffect(() => {
-        const storedCompany = localStorage.getItem("companyAuth");
-        if (storedCompany) {
-            dispatch(setCompany(JSON.parse(storedCompany)));
-        }
-    }, [dispatch]);
     const router = useRouter()
     const [showMap, setShowMap] = useState(false);
     const [loading, setLoading] = useState(false)
@@ -51,21 +34,6 @@ const TurfRegister: React.FC = () => {
     const handleLocationRequest = () => {
         toast.info("Please enable location services for a more precise location.");
         setShowMap(true);
-    };
-    const { clearErrors } = useForm();
-
-
-    const handlePinLocation = (pinnedLocation: Marker) => {
-        setLocation(pinnedLocation);
-        setIsLocationSelected(true);
-        toast.success("Location pinned successfully!");
-        clearErrors("location");
-    };
-
-    const handleCloseMap = () => {
-        setShowMap(false);
-        localStorage.removeItem("USER_MARKER")
-        setIsLocationSelected(false);
     };
 
     const handleFormSubmit = async (formSubmitted: any) => {
@@ -84,9 +52,10 @@ const TurfRegister: React.FC = () => {
 
             // Append other form fields to FormData
             formData.append("location", JSON.stringify({
-                latitude: formSubmitted.location?.latitude,
-                longitude: formSubmitted.location?.longitude,
+                latitude: formSubmitted.location?.lat,
+                longitude: formSubmitted.location?.lng,
             }));
+            formData.append("address", formSubmitted.address)
             formData.append("turfName", formSubmitted.turfName);
             formData.append("price", formSubmitted.price);
             formData.append("turfSize", formSubmitted.turfSize);
@@ -97,7 +66,10 @@ const TurfRegister: React.FC = () => {
             formData.append("toTime", formSubmitted.toTime);
             formData.append("description", formSubmitted.description);
             formData.append("games", JSON.stringify(formSubmitted.selectedGames))
-            formData.append("companyId", companyId);
+            formData.append("companyId", company.company?._id as string);
+
+            // console.log("");
+
 
             setLoading(true);
 
@@ -107,12 +79,12 @@ const TurfRegister: React.FC = () => {
                 },
             });
 
-            // console.log("Response Data:", data);
+            console.log("Response Data:", data);
 
             if (data?.success) {
-                // setLoading(false);
-                // toast.success("Turf Registered successfully!");
-                // setTimeout(() => router.replace("/company/turf-management"), 1500);
+                setLoading(false);
+                toast.success("Turf Registered successfully!");
+                setTimeout(() => router.replace("/company/turf-management"), 1500);
                 return { success: true }
             }
         } catch (err: any) {
@@ -147,30 +119,10 @@ const TurfRegister: React.FC = () => {
                                 <FireLoading renders={"Registering Turf"} />
                                 : <TurfRegisterForm
                                     onSubmit={handleFormSubmit}
-                                    handleLocationRequest={handleLocationRequest}
-                                    MapValidate={location}
-                                    MapIsSelected={isLocationSelected}
                                 />
                             }
 
                         </div>
-                        {showMap && (
-                            <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center p-4">
-                                <div className="relative w-full h-[50%] md:h-[60%] lg:h-[70%] max-w-full md:max-w-3xl rounded-md shadow-lg overflow-hidden">
-                                    <Map onPinLocation={handlePinLocation} />
-
-                                    {/* Button Controls */}
-                                    <div className="absolute bottom-4 left-4 space-x-2 md:space-x-4">
-                                        <button
-                                            onClick={handleCloseMap}
-                                            className="bg-red-500 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-md hover:bg-red-600 text-sm md:text-base"
-                                        >
-                                            Close Map
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>

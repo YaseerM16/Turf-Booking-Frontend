@@ -18,11 +18,13 @@ export default {
         }
     },
 
-    saveBooking: async function (pd: any) {
+    saveBooking: async function (pd: any, token: string) {
         try {
+
             const response = await axiosInstance.post("/api/v1/user/payment/save-booking", JSON.stringify(pd), {
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`, // Send the token in the Authorization header
                 },
             });
 
@@ -31,7 +33,7 @@ export default {
             return response.data;
         } catch (error: any) {
             console.log("Error While saveBookng :", error);
-            throw new Error(error.message);
+            throw new Error(error.response.data.message);
         }
     },
 }

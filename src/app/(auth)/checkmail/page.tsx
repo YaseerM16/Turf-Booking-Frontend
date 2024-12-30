@@ -21,10 +21,9 @@ const LoginEmailSent: React.FC = () => {
         setQueryObj(queryObject); // Set query parameters state
     }, []);
 
-    const message = queryObj?.message
     const type = queryObj?.type
 
-    console.log("Type is getting correctly :-", type);
+    // console.log("Type is getting correctly :-", type);
 
 
     return (

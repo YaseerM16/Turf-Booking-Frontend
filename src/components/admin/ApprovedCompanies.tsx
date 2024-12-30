@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import FireLoading from "../FireLoading";
 import { Company } from "@/utils/type"
+import MapComponent from "../OlaMapComponent";
 
 
 const ApprovedCompanies: React.FC = () => {
@@ -19,6 +20,8 @@ const ApprovedCompanies: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
     const [filter, setFilter] = useState<string>("all");
+    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+
     const companiesPerPage = 10;
 
     const fetchCompanies = async (page: number, searchQry: string, filter: string) => {
@@ -63,6 +66,9 @@ const ApprovedCompanies: React.FC = () => {
     const closeModal = () => {
         setSelectedCompany(null);
     };
+    const toggleMapState = () => {
+        setIsMapVisible(prev => !prev)
+    }
 
     const handleToggleBlock = async (email: string, companyId: string) => {
         try {
@@ -183,10 +189,13 @@ const ApprovedCompanies: React.FC = () => {
                                             <td className="border px-4 py-3 text-center">{company.phone}</td>
 
                                             <td className="border px-4 py-3 text-center">
-                                                <FaMapMarkerAlt
+                                                {/* <FaMapMarkerAlt
                                                     className="text-green-700 cursor-pointer inline-block"
                                                     onClick={() => handleLocationClick(company)}
-                                                />
+                                                /> */}
+                                                <td className="border px-4 py-3 text-center">
+                                                    <MapComponent location={company.location} company={company} toggleview={toggleMapState} />
+                                                </td>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
                                                 <span

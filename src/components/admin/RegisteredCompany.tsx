@@ -8,6 +8,7 @@ import Map from "./ComapanyLocationMap";
 import "react-toastify/dist/ReactToastify.css";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import FireLoading from "../FireLoading";
+import MapComponent from "../OlaMapComponent";
 
 
 const RegisteredCompanies: React.FC = () => {
@@ -16,6 +17,8 @@ const RegisteredCompanies: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [totalPages, setTotalPages] = useState<number>(1);
+    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+
     const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
     const companiesPerPage = 10;
 
@@ -36,6 +39,9 @@ const RegisteredCompanies: React.FC = () => {
             setLoading(false);
         }
     };
+    const toggleMapState = () => {
+        setIsMapVisible(prev => !prev)
+    }
 
     useEffect(() => {
         fetchUsers(currentPage, searchQuery);
@@ -86,6 +92,7 @@ const RegisteredCompanies: React.FC = () => {
     const closeModal = () => {
         setSelectedCompany(null);
     };
+    console.log("Company :", companies);
 
 
 
@@ -150,10 +157,7 @@ const RegisteredCompanies: React.FC = () => {
                                                 </button>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
-                                                <FaMapMarkerAlt
-                                                    className="text-green-700 cursor-pointer inline-block"
-                                                    onClick={() => handleLocationClick(company)}
-                                                />
+                                                <MapComponent location={company.location} company={company} toggleview={toggleMapState} />
                                             </td>
                                         </tr>
                                     ))}

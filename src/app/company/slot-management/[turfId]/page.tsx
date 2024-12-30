@@ -7,6 +7,7 @@ import TurfSlots from '@/components/company/management/slot-management/TurfSlots
 import Sidebar from '@/components/company/CompanySidebar';
 import Header from '@/components/company/CompanyHeader';
 import { TurfData } from '@/utils/type';
+import FireLoading from '@/components/FireLoading';
 
 type TurfDetailsProps = {
     turf: TurfData | null; // Define the type for the props
@@ -17,7 +18,6 @@ export default function TurfDetails() {
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const turfId = params?.turfId;
-
 
     async function fetchTurfDetails(turfId: any) {
         try {
@@ -43,28 +43,19 @@ export default function TurfDetails() {
         fetchTurfDetails(turfId);
     }, [turfId]);
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
 
-    if (!turf) {
-        return <p>Turf not found.</p>;
-    }
 
     return (
         <>
             <div className="flex h-screen">
-                {/* Sidebar */}
                 <Sidebar />
 
-                {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     <Header />
-                    <TurfSlots turf={turf.turf} />
+                    {loading ? <FireLoading renders={'Fetching Turf Slots'} /> : <TurfSlots turf={turf!.turf} />}
                 </div>
             </div>
 
-            {/* Footer */}
             <footer className="bg-green-700 text-white py-4">
                 <div className="container mx-auto text-center">
                     <p className="text-sm">© 2024 Turf Booking. All rights reserved.</p>

@@ -7,7 +7,7 @@ const AuthNavbar: React.FC = () => {
     return (
         <nav className="bg-green-800 h-16 flex items-center justify-between px-6">
             {/* Logo Section */}
-            <div className="flex items-center">
+            <div className="flex items-center cursor-pointer">
                 <img
                     src="/logo.jpeg"
                     alt="Turf Logo"
@@ -19,13 +19,13 @@ const AuthNavbar: React.FC = () => {
             {/* Links Section */}
             <div className="flex items-center space-x-6">
                 <a
-                    href="#home"
+                    href="/"
                     className="text-white text-xs font-medium hover:text-yellow-400"
                 >
                     Home
                 </a>
                 <a
-                    href="#discover"
+                    href="/turfs"
                     className="text-white text-xs font-medium hover:text-yellow-400"
                 >
                     Discover

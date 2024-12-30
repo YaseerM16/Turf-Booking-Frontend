@@ -9,6 +9,10 @@ import Spinner from "../Spinner";
 import { axiosInstance } from "@/utils/constants";
 import { setUser } from "@/store/slices/UserSlice"
 import { useAppDispatch } from "@/store/hooks";
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { app } from "../../../FireBaseConfig"
+
+
 useAppDispatch;
 
 type Inputs = {
@@ -59,6 +63,50 @@ const LoginForm: React.FC = () => {
 
         }
     };
+
+    // Google signup functionality
+    const handleGoogleSignUp = async () => {
+        const auth = getAuth(app)
+        const provider = new GoogleAuthProvider()
+        provider.setCustomParameters({ prompt: 'select_account' })
+
+        try {
+            const result = await signInWithPopup(auth, provider)
+            const user = result.user;
+
+            let response = await axiosInstance.post("/api/v1/user/auth/google-login", user)
+
+            if (response) {
+                if (response.data.success) {
+                    const googleUser = response.data.user;
+                    // console.log("GooleUser ", googleUser);
+
+                    const user = {
+                        _id: response.data?.user?._id,
+                        name: response.data?.user?.name,
+                        email: response.data?.user?.email,
+                        phone: response.data?.user?.phone,
+                        profilePicture: response.data?.user?.profilePicture,
+                    };
+                    localStorage.setItem("auth", JSON.stringify(user));
+                    setLoading(false);
+
+                    dispatch(setUser(response.data.user));
+                    toast.success("You were Logged successfully redirecting to home!", {
+                        onClose: () => router.replace("/"),
+                    });
+                }
+            }
+
+        } catch (error: any) {
+            if (error && error.response?.status === 403) {
+                toast.warn(error.response?.data?.message + " try Login")
+            } else if (error.response?.status === 409) {
+                toast.error(error.response.data.message)
+            }
+            console.log(error)
+        }
+    }
 
     return (
         <>
@@ -140,6 +188,22 @@ const LoginForm: React.FC = () => {
                                     Log In
                                 </button>
                             )}
+                            {/* Google Login Button */}
+                            <div className="flex justify-center items-center mt-6 mb-6">
+                                <button
+                                    onClick={handleGoogleSignUp}
+                                    type="button"
+                                    className="flex justify-center items-center px-4 py-2 rounded-md border-[3px] border-[#D9D9D9] bg-white text-[#757575] hover:opacity-90"
+                                >
+                                    <img
+                                        src="/images/glogo.jpeg"
+                                        alt="Google logo"
+                                        className="w-6 h-6 mr-2"
+                                    />
+                                    <span className="text-sm font-medium">Login with Google</span>
+                                </button>
+                            </div>
+
                         </form>
                     </div>
 

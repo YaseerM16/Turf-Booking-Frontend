@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../CompanySidebar";
 import { axiosInstance } from "@/utils/constants";
-import { logout } from "@/store/slices/UserSlice";
 import { toast, ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
-import { setCompany } from "@/store/slices/CompanySlice";
 import Header from "../CompanyHeader";
 import { AiOutlinePlus } from "react-icons/ai";
 import FireLoading from "@/components/FireLoading";
@@ -18,55 +16,39 @@ Sidebar
 useAppDispatch
 
 const TurfManagement: React.FC = () => {
-    const dispatch = useAppDispatch()
-    // const company = useAppSelector((state) => state.companies);
     const router = useRouter()
     const [loading, setLoading] = useState(false);
-    const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
-    console.log("Company @ localstorage :", company);
     const [turfs, setTurfs] = useState<any[]>([]);
     const [spinLoading, setSpinLoading] = useState<boolean>(false)
+    const company = useAppSelector((state) => state.companies);
 
-
-    // useEffect(() => {
-    //     const storedCompany = localStorage.getItem("companyAuth");
-    //     if (storedCompany) {
-    //         dispatch(setCompany(JSON.parse(storedCompany)));
-    //     }
-    // }, [dispatch]);
-
-
-    async function fetchTurfs() {
+    async function fetchTurfs(companyId: string) {
         try {
+            console.log("Comapny ID : ", companyId);
+
             setLoading(true);
             const { data } = await axiosInstance.get(
-                `/api/v1/company/get-turfs?companyId=${company?._id}`
+                `/api/v1/company/get-turfs?companyId=${companyId}`
             );
 
             if (data?.success) {
                 setTurfs(data.turfs);
-                setLoading(false)
             }
 
         } catch (error) {
-            console.error("Error fetching Turfs [] data:", error);
+            console.log("Error fetching Turfs [] data:", error);
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     };
 
 
     useEffect(() => {
-        fetchTurfs();
-    }, []);
+        if (company.company?._id) {
+            fetchTurfs(company.company?._id as string);
+        }
+    }, [company.company?._id]);
 
-
-
-    // const [turfs, setTurfs] = useState([
-    //     { id: 1, size: "5v5", type: "Close Turf", price: 750, workingHours: "5 AM - 12 PM" },
-    //     { id: 2, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
-    //     { id: 3, size: "7v7", type: "Open Turf", price: 1000, workingHours: "5 AM - 12 PM" },
-    // ]);
 
     // Sample implementation of block/unblock methods
     const handleBlockTurf = async (turfId: string) => {
@@ -94,8 +76,15 @@ const TurfManagement: React.FC = () => {
                         setSpinLoading(false)
                         // setSelectedSlot(null)
                         // fetchSlotsByDay(turf?._id, day)
-                        fetchTurfs()
-                        toast.success("Turf Blocked successfully ✅", { onClick: () => setSpinLoading(false) })
+                        fetchTurfs(company.company?._id as string)
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "success",
+                            title: "Turf Blocked successfully ✅",
+                            showConfirmButton: false,
+                            timer: 2000,
+                            toast: true,
+                        });
                         console.log("Response Data :- ", data);
                     }
 
@@ -143,9 +132,16 @@ const TurfManagement: React.FC = () => {
                         setSpinLoading(false)
                         // setSelectedSlot(null)
                         // fetchSlotsByDay(turf?._id, day)
-                        fetchTurfs()
-                        toast.success("Turf Un Blocked successfully ✅", { onClick: () => setSpinLoading(false) })
-                        console.log("Response Data :- ", data);
+                        fetchTurfs(company.company?._id as string)
+                        Swal.fire({
+                            position: "top-end",
+                            icon: "success",
+                            title: "Turf Blocked successfully ✅",
+                            showConfirmButton: false,
+                            timer: 2000,
+                            toast: true,
+                        });
+                        // console.log("Response Data :- ", data);
                     }
 
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -166,7 +162,6 @@ const TurfManagement: React.FC = () => {
             setSpinLoading(false)
         }
     };
-
 
     return (
         <>

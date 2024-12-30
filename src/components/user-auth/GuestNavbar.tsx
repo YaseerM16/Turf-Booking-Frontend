@@ -21,14 +21,15 @@ const GuestNavbar: React.FC = () => {
         <nav className="bg-gray-100 shadow-md">
             <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
                 {/* Logo Section */}
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 cursor-pointer">
                     <img
                         src="/logo.jpeg"
                         alt="Turf Booking Logo"
                         className="h-10 w-10 rounded-md shadow-md"
+                        onClick={() => router.replace("/")}
                     />
                     <span className="font-bold text-2xl text-green-700 tracking-wide">
-                        Turf Booking {user.user?.name}
+                        Turf Booking {user?.user?.name}
                     </span>
                 </div>
 

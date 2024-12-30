@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SlotDetails } from "@/utils/type";
 import { FaWallet } from "react-icons/fa";
 import { SiPyup } from "react-icons/si";
 import { BsCurrencyRupee } from "react-icons/bs";
 import PayUComponent from "./PayUComponent ";
+import { useAppSelector } from "@/store/hooks";
 
 interface BookingSummaryProps {
     selectedSlots: SlotDetails[];
@@ -29,37 +30,91 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     // console.log("PRICE inside SUMMary ", price);
     const grandTotal = price * selectedSlots.length
     const [selectedPayment, setSelectedPayment] = useState("");
-    const userDet = JSON.parse(localStorage.getItem("auth") as string);
+
+    const userDet = useAppSelector(state => state.users.user)
+    // const userDet = JSON.parse(localStorage.getItem("auth") as string);
     const [showPayU, setShowPayU] = useState<boolean>(false)
-    console.log("UserDet in SUMMARY :", userDet);
+    const [bookingDets, setBookingDets] = useState<any>(null)
+    // let BookingDets: any
+    console.log("bookingDets in BokingSumary :", bookingDets);
 
     const handlePaymentSelection = (method: any) => {
         setSelectedPayment(method === selectedPayment ? "" : method);
     };
+
+    const toggleSetPayU = () => {
+        setShowPayU(prev => !prev)
+        if (userDet) {
+            setBookingDets({
+                amount: grandTotal,
+                productinfo: turfId,
+                firstname: userDet.name,
+                email: userDet.email,
+                userId: userDet._id,
+                companyId,
+                turfId,
+                userDet,
+                selectedSlots: selectedSlots,
+            })
+            // BookingDets = {
+            //     amount: grandTotal,
+            //     productinfo: turfId,
+            //     firstname: userDet.name,
+            //     email: userDet.email,
+            //     userId: userDet._id,
+            //     companyId,
+            //     turfId,
+            //     userDet,
+            //     selectedSlots: selectedSlots,
+            // }
+        }
+    }
 
     const handlePayNow = () => {
         if (selectedPayment) {
             onProceedToPayment(selectedPayment);
         }
     };
+    useEffect(() => {
+        console.log("Inside useEffect() ::>");
+
+        console.log("SelectedSlots :", selectedSlots);
+        console.log("Amount Tot :", grandTotal);
+        console.log("ProdINfo turfID :", turfId);
 
 
-    const BookingDets = {
-        amount: grandTotal,
-        productinfo: turfId,
-        firstname: userDet.name,
-        email: userDet.email,
-        userId: userDet._id,
-        companyId,
-        turfId,
-        userDet,
-        selectedSlots: selectedSlots,
-    }
+        if (userDet) {
+            setBookingDets({
+                amount: grandTotal,
+                productinfo: turfId,
+                firstname: userDet.name,
+                email: userDet.email,
+                userId: userDet._id,
+                companyId,
+                turfId,
+                userDet,
+                selectedSlots: selectedSlots,
+            })
+            // BookingDets = {
+            //     amount: grandTotal,
+            //     productinfo: turfId,
+            //     firstname: userDet.name,
+            //     email: userDet.email,
+            //     userId: userDet._id,
+            //     companyId,
+            //     turfId,
+            //     userDet,
+            //     selectedSlots: selectedSlots,
+            // }
+        }
+    }, [])
+
     console.log("SElecte SLOTs: ", selectedSlots);
 
     return (
         <>
-            {showPayU ? <PayUComponent BookedData={BookingDets} /> : <div className="min-h-screen bg-gradient-to-br from-green-100 via-yellow-50 to-green-50">
+            {/* {showPayU ? <PayUComponent BookedData={BookingDets} /> : } */}
+            <div className="min-h-screen bg-gradient-to-br from-green-100 via-yellow-50 to-green-50">
                 <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-lg">
                     <h1 className="text-3xl font-bold text-center">Booking Summary</h1>
                 </header>
@@ -125,7 +180,10 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                                     ? "bg-yellow-500 text-white"
                                     : "bg-gray-200 text-gray-700"
                                     }`}
-                                onClick={() => handlePaymentSelection("payu")}
+                                onClick={() => {
+                                    handlePaymentSelection("payu")
+                                    toggleSetPayU()
+                                }}
                             >
                                 <SiPyup size={24} />
                                 <span className="text-lg font-medium">PayU</span>
@@ -134,7 +192,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                     </div>
 
                     {/* Pay Now Button */}
-                    {selectedPayment && (
+                    {/* {selectedPayment && (
                         <div className="flex justify-center mt-8">
                             <button
                                 className="bg-blue-500 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 hover:shadow-xl"
@@ -143,6 +201,10 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                                 Pay Now
                             </button>
                         </div>
+                    )} */}
+
+                    {showPayU && (
+                        <PayUComponent BookedData={bookingDets} />
                     )}
 
                     {/* Cancel Booking */}
@@ -155,7 +217,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                         </button>
                     </div>
                 </main>
-            </div>}
+            </div>
 
         </>
     );
