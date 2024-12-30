@@ -44,7 +44,7 @@ const Sidebar: React.FC = () => {
 
     // Function to check if the current route is active
     const isActive = (route: string) => {
-        return pathname.includes(route) ? 'bg-green-300 text-white' : 'text-gray-700 hover:bg-green-300';
+        return pathname!.includes(route) ? 'bg-green-300 text-white' : 'text-gray-700 hover:bg-green-300';
     };
 
     return (
@@ -70,7 +70,7 @@ const Sidebar: React.FC = () => {
                 {/* Sidebar Links */}
                 <ul className="space-y-4">
                     <li
-                        className={`font-semibold p-2 rounded ${isActive('/company/dashboard')}`}
+                        className={`font-semibold p-2 rounded ${isActive('/company/dashboard')} cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                         onClick={() => router.replace('/company/dashboard')} // Use router.replace for navigation without history
                     >
                         Dashboard
@@ -78,31 +78,31 @@ const Sidebar: React.FC = () => {
                     {company.company?.isApproved ? (
                         <>
                             <li
-                                className={`font-semibold p-2 rounded ${isActive('/bookings')}`}
+                                className={`font-semibold p-2 rounded ${isActive('/bookings')} cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                                 onClick={() => router.replace('/bookings')}
                             >
                                 Bookings
                             </li>
                             <li
-                                className={`font-semibold p-2 rounded ${isActive('/turf-management')}`}
+                                className={`font-semibold p-2 rounded ${isActive('/turf-management')} cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                                 onClick={() => router.replace('/company/turf-management')}
                             >
                                 Turf Management
                             </li>
                             <li
-                                className={`font-semibold p-2 rounded ${isActive('/slot-management')}`}
+                                className={`font-semibold p-2 rounded ${isActive('/slot-management')} cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                                 onClick={() => router.replace('/company/slot-management')}
                             >
                                 Slot Management
                             </li>
                             <li
-                                className={`font-semibold p-2 rounded ${isActive('/company/profile')}`}
+                                className={`font-semibold p-2 rounded ${isActive('/company/profile')} cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                                 onClick={() => router.replace('/company/profile')}
                             >
                                 Company Profile
                             </li>
                             <li
-                                className={`font-semibold p-2 rounded ${isActive('/messages')}`}
+                                className={`font-semibold p-2 rounded ${isActive('/messages')} cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                                 onClick={() => router.replace('/messages')}
                             >
                                 Messages

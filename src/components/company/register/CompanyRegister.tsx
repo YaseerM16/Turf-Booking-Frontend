@@ -8,7 +8,9 @@ import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { Location } from "@/components/OlaMapInput"
+import MapInput from "@/components/OlaMapInput"
+import Swal from "sweetalert2";
 
 interface FormInputs {
     companyName: string;
@@ -27,10 +29,28 @@ interface Marker {
 const CompanyRegistration: React.FC = () => {
     const { register, handleSubmit, watch, formState: { errors }, setError, clearErrors } = useForm<FormInputs>();
     const [showMap, setShowMap] = useState(false);
-    const [location, setLocation] = useState<Marker | null>(null); // Track selected location
+    // const [location, setLocation] = useState<Marker | null>(null); // Track selected location
     const [isLocationSelected, setIsLocationSelected] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [location, setLocation] = useState<Location | null>(null)
+    const [address, setAddress] = useState<string | null>(null)
     const router = useRouter()
+
+
+    const handleLocationCofirm = (location: Location | null, address: string | null) => {
+        console.log("LOCate IN Company GaiN :", location);
+        console.log("And Address : ", address);
+        setShowMap(false)
+        setLocation(location)
+        setAddress(address || null)
+        // setValue("location", location)
+        // setValue("address", address)
+        clearErrors('location')
+    }
+
+    const toggleMapView = () => {
+        setShowMap(prev => !prev)
+    }
 
     const onSubmit: SubmitHandler<FormInputs> = async (formData: FormInputs) => {
         try {
@@ -44,9 +64,10 @@ const CompanyRegistration: React.FC = () => {
                 companyname: formData.companyName, // Rename 'name' to 'companyname'
                 companyemail: formData.companyEmail,
                 location: {
-                    latitude: location.latitude,
-                    longitude: location.longitude,
+                    latitude: location.lat,
+                    longitude: location.lng,
                 },
+                address: address
             };
             const { data } = await axiosInstance.post(
                 "/api/v1/company/auth/register",
@@ -55,8 +76,17 @@ const CompanyRegistration: React.FC = () => {
             // Debugging line
             if (data?.success) {
                 setLoading(false);
-                toast.success("Verification email sent successfully!", {
-                    onClose: () => router.replace(`/checkmail?type=verify`),
+                // toast.success("Verification email sent successfully!", {
+                //     onClose: () => router.replace(`/checkmail?type=verify`),
+                // });
+                Swal.fire({
+                    icon: "success",
+                    title: "Verification email sent successfully!",
+                    confirmButtonText: "OK",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        router.replace(`/checkmail?type=verify`);
+                    }
                 });
             }
 
@@ -74,31 +104,31 @@ const CompanyRegistration: React.FC = () => {
         setShowMap(true);
     };
 
-    const handlePinLocation = (pinnedLocation: Marker) => {
-        setLocation(pinnedLocation);
-        setIsLocationSelected(true); // Mark location as selected
-        toast.success("Location pinned successfully!");
-        clearErrors("location");
-    };
+    // const handlePinLocation = (pinnedLocation: Marker) => {
+    //     setLocation(pinnedLocation);
+    //     setIsLocationSelected(true); // Mark location as selected
+    //     toast.success("Location pinned successfully!");
+    //     clearErrors("location");
+    // };
 
     const handleCloseMap = () => {
         setShowMap(false);
         setIsLocationSelected(false); // Reset location selection state when closing the map
     };
-    const handleSetCurrentLocation = () => {
-        const userLocation = localStorage.getItem("USER_LOCATION");
-        if (userLocation) {
-            const { latitude, longitude } = JSON.parse(userLocation);
-            if (latitude && longitude) {
-                // Use the `updateMarker` function indirectly by invoking `handlePinLocation`
-                handlePinLocation({ latitude, longitude });
-            } else {
-                console.error("Invalid USER_LOCATION data in localStorage.");
-            }
-        } else {
-            console.error("USER_LOCATION not found in localStorage.");
-        }
-    };
+    // const handleSetCurrentLocation = () => {
+    //     const userLocation = localStorage.getItem("USER_LOCATION");
+    //     if (userLocation) {
+    //         const { latitude, longitude } = JSON.parse(userLocation);
+    //         if (latitude && longitude) {
+    //             // Use the `updateMarker` function indirectly by invoking `handlePinLocation`
+    //             handlePinLocation({ latitude, longitude });
+    //         } else {
+    //             console.error("Invalid USER_LOCATION data in localStorage.");
+    //         }
+    //     } else {
+    //         console.error("USER_LOCATION not found in localStorage.");
+    //     }
+    // };
 
 
 
@@ -202,13 +232,14 @@ const CompanyRegistration: React.FC = () => {
 
                             {/* Location Selection */}
                             <div className="mb-4">
-                                <button
+                                {/* <button
                                     type="button"
                                     onClick={handleLocationRequest}
                                     className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
                                 >
                                     Select Location
-                                </button>
+                                </button> */}
+                                <MapInput onConfrimAndClose={handleLocationCofirm} mapView={showMap} toggleMapView={toggleMapView} />
                                 {errors.location && <p className="text-red-500 text-sm">{errors.location.message}</p>}
                             </div>
 
@@ -255,24 +286,6 @@ const CompanyRegistration: React.FC = () => {
                 </div>
             </div>
 
-            {/* Conditional Map Rendering */}
-            {showMap && (
-                <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center">
-                    <div className="relative w-full h-[70%] max-w-3xl rounded-md shadow-lg overflow-hidden">
-                        <Map onPinLocation={handlePinLocation} />
-
-                        {/* Button Controls */}
-                        <div className="absolute bottom-4 left-4 space-x-4">
-                            <button
-                                onClick={handleCloseMap}
-                                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                            >
-                                Close Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </>
     );
 };

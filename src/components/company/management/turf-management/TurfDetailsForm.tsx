@@ -1,3 +1,4 @@
+import MapComponent from "@/components/OlaMapComponent";
 import Spinner from "@/components/Spinner";
 import { availableFacilities, availableGames, axiosInstance } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
@@ -5,9 +6,8 @@ import React, { useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
-availableFacilities
-availableGames
-Spinner
+import Sidebar from "../../CompanySidebar";
+import Header from "../../CompanyHeader";
 
 type TurfDetailsProps = {
     turf: TurfData; // Define the type for the props
@@ -30,7 +30,7 @@ interface TurfDetails {
 const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [newImages, setNewImages] = useState<File[]>([]);
     const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
-    const { control, handleSubmit, register, setError, clearErrors, reset, watch, setValue, formState: { errors } } = useForm<TurfDetails>({
+    const { handleSubmit, register, setError, clearErrors, reset, watch, setValue, formState: { errors } } = useForm<TurfDetails>({
         defaultValues: {
             turfName: turf.turf?.turfName,
             facilities: turf.turf?.facilities,
@@ -46,14 +46,22 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState<boolean>(false)
     const [existingImages, setExistingImages] = useState<string[]>(turf.turf?.images || []);
+    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
 
 
     const handleEdit = () => {
         setIsEditable(!isEditable);
     };
 
+    // console.log("TurfFFF :", turf);
+
+
     const supportedGames = watch("supportedGames")
     const facilities = watch("facilities")
+
+    const toggleMapState = () => {
+        setIsMapVisible(prev => !prev)
+    }
 
     const handleNewImages = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -97,10 +105,6 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
             console.error("Error while Deleting the Existing Image:", error);
         }
 
-    };
-
-    const handleDeleteNewImage = (index: number) => {
-        setNewImages((prev) => prev.filter((_, i) => i !== index));
     };
 
     const toggleFacility = (facility: string) => {
@@ -222,238 +226,269 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                 draggable
                 pauseOnHover
             />
-            <div className="p-6 bg-white shadow rounded-lg">
+            <div className="flex h-screen">
+                <Sidebar />
 
-                <form onSubmit={handleSubmit(onSubmit)} className={isEditable ? "editable" : "view-only"}>
-                    <div className="flex justify-between items-center mb-6">
-                        <h1 className="text-2xl font-bold text-gray-800">Turf Details</h1>
-                        {isEditable ? <></> : <button
-                            onClick={handleEdit}
-                            className="px-4 py-2 rounded bg-blue-500 text-white"
-                        >
-                            Edit Turf
-                        </button>}
+                <div className="flex-1 flex flex-col">
+                    <Header />
+                    <div className="p-6 bg-white shadow rounded-lg">
 
-                    </div>
-                    <div className="grid grid-cols-3 gap-6">
-                        {/* Left Column - Turf Details */}
-                        <div>
-                            <div className="mb-4">
-                                <label className="block text-gray-600 font-medium mb-1">Turf Name</label>
-                                <input
-                                    {...register("turfName", { required: "Turf name is required" })}
-                                    type="text"
-                                    name="turfName"
-                                    defaultValue={turfDetails.turf?.turfName}
-                                    // value={turf.turf?.turfName}
-                                    readOnly={!isEditable}
-                                    className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
-                                />
-                                {errors.turfName && <span className="text-red-500 text-sm">{errors.turfName.message}</span>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label htmlFor="turfSize" className="block text-sm font-semibold text-green-900 mb-2">
-                                    Turf Size
-                                </label>
-                                <select
-                                    id="turfSize"
-                                    {...register("turfSize", { required: "Please select the turf size" })}
-                                    defaultValue={turfDetails.turf?.turfSize || ""} // Pre-selects the value if available
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring focus:ring-green-400 ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"
-                                        }`}
-                                    disabled={!isEditable} // Disables the dropdown if not editable
+                        <form onSubmit={handleSubmit(onSubmit)} className={isEditable ? "editable" : "view-only"}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h1 className="text-2xl font-bold text-gray-800">Turf Details</h1>
+                                {isEditable ? <></> : <button
+                                    onClick={handleEdit}
+                                    className="px-4 py-2 rounded bg-blue-500 text-white"
                                 >
-                                    <option value="">Select Size</option>
-                                    <option value="5s">5s</option>
-                                    <option value="7s">7s</option>
-                                    <option value="11s">11s</option>
-                                </select>
-                                {errors.turfSize && (
-                                    <p className="text-red-500 text-sm">{errors.turfSize.message}</p>
-                                )}
+                                    Edit Turf
+                                </button>}
+
                             </div>
+                            <div className="grid grid-cols-3 gap-6">
+                                {/* Left Column - Turf Details */}
+                                <div>
+                                    <div className="mb-4">
+                                        <label className="block text-gray-600 font-medium mb-1">Turf Name</label>
+                                        <input
+                                            {...register("turfName", { required: "Turf name is required" })}
+                                            type="text"
+                                            name="turfName"
+                                            defaultValue={turfDetails.turf?.turfName}
+                                            // value={turf.turf?.turfName}
+                                            readOnly={!isEditable}
+                                            className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
+                                        />
+                                        {errors.turfName && <span className="text-red-500 text-sm">{errors.turfName.message}</span>}
+                                    </div>
 
-
-                            <div className="mb-4">
-                                <label htmlFor="turfType" className="block text-gray-600 font-medium mb-1">
-                                    Turf Type
-                                </label>
-                                <select
-                                    id="turfType"
-                                    {...register("turfType", { required: "Turf type is required" })}
-                                    defaultValue={turfDetails.turf?.turfType || ""}
-                                    disabled={!isEditable} // Disable dropdown if not editable
-                                    className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"
-                                        }`}
-                                >
-                                    <option value="">Select Turf Type</option>
-                                    <option value="Closed">Closed</option>
-                                    <option value="Open">Open</option>
-                                </select>
-                                {errors.turfType && (
-                                    <span className="text-red-500 text-sm">{errors.turfType.message}</span>
-                                )}
-                            </div>
-
-
-                            <div className="mb-4">
-                                <label className="block text-gray-600 font-medium mb-1">Price Per Hour</label>
-                                <input
-                                    {...register("pricePerHour", { required: "Price per hour is required", valueAsNumber: true })}
-                                    type="number"
-                                    name="pricePerHour"
-                                    defaultValue={turfDetails.turf?.price}
-                                    readOnly={!isEditable}
-                                    className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
-                                />
-                                {errors.pricePerHour && <span className="text-red-500 text-sm">{errors.pricePerHour.message}</span>}
-                            </div>
-
-                            <div className="mb-4">
-                                <label className="block text-gray-600 font-medium mb-1">Turf Description</label>
-                                <textarea
-                                    {...register("description", { required: "Turf description is required" })}
-                                    name="description"
-                                    defaultValue={turfDetails.turf?.description}
-                                    readOnly={!isEditable}
-                                    className={`w-full p-2 border rounded resize-none ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
-                                    rows={3} // Adjust the rows attribute to control the height of the textarea
-                                />
-                                {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
-                            </div>
-
-                        </div>
-
-                        {/* Middle Column - Facilities and Supported Games */}
-                        <div>
-                            <div className="mb-4">
-                                <label className="block text-gray-600 font-medium mb-1">Facilities</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {availableFacilities.map((facility) => (
-                                        <button
-                                            key={facility}
-                                            type="button"
-                                            onClick={() => toggleFacility(facility)}
-                                            className={`px-3 py-1 rounded-full ${facilities.includes(facility) // Use facilities from watch() for dynamic updates
-                                                ? "bg-green-500 text-white"
-                                                : "bg-gray-300 text-gray-700"
+                                    <div className="mb-4">
+                                        <label htmlFor="turfSize" className="block text-sm font-semibold text-green-900 mb-2">
+                                            Turf Size
+                                        </label>
+                                        <select
+                                            id="turfSize"
+                                            {...register("turfSize", { required: "Please select the turf size" })}
+                                            defaultValue={turfDetails.turf?.turfSize || ""} // Pre-selects the value if available
+                                            className={`w-full px-4 py-2 border rounded-lg focus:ring focus:ring-green-400 ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"
                                                 }`}
-                                            disabled={!isEditable} // Disable the button if not editable
+                                            disabled={!isEditable} // Disables the dropdown if not editable
                                         >
-                                            {facility}
-                                        </button>
-                                    ))}
-                                </div>
-                                {errors.facilities && (
-                                    <span className="text-red-500 text-sm">{errors.facilities.message}</span>
-                                )}
-                            </div>
+                                            <option value="">Select Size</option>
+                                            <option value="5s">5s</option>
+                                            <option value="7s">7s</option>
+                                            <option value="11s">11s</option>
+                                        </select>
+                                        {errors.turfSize && (
+                                            <p className="text-red-500 text-sm">{errors.turfSize.message}</p>
+                                        )}
+                                    </div>
 
 
-
-                            <div className="mb-4">
-                                <label className="block text-gray-600 font-medium mb-1">Supported Games</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {availableGames.map((game) => (
-                                        <button
-                                            key={game}
-                                            type="button"
-                                            onClick={() => toggleGame(game)}
-                                            className={`px-3 py-1 rounded-full ${supportedGames.includes(game)
-                                                ? "bg-yellow-500 text-white"
-                                                : "bg-gray-300 text-gray-700"
+                                    <div className="mb-4">
+                                        <label htmlFor="turfType" className="block text-gray-600 font-medium mb-1">
+                                            Turf Type
+                                        </label>
+                                        <select
+                                            id="turfType"
+                                            {...register("turfType", { required: "Turf type is required" })}
+                                            defaultValue={turfDetails.turf?.turfType || ""}
+                                            disabled={!isEditable} // Disable dropdown if not editable
+                                            className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"
                                                 }`}
-                                            disabled={!isEditable}
                                         >
-                                            {game}
-                                        </button>
-                                    ))}
+                                            <option value="">Select Turf Type</option>
+                                            <option value="Closed">Closed</option>
+                                            <option value="Open">Open</option>
+                                        </select>
+                                        {errors.turfType && (
+                                            <span className="text-red-500 text-sm">{errors.turfType.message}</span>
+                                        )}
+                                    </div>
+
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-600 font-medium mb-1">Price Per Hour</label>
+                                        <input
+                                            {...register("pricePerHour", { required: "Price per hour is required", valueAsNumber: true })}
+                                            type="number"
+                                            name="pricePerHour"
+                                            defaultValue={turfDetails.turf?.price}
+                                            readOnly={!isEditable}
+                                            className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
+                                        />
+                                        {errors.pricePerHour && <span className="text-red-500 text-sm">{errors.pricePerHour.message}</span>}
+                                    </div>
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-600 font-medium mb-1">Turf Description</label>
+                                        <textarea
+                                            {...register("description", { required: "Turf description is required" })}
+                                            name="description"
+                                            defaultValue={turfDetails.turf?.description}
+                                            readOnly={!isEditable}
+                                            className={`w-full p-2 border rounded resize-none ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
+                                            rows={3} // Adjust the rows attribute to control the height of the textarea
+                                        />
+                                        {errors.description && <span className="text-red-500 text-sm">{errors.description.message}</span>}
+                                    </div>
+
                                 </div>
-                                {errors.supportedGames && <span className="text-red-500 text-sm">{errors.supportedGames.message}</span>}
-                            </div>
 
-
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-600 font-medium mb-1">Images</label>
-                            <input
-                                type="file"
-                                name="images"
-                                accept="image/*"
-                                multiple
-                                disabled={!isEditable}
-                                onChange={handleNewImages}
-                                ref={imageInputRef}
-                                className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
-                            />
-
-                            {/* Error display */}
-                            {errors.images && <span className="text-red-500 text-sm">{errors.images.message}</span>}
-                            {loading ? <Spinner /> : ""}
-
-                            {/* Existing Images */}
-                            <div className="mt-4">
-                                <h4 className="text-gray-700 font-medium mb-2">Existing Images</h4>
-                                <div className="flex flex-wrap gap-4">
-                                    {existingImages.map((image, index) => (
-                                        <div key={index} className="relative w-24 h-24">
-                                            <img
-                                                src={image}
-                                                alt={`Existing Image ${index + 1}`}
-                                                className="w-full h-full object-cover rounded-lg border"
-                                            />
-                                            {isEditable && (
+                                {/* Middle Column - Facilities and Supported Games */}
+                                <div>
+                                    <div className="mb-4">
+                                        <label className="block text-gray-600 font-medium mb-1">Facilities</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {availableFacilities.map((facility) => (
                                                 <button
+                                                    key={facility}
                                                     type="button"
-                                                    onClick={() => handleDeleteExistingImage(index)}
-                                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                                    onClick={() => toggleFacility(facility)}
+                                                    className={`px-3 py-1 rounded-full ${facilities.includes(facility) // Use facilities from watch() for dynamic updates
+                                                        ? "bg-green-500 text-white"
+                                                        : "bg-gray-300 text-gray-700"
+                                                        }`}
+                                                    disabled={!isEditable} // Disable the button if not editable
                                                 >
-                                                    ✖
+                                                    {facility}
                                                 </button>
-                                            )}
+                                            ))}
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
+                                        {errors.facilities && (
+                                            <span className="text-red-500 text-sm">{errors.facilities.message}</span>
+                                        )}
+                                    </div>
 
-                            {/* New Images */}
-                            <div className="mt-4">
-                                <h4 className="text-gray-700 font-medium mb-2">New Images</h4>
-                                <div className="flex flex-wrap gap-4">
-                                    {newImages.map((image, index) => (
-                                        <div key={index} className="relative w-24 h-24">
-                                            <img
-                                                src={URL.createObjectURL(image)} // Convert File to previewable URL
-                                                alt={`New Image ${index + 1}`}
-                                                className="w-full h-full object-cover rounded-lg border"
+
+
+                                    <div className="mb-4">
+                                        <label className="block text-gray-600 font-medium mb-1">Supported Games</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {availableGames.map((game) => (
+                                                <button
+                                                    key={game}
+                                                    type="button"
+                                                    onClick={() => toggleGame(game)}
+                                                    className={`px-3 py-1 rounded-full ${supportedGames.includes(game)
+                                                        ? "bg-yellow-500 text-white"
+                                                        : "bg-gray-300 text-gray-700"
+                                                        }`}
+                                                    disabled={!isEditable}
+                                                >
+                                                    {game}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {errors.supportedGames && <span className="text-red-500 text-sm">{errors.supportedGames.message}</span>}
+                                    </div>
+                                    <div
+                                        className="border border-gray-300 rounded-lg shadow-md p-4 relative bg-cover bg-center"
+                                        style={{ backgroundImage: `url('/map-background.jpg')` }}
+                                    >
+                                        <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg"></div>
+                                        <div className="relative">
+                                            <h3 className="text-lg font-semibold text-white mb-3">
+                                                Turf Location
+                                            </h3>
+                                            <MapComponent
+                                                location={turf?.turf?.location}
+                                                company={turf.turf}
+                                                toggleview={toggleMapState}
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setNewImages((prev) => prev.filter((_, i) => i !== index))
-                                                }
-                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
-                                            >
-                                                ✖
-                                            </button>
                                         </div>
-                                    ))}
+                                    </div>
+
+                                </div>
+                                <div className="mb-4">
+                                    <label className="block text-gray-600 font-medium mb-1">Images</label>
+                                    <input
+                                        type="file"
+                                        name="images"
+                                        accept="image/*"
+                                        multiple
+                                        disabled={!isEditable}
+                                        onChange={handleNewImages}
+                                        ref={imageInputRef}
+                                        className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                    />
+
+                                    {/* Error display */}
+                                    {errors.images && <span className="text-red-500 text-sm">{errors.images.message}</span>}
+                                    {loading ? <Spinner /> : ""}
+                                    {!isMapVisible &&
+                                        <div className="mt-4 flex flex-wrap relative z-10">
+
+                                            {/* Existing Images */}
+                                            <div className="mt-4">
+                                                <h4 className="text-gray-700 font-medium mb-2">Existing Images</h4>
+                                                <div className="flex flex-wrap gap-4">
+                                                    {existingImages.map((image, index) => (
+                                                        <div key={index} className="relative w-24 h-24">
+                                                            <img
+                                                                src={image}
+                                                                alt={`Existing Image ${index + 1}`}
+                                                                className="w-full h-full object-cover rounded-lg border"
+                                                            />
+                                                            {isEditable && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleDeleteExistingImage(index)}
+                                                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                                                >
+                                                                    ✖
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* New Images */}
+                                            <div className="mt-4">
+                                                <h4 className="text-gray-700 font-medium mb-2">New Images</h4>
+                                                <div className="flex flex-wrap gap-4">
+                                                    {newImages.map((image, index) => (
+                                                        <div key={index} className="relative w-24 h-24">
+                                                            <img
+                                                                src={URL.createObjectURL(image)} // Convert File to previewable URL
+                                                                alt={`New Image ${index + 1}`}
+                                                                className="w-full h-full object-cover rounded-lg border"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setNewImages((prev) => prev.filter((_, i) => i !== index))
+                                                                }
+                                                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                                            >
+                                                                ✖
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
                                 </div>
                             </div>
+                            {isEditable ? <button
+                                type="submit"
+                                className="mt-6 w-full py-2 px-4 rounded bg-blue-500 text-white font-semibold"
+                                disabled={!isEditable}
+                            >
+                                Save Turf Details
+                            </button> : <></>}
 
-                        </div>
+                        </form>
                     </div>
-                    {isEditable ? <button
-                        type="submit"
-                        className="mt-6 w-full py-2 px-4 rounded bg-blue-500 text-white font-semibold"
-                        disabled={!isEditable}
-                    >
-                        Save Turf Details
-                    </button> : <></>}
-
-                </form>
+                </div>
             </div>
+            <footer className="bg-green-700 text-white py-4">
+                <div className="container mx-auto text-center">
+                    <p className="text-sm">© 2024 Turf Booking. All rights reserved.</p>
+                </div>
+            </footer>
         </>
     );
 };

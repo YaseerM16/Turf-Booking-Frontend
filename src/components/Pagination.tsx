@@ -11,6 +11,7 @@ const Pagination: React.FC<PaginationProps> = ({
     totalPages,
     onPageChange,
 }) => {
+
     return (
         <div className="flex justify-between items-center mt-4">
             <button

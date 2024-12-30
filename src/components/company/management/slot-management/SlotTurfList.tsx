@@ -13,8 +13,8 @@ useAppDispatch
 
 const SlotTurfList: React.FC = () => {
     const router = useRouter()
+    const company = useAppSelector(state => state.companies.company)
     const [loading, setLoading] = useState(false);
-    const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
     const [turfs, setTurfs] = useState<any[]>([]);
 
 
@@ -39,16 +39,16 @@ const SlotTurfList: React.FC = () => {
 
 
     useEffect(() => {
-        fetchTurfs();
+        if (company?._id) {
+            fetchTurfs();
+        }
     }, []);
 
     return (
         <>
             <div className="flex h-screen">
-                {/* Sidebar */}
                 <Sidebar />
 
-                {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     <Header />
 
@@ -131,10 +131,6 @@ const SlotTurfList: React.FC = () => {
                             )}
                         </div>
                     </div>
-
-
-
-
                 </div>
             </div>
 

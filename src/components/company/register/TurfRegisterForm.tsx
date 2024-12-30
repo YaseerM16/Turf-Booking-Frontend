@@ -11,20 +11,15 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-
-
-
-const Calendar = dynamic(() => import("react-calendar"), { ssr: false });
-const Map = dynamic(() => import("@/components/map/Map"), {
-    ssr: false, loading: () => (<div className="mb-4" style={{ marginBottom: 100 }}>
-        <FireLoading renders={"Loading Map"} />
-    </div>)
-});
+import MapComponent from "@/components/OlaMapInput";
+import { Location } from "@/components/OlaMapInput"
+// import {} from "@/components/OlaMapInput"
 
 interface Marker {
     latitude: number;
     longitude: number;
 }
+
 interface TurfRegisterFormData {
     turfName: string;
     description: string;
@@ -37,21 +32,23 @@ interface TurfRegisterFormData {
     toTime: string;
     selectedFacilities: string[];
     selectedGames: string[];
-    location: Marker | null;
+    location: Location | null;
+    address: string | null;
 }
 
 interface TurfRegisterFormProps {
     onSubmit: (data: TurfRegisterFormData) => void;
-    handleLocationRequest: () => void;
-    MapValidate: Marker | null;
-    MapIsSelected: boolean;
 }
 
 const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
     const router = useRouter()
     const [showMap, setShowMap] = useState(false);
-    const [location, setLocation] = useState<Marker | null>(null); // Track selected location
+    // const [location, setShowMap] = useState(false);
+    const [location, setLocation] = useState<Location | null>(null); // Track selected location
+    const [address, setAddress] = useState<string | null>(null)
     const [isLocationSelected, setIsLocationSelected] = useState(false);
+    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+
     const {
         register,
         handleSubmit,
@@ -74,7 +71,8 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
             toTime: "",
             selectedFacilities: [],
             selectedGames: [],
-            location: null
+            location: null,
+            address: null
         },
     });
     useEffect(() => {
@@ -133,22 +131,37 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
         setValue("images", updatedImages);
     };
 
-    const handlePinLocation = (pinnedLocation: Marker) => {
-        try {
-            if (!pinnedLocation || !pinnedLocation.latitude || !pinnedLocation.longitude) {
-                console.error("Invalid location data");
-                return;
-            }
-            setLocation(pinnedLocation);
-            setValue("location", pinnedLocation)
-            setIsLocationSelected(true);
-            toast.success("Location pinned successfully!");
-            clearErrors("location");
-        } catch (error) {
-            console.error("Error while pinning location:", error);
-            toast.error("An error occurred while selecting the location. Please try again.");
-        }
-    };
+    const handleLocationCofirm = (location: Location | null, address: string | null) => {
+        // console.log("LOCate IN GaiN :", location);
+        // console.log("And Address : ", address);
+        setIsMapVisible(false)
+        setLocation(location)
+        setAddress(address || null)
+        setValue("location", location)
+        setValue("address", address)
+        clearErrors('location')
+    }
+
+    const toggleMapView = () => {
+        setIsMapVisible(prev => !prev)
+    }
+
+    // const handlePinLocation = (pinnedLocation: Marker) => {
+    //     try {
+    //         if (!pinnedLocation || !pinnedLocation.latitude || !pinnedLocation.longitude) {
+    //             console.error("Invalid location data");
+    //             return;
+    //         }
+    //         setLocation(pinnedLocation);
+    //         setValue("location", pinnedLocation)
+    //         setIsLocationSelected(true);
+    //         toast.success("Location pinned successfully!");
+    //         clearErrors("location");
+    //     } catch (error) {
+    //         console.error("Error while pinning location:", error);
+    //         toast.error("An error occurred while selecting the location. Please try again.");
+    //     }
+    // };
 
 
     const handleCloseMap = () => {
@@ -192,7 +205,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                 return
             }
 
-            if (location) {
+            if (location && address) {
                 clearErrors("location");
                 const response: any = await onSubmit(data);
                 if (response?.success) {
@@ -292,20 +305,19 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                             />
                             {errors.price && <p className="text-red-500 text-sm">{errors.price.message}</p>}
                         </div>
-                        <div className="flex flex-col space-y-6">
-                            <div className="p-4 rounded-lg shadow-lg bg-white">
-                                <h2 className="text-xl font-semibold text-green-800 mb-4">Location</h2>
-                                <button
-                                    type="button"
-                                    onClick={handleLocationRequest}
-                                    className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
-                                >
-                                    Select Location
-                                </button>
-                                {errors.location && <p className="text-red-500 text-lg mt-2">{errors.location!.message}</p>}
-                                {location && <p className="text-green-500 text-lg mt-2">Location Selected</p>}
+                        <div className="flex flex-col items-center justify-center space-y-6">
+                            <div className="p-4 rounded-lg shadow-lg bg-white w-full max-w-lg">
+                                <h2 className="text-xl font-semibold text-green-800 mb-4 text-center">Location</h2>
+                                <MapComponent onConfrimAndClose={handleLocationCofirm} mapView={isMapVisible} toggleMapView={toggleMapView} />
+                                {errors.location && (
+                                    <p className="text-red-500 text-lg mt-2 text-center">{errors.location.message}</p>
+                                )}
+                                {location && (
+                                    <p className="text-green-500 text-lg mt-2 text-center">Location Selected</p>
+                                )}
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -344,25 +356,26 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                             />
                             {errors.images && <p className="text-red-500 text-lg mt-2">{errors.images.message}</p>}
                         </div>
-                        {/* Preview images */}
-                        <div className="mt-4 flex flex-wrap">
-                            {Array.from(watch("images") || []).map((file: File, index: number) => (
-                                <div key={index} className="relative inline-block mr-4 mb-2">
-                                    <img
-                                        src={URL.createObjectURL(file)}
-                                        alt={`Preview ${index}`}
-                                        className="w-24 h-24 object-cover rounded-lg"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDeleteImage(index)}
-                                        className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
-                                    >
-                                        <FaTrash />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                        {!isMapVisible && ( // Conditionally render based on map state
+                            <div className="mt-4 flex flex-wrap relative z-10">
+                                {Array.from(watch("images") || []).map((file: File, index: number) => (
+                                    <div key={index} className="relative inline-block mr-4 mb-2">
+                                        <img
+                                            src={URL.createObjectURL(file)}
+                                            alt={`Preview ${index}`}
+                                            className="w-24 h-24 object-cover rounded-lg"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteImage(index)}
+                                            className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                                        >
+                                            <FaTrash />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -454,23 +467,9 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                 </div>
             </form>
             {/* Conditional Map Rendering */}
-            {showMap && (
-                <div className="absolute inset-0 bg-white/80 z-20 flex flex-col items-center justify-center">
-                    <div className="relative w-full h-[75%] max-w-3xl rounded-md shadow-lg overflow-hidden">
-                        <Map onPinLocation={handlePinLocation} />
-
-                        {/* Button Controls */}
-                        <div className="mx-48 absolute bottom-4 left-4 space-x-4 flex justify-end">
-                            <button
-                                onClick={handleCloseMap}
-                                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-                            >
-                                Close Map
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* {showMap && (
+                <MapComponent />
+            )} */}
         </>
 
     );

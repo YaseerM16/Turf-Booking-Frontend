@@ -203,7 +203,7 @@ const ProfileComponent: React.FC = () => {
                                     </label>
                                     <input
                                         type="text"
-                                        value={user?.phone || ""}
+                                        value={user?.phone || "Not Provided"}
                                         className="w-full px-4 py-2 text-center bg-white border border-gray-300 rounded-md shadow focus:outline-none focus:ring-2 focus:ring-green-500"
                                         readOnly
                                     />
