@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, Dispatch, SetStateAction } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { TurfDetails } from "@/utils/type";
 import { axiosInstance, daysOrder } from "@/utils/constants";
-// import { IoArrowBack } from 'react-icons/io5'; // Assuming you're using React Icons
-import { RRule, RRuleSet, Weekday } from 'rrule';
+import { mapDayIndexToRRuleDay } from "@/utils/dateUtils";
+import { RRule, RRuleSet } from 'rrule';
 import { SlotDetails } from "@/utils/type";
 import FireLoading from "./FireLoading";
 import BookingSummary from "./BookingSummary";
@@ -16,22 +16,17 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { toast, ToastContainer } from "react-toastify";
 
-
-
 interface TurfDetailsProps {
     turf: TurfDetails | null;
     setShow: Dispatch<SetStateAction<boolean>>
 }
 
-
 const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
     const [loading, setLoading] = useState<boolean>(false);
-    const workingDaysThree = turf?.workingSlots.workingDays.map(day => day.slice(0, 3));
     const [selectedDay, setSelectedDay] = useState<string>("");
     const [date, setDate] = useState<string>("");
     const [workingSlots, setWorkingSlots] = useState<SlotDetails[]>([]);
     const [selectedSlots, setSelectedSlots] = useState<SlotDetails[]>([]);
-    // Existing states
     const [showSummary, setShowSummary] = useState(false);
 
     const userLogged = localStorage.getItem("auth")
@@ -53,12 +48,9 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
 
     const [workingDays, setWorkingDays] = useState<{ day: string; date: string }[]>([]);
 
-    const daysOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    // console.log(turf?.workingSlots.workingDays);
 
     useEffect(() => {
         if (turf?.workingSlots?.workingDays) {
-            const todayIndex = new Date().getDay(); // Get current day index (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
 
             const ruleSet = new RRuleSet();
 
@@ -66,33 +58,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                 const dayIndex = daysOrder.indexOf(day);
 
                 // Map dayIndex to RRule weekday constants (e.g., 0 = Sunday, 1 = Monday, etc.)
-                let rRuleDay: Weekday;
-                switch (dayIndex) {
-                    case 0:
-                        rRuleDay = RRule.SU;
-                        break;
-                    case 1:
-                        rRuleDay = RRule.MO;
-                        break;
-                    case 2:
-                        rRuleDay = RRule.TU;
-                        break;
-                    case 3:
-                        rRuleDay = RRule.WE;
-                        break;
-                    case 4:
-                        rRuleDay = RRule.TH;
-                        break;
-                    case 5:
-                        rRuleDay = RRule.FR;
-                        break;
-                    case 6:
-                        rRuleDay = RRule.SA;
-                        break;
-                    default:
-                        rRuleDay = RRule.SU; // Default to Sunday if there's an issue
-                        break;
-                }
+                const rRuleDay = mapDayIndexToRRuleDay(dayIndex);
 
                 const rule = new RRule({
                     freq: RRule.DAILY,
@@ -118,7 +84,11 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
 
 
 
-    const handleDayClick = (date: any) => {
+    const handleDayClick = (date: Date | null) => {
+        if (!date) {
+            console.error("Date is null. Cannot handle day click.");
+            return; // Exit the function if date is null
+        }
         // const selectedDay = workingDays.find((dayObj) => dayObj.date === date);
         const day = date!.toLocaleString('en-US', { weekday: 'long' }); // Get full day name (e.g., "Sunday", "Monday")
 
@@ -128,7 +98,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
 
         console.log("DAyte clicked :", day, dateString);
         setSelectedDay(day);
-        fetchSlotsByDay(turf?._id!, day, dateString);
+        fetchSlotsByDay(turf?._id || "day", day, dateString);
 
     };
 
@@ -141,11 +111,8 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
         return (
             <div className="w-full">
                 <Calendar
-                    onChange={(date) => handleDayClick(date)} // Handle date selection
-                    tileClassName={({ date }) => {
-                        // Apply green background to all dates
-                        return "bg-green-500 text-black font-bold"; // Ensure the background is applied here
-                    }}
+                    onChange={(value) => handleDayClick(value as Date | null)} // Handle date selection
+                    tileClassName="bg-green-500 text-black font-bold"
                     tileDisabled={({ date }) => {
                         // Disable dates before today and non-working days
                         const day = date.toLocaleString('en-US', { weekday: 'long' });
@@ -164,12 +131,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
     };
 
     // console.log("SelectedSlots :", selectedSlots);
-
-
-
-
-
-    const memoizedSlots = useMemo(() => ({} as Record<string, any[]>), []);
+    // const memoizedSlots = useMemo(() => ({} as Record<string, any[]>), []);
     // console.log("Memoized Slots :::", memoizedSlots);
 
     const fetchSlotsByDay = async (turfId: string, day: string, date: string) => {
@@ -191,7 +153,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
             if (data?.success) {
                 // setDate(data.slots[0]?.date || "");
                 setDate(date)
-                memoizedSlots[day] = data.slots;
+                // memoizedSlots[day] = data.slots;
                 setSelectedDay(day);
                 setWorkingSlots(data.slots);
             }
@@ -213,7 +175,6 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
         } else {
             // Select slot
             setSelectedSlots((prev) => [...prev, slot]);
-            let arr = 10
         }
     };
 
@@ -231,7 +192,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                 pauseOnHover
             />
             <div className="min-h-screen bg-gradient-to-br from-green-100 via-yellow-50 to-green-50">
-                {showSummary ? <BookingSummary selectedSlots={selectedSlots} price={Number(turf?.price)} onCancel={handleCancelPayment} onProceedToPayment={handleProceedToBooking} turfId={turf?._id!} companyId={turf?.companyId!} /> :
+                {showSummary ? <BookingSummary selectedSlots={selectedSlots} price={Number(turf?.price)} onCancel={handleCancelPayment} turfId={turf?._id || ""} companyId={turf?.companyId || ""} /> :
                     <>
                         <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-lg">
                             <h1 className="text-3xl font-bold text-center">Available Slots</h1>
@@ -272,7 +233,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                                     Loading available slots...
                                                 </p>
                                             ) : (
-                                                workingSlots.map((slot: SlotDetails, index: number) => {
+                                                workingSlots.map((slot: SlotDetails) => {
                                                     const isSelected = selectedSlots.some((s) => s._id === slot._id);
                                                     const isUnavailable = slot.isUnavail;  // Check for the isUnavail flag
 

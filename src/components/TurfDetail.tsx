@@ -1,15 +1,10 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AvailableSlots from "./AvailableSlots";
-import { useParams, useRouter } from "next/navigation";
 import { TurfDetails } from "@/utils/type";
 import TurfGallery from "./TurfGallery";
 import MapComponent from "./OlaMapComponent";
 import { useAppSelector } from "@/store/hooks";
-import { setCompany } from "@/store/slices/CompanySlice";
-useParams
-useAppSelector
-// import sdfds from "../"
 
 interface Review {
     username: string;
@@ -22,10 +17,11 @@ interface TurfDetailsProps {
 }
 
 const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
-    const router = useRouter()
     const company = useAppSelector(state => state.companies.company)
     const [showSlot, setShowSlot] = useState<boolean>(false)
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+    console.log("MapVisible :", isMapVisible);
+
     // Fetch data from localStorage after the component is mounted
 
 
@@ -33,10 +29,6 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
         { username: "John Doe", rating: 4, comment: "Great turf, well maintained!" },
         { username: "Jane Smith", rating: 5, comment: "Loved the facilities here!" },
     ]
-
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [isExpanded, setIsExpanded] = useState(false);
-
     // console.log("TURF Details Page");
 
     const toggleMapState = () => {
@@ -110,9 +102,11 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             </h3>
                                             <MapComponent
                                                 location={turf?.location}
-                                                company={turf}
+                                                company={{ images: turf?.images || [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }}
                                                 toggleview={toggleMapState}
                                             />
+                                            {/* <MapComponent location={company.location} company={company} toggleview={toggleMapState} /> */}
+
                                         </div>
                                     </div>
                                 </div>

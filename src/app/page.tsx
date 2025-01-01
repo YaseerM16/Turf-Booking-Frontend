@@ -1,13 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
-import StoreProvider from "./StoreProvider";
-import { useAppSelector } from "@/store/hooks";
-StoreProvider
-
-// const user = localStorage.getItem("auth")
-// console.log("User Dets :", user);
-
-
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -51,9 +44,11 @@ export default function Home() {
           <div className="grid grid-cols-4 gap-6">
             {["Koval Arena", "Nut Meg", "Koval Arena", "Nut Meg"].map((turf, index) => (
               <div key={index} className="shadow-lg rounded-lg overflow-hidden bg-white">
-                <img
+                <Image
                   src={`/turfs/turf-${index + 1}.jpg`}
                   alt={turf}
+                  width={500} // Replace with actual width
+                  height={200} // Replace with actual height
                   className="h-32 w-full object-cover"
                 />
                 <div className="p-4">
@@ -63,14 +58,16 @@ export default function Home() {
             ))}
           </div>
           <div className="text-center mt-6">
-            <a href="/turfs" className="text-green-700 font-semibold hover:underline">
+            <Link href="/turfs" className="text-green-700 font-semibold hover:underline">
               Search more...
-            </a>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
+      {/* import Link from "next/link"; */}
+
       <footer className="bg-green-700 text-white py-6">
         <div className="max-w-6xl mx-auto grid grid-cols-4 gap-8">
           <div>
@@ -80,29 +77,30 @@ export default function Home() {
           <div>
             <h4 className="font-bold text-lg mb-4">About</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/about" className="hover:underline">About Us</a></li>
-              <li><a href="/careers" className="hover:underline">Careers</a></li>
-              <li><a href="/press" className="hover:underline">Press</a></li>
+              <li><Link href="/about" className="hover:underline">About Us</Link></li>
+              <li><Link href="/careers" className="hover:underline">Careers</Link></li>
+              <li><Link href="/press" className="hover:underline">Press</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-lg mb-4">Resources</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/terms" className="hover:underline">Terms & Conditions</a></li>
-              <li><a href="/privacy" className="hover:underline">Privacy Policy</a></li>
-              <li><a href="/contact" className="hover:underline">Contact Us</a></li>
+              <li><Link href="/terms" className="hover:underline">Terms & Conditions</Link></li>
+              <li><Link href="/privacy" className="hover:underline">Privacy Policy</Link></li>
+              <li><Link href="/contact" className="hover:underline">Contact Us</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-lg mb-4">Connect with us</h4>
             <div className="flex space-x-4">
-              <a href="/facebook" className="hover:underline">Facebook</a>
-              <a href="/instagram" className="hover:underline">Instagram</a>
-              <a href="/twitter" className="hover:underline">Twitter</a>
+              <Link href="/facebook" className="hover:underline">Facebook</Link>
+              <Link href="/instagram" className="hover:underline">Instagram</Link>
+              <Link href="/twitter" className="hover:underline">Twitter</Link>
             </div>
           </div>
         </div>
       </footer>
+
     </div>
   );
 }

@@ -1,15 +1,15 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "./SideBar";
 import { axiosInstance } from "@/utils/constants";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import Map from "./ComapanyLocationMap";
 import "react-toastify/dist/ReactToastify.css";
-import { FaMapMarkerAlt } from "react-icons/fa";
 import FireLoading from "../FireLoading";
 import { Company } from "@/utils/type"
 import MapComponent from "../OlaMapComponent";
+import Image from "next/image";
 
 
 const ApprovedCompanies: React.FC = () => {
@@ -18,19 +18,20 @@ const ApprovedCompanies: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
+    const [selectedCompany, setSelectedCompany] = useState<Company | null>(null); // For the modal display
     const [filter, setFilter] = useState<string>("all");
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+    console.log("Map is Visible :", isMapVisible);
 
     const companiesPerPage = 10;
 
-    const fetchCompanies = async (page: number, searchQry: string, filter: string) => {
+    const fetchCompanies = useCallback(async (page: number, searchQry: string, filter: string) => {
         try {
             setLoading(true);
 
             let query = `page=${page}&limit=${companiesPerPage}`;
-            if (searchQuery) {
-                query += `&searchQry=${searchQuery}`;
+            if (searchQry) {
+                query += `&searchQry=${searchQry}`;
             }
             if (filter && filter !== "all") {
                 query += `&filter=${filter}`;
@@ -49,18 +50,14 @@ const ApprovedCompanies: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [companiesPerPage])
 
     useEffect(() => {
         fetchCompanies(currentPage, searchQuery, filter);
-    }, [currentPage, searchQuery, filter]);
+    }, [currentPage, searchQuery, filter, fetchCompanies]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-    };
-
-    const handleLocationClick = (company: any) => {
-        setSelectedCompany(company);
     };
 
     const closeModal = () => {
@@ -194,7 +191,7 @@ const ApprovedCompanies: React.FC = () => {
                                                     onClick={() => handleLocationClick(company)}
                                                 /> */}
                                                 <td className="border px-4 py-3 text-center">
-                                                    <MapComponent location={company.location} company={company} toggleview={toggleMapState} />
+                                                    <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} toggleview={toggleMapState} />
                                                 </td>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
@@ -254,11 +251,14 @@ const ApprovedCompanies: React.FC = () => {
                             &times;
                         </button>
                         <div className="flex gap-4">
-                            <img
-                                src={selectedCompany.profilePicture}
+                            <Image
+                                src={selectedCompany.profilePicture || '/logo.jpeg'}
                                 alt={selectedCompany.companyname}
-                                className="w-24 h-24 object-cover rounded-lg"
+                                width={96}
+                                height={96}
+                                className="object-cover rounded-lg"
                             />
+
                             <div>
                                 <h2 className="text-2xl font-bold">{selectedCompany.companyname}</h2>
                                 <p>Email: {selectedCompany.companyemail}</p>

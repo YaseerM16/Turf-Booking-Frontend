@@ -15,14 +15,9 @@ import { axiosInstance } from "@/utils/constants";
 import { logout } from "@/store/slices/UserSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Spinner from "./Spinner";
-Spinner
-// useRouter
-
-useAppDispatch
-useAppSelector
-
+import Image from "next/image";
+import "react-toastify/dist/ReactToastify.css";
 
 const Navbar: React.FC = () => {
     const user = useAppSelector(state => state.users.user)
@@ -52,12 +47,13 @@ const Navbar: React.FC = () => {
             {user ? (<div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
                 {/* Logo Section */}
                 <div className="flex items-center space-x-4 cursor-pointer">
-                    <img
+                    <Image
                         src="/logo.jpeg"
                         alt="Turf Booking Logo"
-                        className="h-10 w-10 rounded-md shadow-md"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-md shadow-md cursor-pointer"
                         onClick={() => router.replace("/")}
-
                     />
                     <span className="font-bold text-2xl text-green-700 tracking-wide">
                         Turf Booking
@@ -87,10 +83,12 @@ const Navbar: React.FC = () => {
                 {/* Account Section */}
                 <div className="flex items-center space-x-6">
                     {/* Profile Icon */}
-                    <img
-                        src={user.profilePicture ? user.profilePicture : "/logo.jpeg"}
+                    <Image
+                        src={user.profilePicture || "/logo.jpeg"}
                         alt="Profile"
-                        className="h-10 w-10 rounded-full border-2 border-gray-300 shadow-md transition-transform transform hover:scale-110"
+                        width={40}
+                        height={40}
+                        className="h-10 w-10 rounded-full border-2 border-gray-300 shadow-md transition-transform transform hover:scale-110 cursor-pointer"
                         onClick={() => router.replace("/profile")}
                     />
                     {/* Logout Button */}

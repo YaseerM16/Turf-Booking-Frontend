@@ -9,17 +9,13 @@ import Header from '@/components/company/CompanyHeader';
 import { TurfData } from '@/utils/type';
 import FireLoading from '@/components/FireLoading';
 
-type TurfDetailsProps = {
-    turf: TurfData | null; // Define the type for the props
-};
-
 export default function TurfDetails() {
     const [turf, setTurf] = useState<TurfData | null>(null);
     const [loading, setLoading] = useState(true);
     const params = useParams();
     const turfId = params?.turfId;
 
-    async function fetchTurfDetails(turfId: any) {
+    async function fetchTurfDetails(turfId: string) {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
@@ -40,7 +36,7 @@ export default function TurfDetails() {
 
 
     useEffect(() => {
-        fetchTurfDetails(turfId);
+        fetchTurfDetails(turfId as string);
     }, [turfId]);
 
 

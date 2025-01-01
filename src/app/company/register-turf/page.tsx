@@ -1,19 +1,14 @@
 "use client";
-// import Sidebar from "@/components/admin/SideBar";
 import Header from "@/components/company/CompanyHeader";
 import Sidebar from "@/components/company/CompanySidebar";
-import CompanyRegister from "@/components/company/register/CompanyRegister";
-import TurfRegister from "@/components/company/register/TurfRegister";
 import TurfRegisterForm from "@/components/company/register/TurfRegisterForm";
 import FireLoading from "@/components/FireLoading";
-import AuthNavbar from "@/components/user-auth/AuthNavbar";
 import { useAppSelector } from "@/store/hooks";
-import { axiosInstance } from "@/utils/constants";
+import { axiosInstance, FormSubmitted } from "@/utils/constants";
+import { APIError } from "@/utils/type";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-// import LoginPage from "@/components/user/LoginForm";
-useRouter
 
 
 export default function Register() {
@@ -21,7 +16,7 @@ export default function Register() {
     const router = useRouter()
     const company = useAppSelector((state) => state.companies);
 
-    const handleFormSubmit = async (formSubmitted: any) => {
+    const handleFormSubmit = async (formSubmitted: FormSubmitted): Promise<{ success: boolean } | undefined> => {
         try {
             // console.log("formSubmitted : ", formSubmitted);
 
@@ -29,7 +24,7 @@ export default function Register() {
 
             // Append files (images) to FormData
             if (formSubmitted.images && formSubmitted.images.length > 0) {
-                formSubmitted.images.forEach((file: File, index: number) => {
+                formSubmitted.images.forEach((file: File) => {
                     formData.append(`TurfImages`, file); // Backend should handle multiple files under 'TurfImages'
                 });
             }
@@ -40,7 +35,7 @@ export default function Register() {
                 latitude: formSubmitted.location?.lat,
                 longitude: formSubmitted.location?.lng,
             }));
-            formData.append("address", formSubmitted.address)
+            formData.append("address", formSubmitted.address ? formSubmitted.address : "")
             formData.append("turfName", formSubmitted.turfName);
             formData.append("price", formSubmitted.price);
             formData.append("turfSize", formSubmitted.turfSize);
@@ -52,8 +47,6 @@ export default function Register() {
             formData.append("description", formSubmitted.description);
             formData.append("games", JSON.stringify(formSubmitted.selectedGames))
             formData.append("companyId", company.company?._id as string);
-
-            // console.log("");
 
 
             setLoading(true);
@@ -72,9 +65,12 @@ export default function Register() {
                 setTimeout(() => router.replace("/company/turf-management"), 1500);
                 return { success: true }
             }
-        } catch (err: any) {
+
+            return { success: false }
+        } catch (err: unknown) {
+            const apiError = err as APIError
             console.error("Error While Register Company:", err);
-            toast.error(err.response?.data?.error || "Something went wrong!");
+            toast.error(apiError.response?.data?.error || "Something went wrong!");
         } finally {
             setLoading(false);
         }

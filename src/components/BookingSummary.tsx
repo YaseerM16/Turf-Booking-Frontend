@@ -7,22 +7,20 @@ import { SiPyup } from "react-icons/si";
 import { BsCurrencyRupee } from "react-icons/bs";
 import PayUComponent from "./PayUComponent ";
 import { useAppSelector } from "@/store/hooks";
+import { BookedData } from "@/utils/constants";
+
 
 interface BookingSummaryProps {
     selectedSlots: SlotDetails[];
     onCancel: () => void;
-    onProceedToPayment: (paymentMethod: string) => void;
     price: number;
     turfId: string;
     companyId: string
 }
 
-
-
 const BookingSummary: React.FC<BookingSummaryProps> = ({
     selectedSlots,
     onCancel,
-    onProceedToPayment,
     price,
     turfId,
     companyId
@@ -34,11 +32,11 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     const userDet = useAppSelector(state => state.users.user)
     // const userDet = JSON.parse(localStorage.getItem("auth") as string);
     const [showPayU, setShowPayU] = useState<boolean>(false)
-    const [bookingDets, setBookingDets] = useState<any>(null)
+    const [bookingDets, setBookingDets] = useState<BookedData | null>(null)
     // let BookingDets: any
     console.log("bookingDets in BokingSumary :", bookingDets);
 
-    const handlePaymentSelection = (method: any) => {
+    const handlePaymentSelection = (method: string) => {
         setSelectedPayment(method === selectedPayment ? "" : method);
     };
 
@@ -70,11 +68,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         }
     }
 
-    const handlePayNow = () => {
-        if (selectedPayment) {
-            onProceedToPayment(selectedPayment);
-        }
-    };
+
     useEffect(() => {
         console.log("Inside useEffect() ::>");
 
@@ -107,7 +101,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
             //     selectedSlots: selectedSlots,
             // }
         }
-    }, [])
+    }, [companyId, grandTotal, selectedSlots, turfId, userDet])
 
     console.log("SElecte SLOTs: ", selectedSlots);
 

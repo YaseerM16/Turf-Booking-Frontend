@@ -1,7 +1,13 @@
 export type ReactSetState = React.Dispatch<React.SetStateAction<string>>;
 
 // https://nominatim.openstreetmap.org/reverse?lat=17.406498&lon=78.4772439&format=json
-
+export interface APIError {
+    response?: {
+        data?: {
+            error?: string;
+        };
+    };
+}
 export type User = {
     _id: string;
     name: string;
@@ -64,8 +70,10 @@ export type TurfDetails = {
 };
 
 export type SlotDetails = {
+    slotId(slotId: string): void;
     isUnavail: boolean;
     turfId: string,
+    userId?: User,
     day: string,
     date: Date,
     slot: string,

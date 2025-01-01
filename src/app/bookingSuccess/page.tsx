@@ -1,10 +1,11 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import { SlotDetails } from "@/utils/type";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense } from "react";
 
-const BookingSuccess: React.FC = () => {
+const BookingSuccessPage: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const bookingDetsGot = searchParams?.get("bookingDets")
@@ -17,8 +18,6 @@ const BookingSuccess: React.FC = () => {
 
     const bookingDets = JSON.parse(rawDets);
     console.log("Booking Details in Success Page:", bookingDets);
-
-    const [slots, setSlots] = useState<any[]>(bookingDets.selectedSlots || []);
 
     const handleRedirect = () => {
         router.push("/");
@@ -80,7 +79,7 @@ const BookingSuccess: React.FC = () => {
                         <div className="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200">
                             <h3 className="text-xl font-bold text-blue-800 mb-4">Booked Slots</h3>
                             <div className="grid grid-cols-3 gap-4">
-                                {bookingDets?.booking?.selectedSlots.map((slot: any, index: number) => {
+                                {bookingDets?.booking?.selectedSlots.map((slot: SlotDetails, index: number) => {
                                     // Format the date in 'Day, Month Date, Year' format
                                     const formattedDate = new Date(slot.date).toLocaleDateString('en-US', {
                                         weekday: 'long',
@@ -119,4 +118,10 @@ const BookingSuccess: React.FC = () => {
     );
 };
 
-export default BookingSuccess;
+export default function BookingSuccess() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <BookingSuccessPage />
+        </Suspense>
+    )
+}

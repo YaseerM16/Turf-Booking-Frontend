@@ -8,6 +8,7 @@ import { logout, setCompany } from '@/store/slices/CompanySlice';
 import { axiosInstance } from '@/utils/constants';
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner";
+import Image from 'next/image';
 
 
 const Sidebar: React.FC = () => {
@@ -63,7 +64,15 @@ const Sidebar: React.FC = () => {
             <div className="w-1/6 bg-green-200 min-h-screen p-4">
                 {/* Logo */}
                 <div className="mb-6 flex flex-col items-center space-y-4">
-                    <img src="/logo.jpeg" alt="Turf Booking Logo" className="h-20 w-auto rounded-lg" />
+                    <Image
+                        src="/logo.jpeg"
+                        alt="Turf Booking Logo"
+                        width={80} // Adjust dimensions as needed
+                        height={80} // Adjust dimensions as needed
+                        className="rounded-lg"
+                        priority // Optional, to load the image eagerly
+                    />
+
                     <h1 className="text-2xl font-semibold text-gray-800">Turf Booking</h1>
                 </div>
 

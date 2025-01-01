@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import Spinner from "../Spinner";
 import { axiosInstance } from "@/utils/constants";
@@ -11,9 +10,9 @@ import { setUser } from "@/store/slices/UserSlice"
 import { useAppDispatch } from "@/store/hooks";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "../../../FireBaseConfig"
-
-
-useAppDispatch;
+import Image from "next/image";
+import "react-toastify/dist/ReactToastify.css";
+import { AxiosError } from "axios";
 
 type Inputs = {
     email: string;
@@ -55,9 +54,11 @@ const LoginForm: React.FC = () => {
                 toast.error(data?.message || "Login failed. Please try again.");
                 setLoading(false);
             }
-        } catch (err: any) {
-            toast.error(`${err.response.data.message}`);
-            setLoading(false);
+        } catch (err: unknown) {
+            if (err instanceof AxiosError) {
+                toast.error(`${err?.response?.data.message}`);
+                setLoading(false);
+            }
         } finally {
             setLoading(false);
 
@@ -74,11 +75,11 @@ const LoginForm: React.FC = () => {
             const result = await signInWithPopup(auth, provider)
             const user = result.user;
 
-            let response = await axiosInstance.post("/api/v1/user/auth/google-login", user)
+            const response = await axiosInstance.post("/api/v1/user/auth/google-login", user)
 
             if (response) {
                 if (response.data.success) {
-                    const googleUser = response.data.user;
+                    // const googleUser = response.data.user;
                     // console.log("GooleUser ", googleUser);
 
                     const user = {
@@ -98,11 +99,13 @@ const LoginForm: React.FC = () => {
                 }
             }
 
-        } catch (error: any) {
-            if (error && error.response?.status === 403) {
-                toast.warn(error.response?.data?.message + " try Login")
-            } else if (error.response?.status === 409) {
-                toast.error(error.response.data.message)
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error && error.response?.status === 403) {
+                    toast.warn(error.response?.data?.message + " try Login")
+                } else if (error.response?.status === 409) {
+                    toast.error(error.response.data.message)
+                }
             }
             console.log(error)
         }
@@ -125,10 +128,13 @@ const LoginForm: React.FC = () => {
                 {/* Left Section */}
                 <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
                     <div className="text-center pt-8">
-                        <img
+                        <Image
                             src="/logo.jpeg"
                             alt="Logo"
-                            className="h-16 mx-auto mb-4"
+                            width={64} // Specify width (h-16 = 16 x 4 = 64px)
+                            height={64} // Specify height (h-16 = 16 x 4 = 64px)
+                            className="mx-auto mb-4"
+                            priority // Optional: Ensures the image is preloaded for better performance
                         />
                         <h2 className="text-xl font-medium text-gray-800">
                             Welcome Back to <span className="text-green-600">TURF</span>
@@ -195,11 +201,15 @@ const LoginForm: React.FC = () => {
                                     type="button"
                                     className="flex justify-center items-center px-4 py-2 rounded-md border-[3px] border-[#D9D9D9] bg-white text-[#757575] hover:opacity-90"
                                 >
-                                    <img
-                                        src="/images/glogo.jpeg"
-                                        alt="Google logo"
-                                        className="w-6 h-6 mr-2"
-                                    />
+                                    <div className="w-6 h-6 mr-2 relative">
+                                        <Image
+                                            src="/images/glogo.jpeg"
+                                            alt="Google logo"
+                                            layout="fill"
+                                            objectFit="contain"
+                                            className="rounded-md"
+                                        />
+                                    </div>
                                     <span className="text-sm font-medium">Login with Google</span>
                                 </button>
                             </div>
@@ -219,17 +229,17 @@ const LoginForm: React.FC = () => {
 
                 {/* Right Section */}
                 <div
-                    className="w-1/2 bg-cover bg-center"
-                    style={{
-                        backgroundImage: `url('/turf-background-image.jpg')`,
-                    }}
+                    className="w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]"
                 >
                     <div className="flex justify-center items-center h-full">
                         <div className="bg-white p-4 rounded-full shadow-lg">
-                            <img
+                            <Image
                                 src="/logo.jpeg"
                                 alt="Turf Logo"
-                                className="h-32 w-32 object-cover rounded-full"
+                                width={128} // h-32 = 32 x 4 = 128px
+                                height={128} // w-32 = 32 x 4 = 128px
+                                className="object-cover rounded-full"
+                                priority // Optional: Use if this image is critical for above-the-fold content
                             />
                         </div>
                     </div>

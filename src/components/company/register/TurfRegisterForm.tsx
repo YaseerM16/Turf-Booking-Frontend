@@ -1,64 +1,37 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import "react-calendar/dist/Calendar.css";
-import dynamic from "next/dynamic";
-import "react-toastify/dist/ReactToastify.css";
+import { useForm } from "react-hook-form";
 import { FaTrash } from 'react-icons/fa';
-import FireLoading from "@/components/FireLoading";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import MapComponent from "@/components/OlaMapInput";
 import { Location } from "@/components/OlaMapInput"
-// import {} from "@/components/OlaMapInput"
-
-interface Marker {
-    latitude: number;
-    longitude: number;
-}
-
-interface TurfRegisterFormData {
-    turfName: string;
-    description: string;
-    turfSize: string;
-    turfType: string;
-    price: string;
-    images: File[];
-    workingDays: string[];
-    fromTime: string;
-    toTime: string;
-    selectedFacilities: string[];
-    selectedGames: string[];
-    location: Location | null;
-    address: string | null;
-}
+import { FormSubmitted } from "@/utils/constants";
+import "react-calendar/dist/Calendar.css";
+import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
 
 interface TurfRegisterFormProps {
-    onSubmit: (data: TurfRegisterFormData) => void;
+    onSubmit: (data: FormSubmitted) => Promise<{ success: boolean } | undefined>;
 }
 
 const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
     const router = useRouter()
-    const [showMap, setShowMap] = useState(false);
-    // const [location, setShowMap] = useState(false);
     const [location, setLocation] = useState<Location | null>(null); // Track selected location
     const [address, setAddress] = useState<string | null>(null)
-    const [isLocationSelected, setIsLocationSelected] = useState(false);
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
 
     const {
         register,
         handleSubmit,
-        control,
         setValue,
         setError,
         clearErrors,
         watch,
         formState: { errors }
-    } = useForm<TurfRegisterFormData>({
+    } = useForm<FormSubmitted>({
         defaultValues: {
             turfName: "",
             description: "",
@@ -75,11 +48,23 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
             address: null
         },
     });
+
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
+    const watchImages = watch("images");
+
     useEffect(() => {
-        if (isLocationSelected) {
-            clearErrors("location");
-        }
-    }, [isLocationSelected]);
+        // Generate URLs for all files
+        const files = watch("images") || [];
+        const urls = files.map((file: File) => URL.createObjectURL(file));
+        setImageUrls(urls);
+
+        // Cleanup: Revoke the generated URLs when the component unmounts or when files change
+        return () => {
+            urls.forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, [watch, watchImages]);
+
+
 
     const selectedFacilities = watch("selectedFacilities");
     const selectedGames = watch("selectedGames");
@@ -93,6 +78,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
         clearErrors("selectedFacilities")
         setValue("selectedFacilities", updatedFacilities);
     };
+
     const handleGameToggle = (game: string) => {
         const updatedGames = selectedGames.includes(game)
             ? selectedGames.filter((f) => f !== game)
@@ -110,7 +96,6 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
         clearErrors("workingDays")
         setValue("workingDays", updatedDays);
     };
-
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -146,35 +131,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
         setIsMapVisible(prev => !prev)
     }
 
-    // const handlePinLocation = (pinnedLocation: Marker) => {
-    //     try {
-    //         if (!pinnedLocation || !pinnedLocation.latitude || !pinnedLocation.longitude) {
-    //             console.error("Invalid location data");
-    //             return;
-    //         }
-    //         setLocation(pinnedLocation);
-    //         setValue("location", pinnedLocation)
-    //         setIsLocationSelected(true);
-    //         toast.success("Location pinned successfully!");
-    //         clearErrors("location");
-    //     } catch (error) {
-    //         console.error("Error while pinning location:", error);
-    //         toast.error("An error occurred while selecting the location. Please try again.");
-    //     }
-    // };
-
-
-    const handleCloseMap = () => {
-        setShowMap(false);
-        setIsLocationSelected(false); // Reset location selection state when closing the map
-    };
-
-    const handleLocationRequest = () => {
-        toast.info("Please enable location services for a more precise location.");
-        setShowMap(true);
-    };
-
-    const handleFormSubmit = async (data: any) => {
+    const handleFormSubmit = async (data: FormSubmitted) => {
         try {
 
             if (!data.images || data.images.length === 0) {
@@ -207,8 +164,8 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
 
             if (location && address) {
                 clearErrors("location");
-                const response: any = await onSubmit(data);
-                if (response?.success) {
+                const res = await onSubmit(data);
+                if (res?.success) {
                     Swal.fire({
                         icon: 'success',
                         title: 'Turf Registered Successfully!',
@@ -275,7 +232,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                                 <option value="7s">7s</option>
                                 <option value="11s">11s</option>
                             </select>
-                            {errors.turfSize && <p className="text-red-500 text-sm">"Please select the turf size"{errors.turfSize.message}</p>}
+                            {errors.turfSize && <p className="text-red-500 text-sm">Please select the turf size{errors.turfSize.message}</p>}
                         </div>
 
 
@@ -358,12 +315,14 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
                         </div>
                         {!isMapVisible && ( // Conditionally render based on map state
                             <div className="mt-4 flex flex-wrap relative z-10">
-                                {Array.from(watch("images") || []).map((file: File, index: number) => (
+                                {imageUrls.map((url, index) => (
                                     <div key={index} className="relative inline-block mr-4 mb-2">
-                                        <img
-                                            src={URL.createObjectURL(file)}
+                                        <Image
+                                            src={url}
                                             alt={`Preview ${index}`}
-                                            className="w-24 h-24 object-cover rounded-lg"
+                                            width={96}
+                                            height={96}
+                                            className="object-cover rounded-lg"
                                         />
                                         <button
                                             type="button"

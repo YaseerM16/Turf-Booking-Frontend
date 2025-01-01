@@ -3,12 +3,10 @@
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 // import TurfList from '@/components/TurfList';
-import { axiosInstance } from '@/utils/constants';
-import React, { useEffect, useState } from 'react';
-import { TurfDetails } from "@/utils/type"
-import FireLoading from '@/components/FireLoading';
+import React from 'react';
 import TurfList from '@/components/TurfList';
-FireLoading
+
+
 const ProfilePage = () => {
 
     // const [loading, setLoading] = useState<boolean>(false)

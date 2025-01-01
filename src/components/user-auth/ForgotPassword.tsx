@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner";
 import { axiosInstance } from "@/utils/constants";
+import Image from "next/image";
+import { AxiosError } from "axios";
 
 type Inputs = {
     email: string;
@@ -39,12 +41,14 @@ const ForgotPassword: React.FC = () => {
             } else {
                 toast.error(data?.message || "Failed to send reset link. Try again.");
             }
-        } catch (err: any) {
-            console.error("ForgotPasswordAPI error:", err);
-            const errorMessage =
-                err.response?.data?.message || // Message from the server
-                "An unexpected error occurred. Please try again.";
-            toast.error(errorMessage);
+        } catch (err: unknown) {
+            if (err instanceof AxiosError) {
+                console.error("ForgotPasswordAPI error:", err);
+                const errorMessage =
+                    err.response?.data?.message || // Message from the server
+                    "An unexpected error occurred. Please try again.";
+                toast.error(errorMessage);
+            }
         } finally {
             setLoading(false);
         }
@@ -67,10 +71,13 @@ const ForgotPassword: React.FC = () => {
                 {/* Left Section */}
                 <div className="w-1/2 bg-yellow-50 flex flex-col justify-center items-center">
                     <div className="text-center pt-8">
-                        <img
+                        <Image
                             src="/logo.jpeg"
                             alt="Logo"
-                            className="h-16 mx-auto mb-4"
+                            width={64} // Specify width (h-16 = 16 x 4 = 64px)
+                            height={64} // Specify height (h-16 = 16 x 4 = 64px)
+                            className="mx-auto mb-4"
+                            priority // Optional: Ensures the image is preloaded for better performance
                         />
                         <h2 className="text-xl font-medium text-gray-800">
                             Trouble Logging In? <span className="text-green-600">We Got You</span>
@@ -135,17 +142,17 @@ const ForgotPassword: React.FC = () => {
 
                 {/* Right Section */}
                 <div
-                    className="w-1/2 bg-cover bg-center"
-                    style={{
-                        backgroundImage: `url('/turf-background-image.jpg')`,
-                    }}
+                    className="w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]"
                 >
                     <div className="flex justify-center items-center h-full">
                         <div className="bg-white p-4 rounded-full shadow-lg">
-                            <img
+                            <Image
                                 src="/logo.jpeg"
                                 alt="Turf Logo"
-                                className="h-32 w-32 object-cover rounded-full"
+                                width={128} // h-32 = 32 x 4 = 128px
+                                height={128} // w-32 = 32 x 4 = 128px
+                                className="object-cover rounded-full"
+                                priority // Optional: Use if this image is critical for above-the-fold content
                             />
                         </div>
                     </div>

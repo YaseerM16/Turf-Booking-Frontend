@@ -9,11 +9,8 @@ import { logout, setUser } from '@/store/slices/UserSlice';
 import Spinner from './Spinner';
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
-
-useAppDispatch
-useAppSelector
-Spinner
-logout
+import Image from 'next/image';
+import { AxiosError } from 'axios';
 
 const ProfileComponent: React.FC = () => {
     const user = useAppSelector(state => state.users.user)
@@ -34,7 +31,7 @@ const ProfileComponent: React.FC = () => {
     const handleSubmit = async (updatedUser: User) => {
         try {
             setLoading(true)
-            const response: any = await axiosInstance.patch(
+            const response = await axiosInstance.patch(
                 `/api/v1/user/profile/update-details/${user?._id}`,
                 JSON.stringify(updatedUser),
                 {
@@ -55,25 +52,27 @@ const ProfileComponent: React.FC = () => {
                 setLoading(false)
             } else if (response.data.refreshTokenExpired) {
                 setLoading(false)
-                const response: any = await axiosInstance.get("/api/v1/user/logout");
+                const response = await axiosInstance.get("/api/v1/user/logout");
                 if (response.data.loggedOut) {
                     dispatch(logout())
                     localStorage.removeItem('auth');
                     router.replace("/")
                 }
             }
-        } catch (error: any) {
-            if (error.status === 403) {
-                toast.error(`${error.response.data.message}`)
-                const response: any = await axiosInstance.get("/api/v1/user/logout");
-                if (response.data.loggedOut) {
-                    dispatch(logout())
-                    localStorage.removeItem('auth');
-                    setLoading(false)
-                    toast.warn("you're Logging Out ...!", { onClose: () => router.replace("/") })
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                if (error.status === 403) {
+                    toast.error(`${error?.response?.data.message}` || "Something went wrong during update profile")
+                    const response = await axiosInstance.get("/api/v1/user/logout");
+                    if (response.data.loggedOut) {
+                        dispatch(logout())
+                        localStorage.removeItem('auth');
+                        setLoading(false)
+                        toast.warn("you're Logging Out ...!", { onClose: () => router.replace("/") })
+                    }
+                } else {
+                    console.log("Error While Updating Details :", error);
                 }
-            } else {
-                console.log("Error While Updating Details :", error);
             }
         }
     };
@@ -86,7 +85,7 @@ const ProfileComponent: React.FC = () => {
 
             try {
                 setLoading(true)
-                const response: any = await axiosInstance.patch(
+                const response = await axiosInstance.patch(
                     `/api/v1/user/profile/upload-image/${user?._id}`,
                     formData,
                     {
@@ -135,12 +134,17 @@ const ProfileComponent: React.FC = () => {
                                 {loading ? (
                                     <Spinner />
                                 ) : (
-                                    <img
-                                        src={user?.profilePicture ? user.profilePicture : "logo.jpeg"}
+                                    <Image
+                                        src={user?.profilePicture ? user.profilePicture : "/logo.jpeg"}
                                         alt="Profile"
                                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                        width={200} // Adjust the width based on your layout
+                                        height={200} // Adjust the height based on your layout
+                                        placeholder="blur" // Optional: adds a blur effect while loading
+                                        blurDataURL="/logo.jpeg" // Optional: placeholder for the blur effect
                                     />
                                 )}
+
                                 <label
                                     htmlFor="profileImage"
                                     className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"

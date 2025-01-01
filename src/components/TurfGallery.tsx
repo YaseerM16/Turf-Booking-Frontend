@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React, { useState } from "react";
 
 interface GalleryProps {
@@ -13,11 +14,15 @@ const TurfGallery: React.FC<GalleryProps> = ({ images }) => {
 
             {/* Highlighted Image */}
             <div className="mb-6 relative">
-                <img
+                <Image
                     src={images[currentIndex]}
-                    alt={`Highlighted Turf Image`}
-                    className="w-full h-80 object-contain rounded-lg shadow-md"
+                    alt="Highlighted Turf Image"
+                    layout="responsive"
+                    width={16} // Aspect ratio width
+                    height={9} // Aspect ratio height
+                    className="rounded-lg shadow-md"
                 />
+
                 {/* Navigation Arrows */}
                 <button
                     onClick={() => {
@@ -44,14 +49,19 @@ const TurfGallery: React.FC<GalleryProps> = ({ images }) => {
             {/* Thumbnails Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {images.map((image, idx) => (
-                    <img
+                    <div
                         key={idx}
-                        src={image}
-                        alt={`Turf Thumbnail ${idx + 1}`}
-                        className={`w-full h-40 object-cover rounded-lg shadow-md cursor-pointer ${currentIndex === idx ? "border-4 border-green-700" : ""
-                            }`}
+                        className={`relative w-full h-40 rounded-lg shadow-md cursor-pointer ${currentIndex === idx ? "border-4 border-green-700" : ""}`}
                         onClick={() => setCurrentIndex(idx)}
-                    />
+                    >
+                        <Image
+                            src={image}
+                            alt={`Turf Thumbnail ${idx + 1}`}
+                            layout="fill" // Ensures the image fills the container
+                            objectFit="cover" // Mimics `object-cover` behavior
+                            className="rounded-lg"
+                        />
+                    </div>
                 ))}
             </div>
         </div>

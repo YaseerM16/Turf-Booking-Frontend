@@ -1,16 +1,17 @@
 "use client";
 
-import Map from "@/components/map/Map";
 import Spinner from "@/components/Spinner";
 import { axiosInstance } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { Location } from "@/components/OlaMapInput"
 import MapInput from "@/components/OlaMapInput"
 import Swal from "sweetalert2";
+import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
+import { APIError } from "@/utils/type";
 
 interface FormInputs {
     companyName: string;
@@ -21,16 +22,9 @@ interface FormInputs {
     location?: { latitude: number; longitude: number };
 }
 
-interface Marker {
-    latitude: number;
-    longitude: number;
-}
-
 const CompanyRegistration: React.FC = () => {
     const { register, handleSubmit, watch, formState: { errors }, setError, clearErrors } = useForm<FormInputs>();
     const [showMap, setShowMap] = useState(false);
-    // const [location, setLocation] = useState<Marker | null>(null); // Track selected location
-    const [isLocationSelected, setIsLocationSelected] = useState(false);
     const [loading, setLoading] = useState(false);
     const [location, setLocation] = useState<Location | null>(null)
     const [address, setAddress] = useState<string | null>(null)
@@ -38,13 +32,9 @@ const CompanyRegistration: React.FC = () => {
 
 
     const handleLocationCofirm = (location: Location | null, address: string | null) => {
-        console.log("LOCate IN Company GaiN :", location);
-        console.log("And Address : ", address);
         setShowMap(false)
         setLocation(location)
         setAddress(address || null)
-        // setValue("location", location)
-        // setValue("address", address)
         clearErrors('location')
     }
 
@@ -75,10 +65,7 @@ const CompanyRegistration: React.FC = () => {
             );
             // Debugging line
             if (data?.success) {
-                setLoading(false);
-                // toast.success("Verification email sent successfully!", {
-                //     onClose: () => router.replace(`/checkmail?type=verify`),
-                // });
+                setLoading(false)
                 Swal.fire({
                     icon: "success",
                     title: "Verification email sent successfully!",
@@ -90,46 +77,15 @@ const CompanyRegistration: React.FC = () => {
                 });
             }
 
-        } catch (err: any) {
-            console.log("Error While Register Company :", err);
-
+        } catch (err: unknown) {
+            if (err instanceof Error) {
+                const apiError = err as APIError
+                setLoading(false);
+                toast.error(apiError?.response?.data?.error || "Something went wrong while sending Mail...!");
+            }
             console.error('SignUpAPI error:', err); // Debugging line
-            setLoading(false);
-            toast.error(err.response.data.error);
         }
     };
-
-    const handleLocationRequest = () => {
-        toast.info("Please enable location services for a more precise location.");
-        setShowMap(true);
-    };
-
-    // const handlePinLocation = (pinnedLocation: Marker) => {
-    //     setLocation(pinnedLocation);
-    //     setIsLocationSelected(true); // Mark location as selected
-    //     toast.success("Location pinned successfully!");
-    //     clearErrors("location");
-    // };
-
-    const handleCloseMap = () => {
-        setShowMap(false);
-        setIsLocationSelected(false); // Reset location selection state when closing the map
-    };
-    // const handleSetCurrentLocation = () => {
-    //     const userLocation = localStorage.getItem("USER_LOCATION");
-    //     if (userLocation) {
-    //         const { latitude, longitude } = JSON.parse(userLocation);
-    //         if (latitude && longitude) {
-    //             // Use the `updateMarker` function indirectly by invoking `handlePinLocation`
-    //             handlePinLocation({ latitude, longitude });
-    //         } else {
-    //             console.error("Invalid USER_LOCATION data in localStorage.");
-    //         }
-    //     } else {
-    //         console.error("USER_LOCATION not found in localStorage.");
-    //     }
-    // };
-
 
 
     return (
@@ -139,10 +95,13 @@ const CompanyRegistration: React.FC = () => {
                 {/* Left Section */}
                 <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center overflow-auto min-h-screen">
                     <div className="text-center pt-12 mt-5">
-                        <img
+                        <Image
                             src="/logo.jpeg"
                             alt="Logo"
-                            className="h-16 mx-auto mb-4 mt-12"
+                            width={64} // Specify width (h-16 = 16 x 4 = 64px)
+                            height={64} // Specify height (h-16 = 16 x 4 = 64px)
+                            className="mx-auto mb-4"
+                            priority // Optional: Ensures the image is preloaded for better performance
                         />
                         <h2 className="text-xl font-medium text-gray-800">
                             Welcome to <span className="text-green-600">TURF</span>
@@ -232,13 +191,6 @@ const CompanyRegistration: React.FC = () => {
 
                             {/* Location Selection */}
                             <div className="mb-4">
-                                {/* <button
-                                    type="button"
-                                    onClick={handleLocationRequest}
-                                    className="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700"
-                                >
-                                    Select Location
-                                </button> */}
                                 <MapInput onConfrimAndClose={handleLocationCofirm} mapView={showMap} toggleMapView={toggleMapView} />
                                 {errors.location && <p className="text-red-500 text-sm">{errors.location.message}</p>}
                             </div>
@@ -269,17 +221,17 @@ const CompanyRegistration: React.FC = () => {
 
                 {/* Right Section */}
                 <div
-                    className="w-1/2 bg-cover bg-center"
-                    style={{
-                        backgroundImage: `url('/turf-background-image.jpg')`,
-                    }}
+                    className="w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]"
                 >
                     <div className="flex justify-center items-center h-full">
                         <div className="bg-white p-4 rounded-full shadow-lg">
-                            <img
+                            <Image
                                 src="/logo.jpeg"
                                 alt="Turf Logo"
-                                className="h-32 w-32 object-cover rounded-full"
+                                width={128} // h-32 = 32 x 4 = 128px
+                                height={128} // w-32 = 32 x 4 = 128px
+                                className="object-cover rounded-full"
+                                priority // Optional: Use if this image is critical for above-the-fold content
                             />
                         </div>
                     </div>

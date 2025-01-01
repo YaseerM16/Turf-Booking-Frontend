@@ -1,5 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+
 type FireLoadingProps = {
   renders: string; // Define the type for the props
 };
@@ -30,11 +32,16 @@ const FireLoading: React.FC<FireLoadingProps> = ({ renders }) => {
           }}
         />
         {/* Centered Logo (static position) */}
-        <img
-          src="/logo.jpeg"
-          alt="Logo"
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-20 w-20 object-contain rounded-full"
-        />
+        <div className="relative h-20 w-20">
+          <Image
+            src="/logo.jpeg"
+            alt="Logo"
+            className="rounded-full object-contain"
+            fill
+            sizes="80px" // Optional: hints for responsive images
+            priority // Optional: ensures the image is loaded quickly (good for logos)
+          />
+        </div>
       </div>
 
       {/* Loading Text */}

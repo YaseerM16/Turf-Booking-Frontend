@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import "leaflet/dist/leaflet.css";
 
 let leaflet: typeof import("leaflet"); // Declare a variable to hold the Leaflet module
@@ -17,7 +17,26 @@ interface MapProps {
 const Map: React.FC<MapProps> = ({ location, profilePicture, companyName }) => {
     const mapRef = useRef<L.Map | null>(null);
     const markerRef = useRef<L.Marker | null>(null);
-
+    const updateMarker = useCallback((lat: number, lng: number) => {
+        if (markerRef.current) {
+            markerRef.current.remove(); // Remove any existing marker
+        }
+        if (leaflet && mapRef.current) {
+            const popupContent = `
+      <div class="text-center">
+        <img src="${profilePicture}" alt="${companyName}" 
+             class="w-10 h-10 rounded-full mx-auto mb-1" 
+             style="width: 40px; height: 40px;" />
+        <p class="font-semibold text-sm">${companyName}</p>
+      </div>
+    `;
+            markerRef.current = leaflet
+                .marker([lat, lng])
+                .addTo(mapRef.current)
+                .bindPopup(popupContent, { minWidth: 150 })
+                .openPopup();
+        }
+    }, [companyName, profilePicture])
     useEffect(() => {
         // Dynamically load Leaflet when needed
         (async () => {
@@ -59,28 +78,8 @@ const Map: React.FC<MapProps> = ({ location, profilePicture, companyName }) => {
                 mapRef.current = null;
             }
         };
-    }, [location]);
+    }, [location, updateMarker, profilePicture]);
 
-    const updateMarker = (lat: number, lng: number) => {
-        if (markerRef.current) {
-            markerRef.current.remove(); // Remove any existing marker
-        }
-        if (leaflet && mapRef.current) {
-            const popupContent = `
-      <div class="text-center">
-        <img src="${profilePicture}" alt="${companyName}" 
-             class="w-10 h-10 rounded-full mx-auto mb-1" 
-             style="width: 40px; height: 40px;" />
-        <p class="font-semibold text-sm">${companyName}</p>
-      </div>
-    `;
-            markerRef.current = leaflet
-                .marker([lat, lng])
-                .addTo(mapRef.current)
-                .bindPopup(popupContent, { minWidth: 150 })
-                .openPopup();
-        }
-    };
 
     return (
         <div className="border p-4 rounded shadow-md bg-white">

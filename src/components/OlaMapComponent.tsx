@@ -1,29 +1,23 @@
 'use client'
 
-// import { OlaMaps } from '../../public/olamap/OlaMapsWebSDK/dist/olamaps-js-sdk.es';
 import { OlaMaps } from '../../public/olamaps/dist/olamaps-js-sdk.es';
-import { Location } from "@/components/OlaMapInput"
-import { useEffect, useRef, useState } from 'react';
-// import '../../public/olamap/OlaMapsWebSDK/dist/style.css';
-import '../../public/olamaps/dist/style.css'
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Map_2, GeolocateControl } from "../../public/olamaps/dist/index"
 import { FaArrowRight, FaMapMarkerAlt } from 'react-icons/fa';
 import polyline from "polyline"
 import Swal from 'sweetalert2';
-interface PlacePrediction {
-    place_id: string;
-    description: string;
-    formatted_address: string;
-    geometry: {
-        location: {
-            lat: number;
-            lng: number;
-        };
-    };
-}
+import '../../public/olamaps/dist/style.css'
+
+
 interface MapComponentProps {
-    location?: any;
-    company?: any;
+    location?: { latitude: number, longitude: number }
+    company: { images: string[], companyname: string, phone: number | string };
     toggleview: () => void;
+}
+
+interface RouteDetails {
+    duration: string;  // Assuming duration is a string (e.g., "10 mins")
+    distance: number;  // Assuming distance is a number (e.g., 10)
 }
 // curl--location--request POST "https://api.olamaps.io/routing/v1/directions?origin=18.76029027465273,73.3814242364375&destination=18.73354223011708,73.44587966939002&api_key=${your_api_key}" --header "X-Request-Id: XXX"
 const MapComponent: React.FC<MapComponentProps> = ({ location, company, toggleview }) => {
@@ -31,14 +25,14 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
 
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
     const [mapView, setMapView] = useState<boolean>(false)
-    const mapRef = useRef<any>(null);
-    const [routeDets, setRouteDets] = useState<any>(null)
-    const geoLocateRef = useRef<any>(null); // Store the geoLocate instance
-    const [polyLine, setPolyLine] = useState<any>(null)
+    const mapRef = useRef<Map_2 | null>(null);
+    const [routeDets, setRouteDets] = useState<RouteDetails | null>(null)
+    const geoLocateRef = useRef<GeolocateControl | null>(null); // Store the geoLocate instance
+    const [polyLine, setPolyLine] = useState<number[][] | null>(null)
 
 
 
-    const handleGeoLocateError = (error: any) => {
+    const handleGeoLocateError = useCallback((error: { PERMISSION_DENIED: number }) => {
         if (error.PERMISSION_DENIED) {
             Swal.fire({
                 icon: 'info',
@@ -52,17 +46,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
 
         }
         console.log('An error event has occurred.', error)
-    }
-    // process.env.NEXT_PUBLIC_OLA_API_KEY
+    }, [])
 
     // console.log("GEOLocale inside CallBAck :", event);
-    const handleGeoLocateSuccess = async (event: any) => {
+    const handleGeoLocateSuccess = useCallback(async (event: { coords: { latitude: number, longitude: number } }) => {
         const lat = event.coords.latitude
         const lng = event.coords.longitude
         try {
             // location ? [location.longitude, location.latitude]
             const response = await fetch(
-                `https://api.olamaps.io/routing/v1/directions?origin=${lat},${lng}&destination=${location.latitude},${location.longitude}&api_key=${process.env.NEXT_PUBLIC_OLA_API_KEY}`,
+                `https://api.olamaps.io/routing/v1/directions?origin=${lat},${lng}&destination=${location?.latitude},${location?.longitude}&api_key=${process.env.NEXT_PUBLIC_OLA_API_KEY}`,
                 {
                     method: 'POST',
                     headers: { 'X-Request-Id': 'XXX' }
@@ -82,13 +75,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
         } catch (error) {
             console.log("Error while attempt to routing :", error);
         }
-    }
+    }, [location?.latitude, location?.longitude])
 
-    const drawPolyline = (map: any, coordinates: number[][]) => {
+    const drawPolyline = (map: Map_2, coordinates: number[][]) => {
         if (map && map.getSource('route')) {
             console.log("Source 'route' already exists. Updating the source.");
             // Update the existing source
-            const source = map.getSource('route') as any;
+            const source = map.getSource('route');
             if (source) {
                 source.setData({
                     type: 'Feature',
@@ -127,75 +120,12 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
         }
     };
 
-
-
     useEffect(() => {
         if (polyLine && mapRef.current) {
             console.log("IAM cAllinG to Dreow");
             drawPolyline(mapRef.current, polyLine);
         }
     }, [polyLine]);
-
-
-    // console.log('Route details:', decodedPolyglon);
-    // addPolylineToMap(mapRef.current, decodedPolyglon)
-    // exampleFucn()
-
-    // const exampleFucn = () => {
-    //     if (mapRef.current) {
-    //         console.log("MapREF.Current FOund :)");
-    //         const map = mapRef.current
-    //         map.on('load', () => console.log("THHHE VVVVEEEERRRRR  VLOPLPOON  {:}"))
-    //     } else if (!mapRef.current) console.log("MAPref.current is NOT found!!");
-
-    // }
-
-    // const addPolylineToMap = (map: any, coordinates: number[][]) => {
-    //     if (!map.getSource('route')) {
-    //         // Add the source for the route
-    //         console.log("Begins to draw :");
-
-    //         map.addSource('route', {
-    //             type: 'geojson',
-    //             data: {
-    //                 type: 'Feature',
-    //                 properties: {},
-    //                 geometry: {
-    //                     type: 'LineString',
-    //                     coordinates, // Pass the coordinates
-    //                 },
-    //             },
-    //         });
-
-    //         // Add the layer for the polyline
-    //         map.addLayer({
-    //             id: 'route',
-    //             type: 'line',
-    //             source: 'route',
-    //             layout: {
-    //                 'line-join': 'round',
-    //                 'line-cap': 'round',
-    //             },
-    //             paint: {
-    //                 'line-color': '#f00', // Polyline color
-    //                 'line-width': 4, // Polyline width
-    //             },
-    //         });
-    //     } else {
-    //         // Update the existing source if it already exists
-    //         const source = map.getSource('route');
-    //         source.setData({
-    //             type: 'Feature',
-    //             properties: {},
-    //             geometry: {
-    //                 type: 'LineString',
-    //                 coordinates,
-    //             },
-    //         });
-    //     }
-    // };
-
-
 
     useEffect(() => {
         if (mapView) {
@@ -222,7 +152,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
             // Create a custom marker element
             const customMarker = document.createElement('div');
             customMarker.classList.add('customMarkerClass');
-            console.log("Company IMage :", company?.images?.[0]);
+            console.log("Company IMage :", company?.images[0]);
 
 
             // Add the background image directly using JavaScript
@@ -239,7 +169,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
             customMarker.style.borderRadius = "50%"; // For a circular marker
             customMarker.style.border = "2px solid #FF0000"; // Optional: Add border styling
 
-            const popup = olaMaps.addPopup({ offset: [0, -30], anchor: 'bottom' }).setHTML(`<div><strong>${company.companyname}</strong><br>Contact : <strong>${company.phone}</strong></div>`)
+            const popup = olaMaps.addPopup({ offset: [0, -30], anchor: 'bottom' }).setHTML(`<div><strong>${company?.companyname}</strong><br>Contact : <strong>${company?.phone}</strong></div>`)
 
             const geoLocate = olaMaps.addGeolocateControls({
                 positionOptions: {
@@ -248,7 +178,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
                 trackUserLocation: true,
             })
 
-            geoLocate.on('geolocate', (event: Event) => handleGeoLocateSuccess(event))
+            geoLocate.on('geolocate', (event: Event) => handleGeoLocateSuccess(event as unknown as { coords: { latitude: number, longitude: number } }))
             geoLocate.on('error', handleGeoLocateError)
             geoLocateRef.current = geoLocate; // Save geoLocate instance to ref
             map.addControl(geoLocate);
@@ -274,7 +204,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
             };
         }
 
-    }, [mapView]);
+    }, [mapView, company?.companyname, company?.images, company?.phone, handleGeoLocateSuccess, location?.latitude, location?.longitude, handleGeoLocateError, location]);
 
     const setCurrentLocation = () => {
         // console.log("HEELLOO");
@@ -296,7 +226,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
             return
         }
     }
-
 
     return (
         <div>

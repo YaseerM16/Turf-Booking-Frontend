@@ -1,15 +1,11 @@
 "use client";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { logout, setCompany } from "@/store/slices/CompanySlice";
-import React, { useEffect, useState } from "react";
-import Spinner from "../Spinner";
-import { axiosInstance } from "@/utils/constants";
-import { useRouter } from "next/navigation";
-import { toast, ToastContainer } from "react-toastify";
+import { setCompany } from "@/store/slices/CompanySlice";
+import React, { useEffect } from "react";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Header from "./CompanyHeader";
 import Sidebar from "./CompanySidebar";
-Sidebar
 
 
 const CompanyDashboard: React.FC = () => {

@@ -5,15 +5,16 @@ import { useParams } from "next/navigation";
 import { axiosInstance } from '@/utils/constants';
 import TurfDetailsForm from '@/components/company/management/turf-management/TurfDetailsForm';
 import FireLoading from '@/components/FireLoading';
+import { TurfData } from '@/utils/type';
 
 
 export default function TurfDetails() {
-    const [turf, setTurf] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const [turf, setTurf] = useState<TurfData | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
     const params = useParams();
     const turfId = params?.turfId;
 
-    async function fetchTurfs(turfId: any) {
+    async function fetchTurfs(turfId: string) {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
@@ -33,7 +34,7 @@ export default function TurfDetails() {
     };
 
     useEffect(() => {
-        fetchTurfs(turfId);
+        fetchTurfs(turfId as string);
     }, [turfId]);
 
     return (

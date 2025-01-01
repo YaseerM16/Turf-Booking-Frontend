@@ -5,9 +5,6 @@ import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Spinner from "../Spinner";
 
-Spinner
-
-
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -17,7 +14,6 @@ interface ModalProps {
 
 const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loading }) => {
     const company = useAppSelector((state) => state.companies.company);
-
 
     const {
         register,

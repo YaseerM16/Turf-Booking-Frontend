@@ -1,22 +1,30 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { axiosInstance } from "@/utils/constants";
 import FireLoading from "../FireLoading";
 import ViewBookingDetails from "./ViewBookingDetails";
 import { useAppSelector } from "@/store/hooks";
+import { SlotDetails, TurfDetails } from "@/utils/type";
+
+export interface Booking {
+    _id: string; // Assuming each booking has an ID
+    turfId: TurfDetails; // A reference to the associated turf object
+    selectedSlots: SlotDetails[]; // Array of selected slots (could be strings or another type depending on your structure)
+    bookingDate: string | Date; // Booking date (string or Date object)
+}
 
 const MyBooking: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
-    const [booking, setBooking] = useState<any[] | null>([]);
+    const [booking, setBooking] = useState<Booking[] | null>([]);
     const user = useAppSelector(state => state.users.user)
     // const company = useAppSelector(state => state.companies.company)
-    const [selectedBooking, setSelectedBooking] = useState<any>(null); // For toggling between details and booking list
+    const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // For toggling between details and booking list
     // const userDet = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("auth") || "{}") : null;
     console.log("Bookings :", booking);
 
 
     // Fetch bookings from the server
-    async function fetchBookings() {
+    const fetchBookings = useCallback(async () => {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(`/api/v1/user/my-booking?userId=${user?._id}`);
@@ -28,13 +36,13 @@ const MyBooking: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [user?._id])
 
     useEffect(() => {
         if (user?._id) {
             fetchBookings();
         }
-    }, []);
+    }, [user?._id, fetchBookings]);
 
     // Conditional rendering: MyBookings list or ViewBookingDetails
     return (

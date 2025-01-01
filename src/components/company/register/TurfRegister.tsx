@@ -1,42 +1,25 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import TurfRegisterForm from "./TurfRegisterForm";
 import { toast, ToastContainer } from "react-toastify";
-import { useForm } from "react-hook-form";
 import "react-toastify/dist/ReactToastify.css";
-import { axiosInstance } from "@/utils/constants";
+import { axiosInstance, FormSubmitted } from "@/utils/constants";
 import { useRouter } from "next/navigation";
-// import "react-toastify/dist/ReactToastify.css";
-import dynamic from "next/dynamic";
-import Spinner from "@/components/Spinner";
 import FireLoading from "@/components/FireLoading";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setCompany } from "@/store/slices/CompanySlice";
+import { useAppSelector } from "@/store/hooks";
 import Header from "../CompanyHeader";
 import Sidebar from "../CompanySidebar";
+import { APIError } from "@/utils/type";
 
-interface Marker {
-    latitude: number;
-    longitude: number;
-}
 
 const TurfRegister: React.FC = () => {
     const company = useAppSelector((state) => state.companies);
     // const companyId: any = company.company?._id
-    const dispatch = useAppDispatch()
     const router = useRouter()
-    const [showMap, setShowMap] = useState(false);
     const [loading, setLoading] = useState(false)
-    const [location, setLocation] = useState<Marker | null>(null); // Track selected location
-    const [isLocationSelected, setIsLocationSelected] = useState(false);
 
 
-    const handleLocationRequest = () => {
-        toast.info("Please enable location services for a more precise location.");
-        setShowMap(true);
-    };
-
-    const handleFormSubmit = async (formSubmitted: any) => {
+    const handleFormSubmit = async (formSubmitted: FormSubmitted) => {
         try {
             // console.log("formSubmitted : ", formSubmitted);
 
@@ -44,7 +27,7 @@ const TurfRegister: React.FC = () => {
 
             // Append files (images) to FormData
             if (formSubmitted.images && formSubmitted.images.length > 0) {
-                formSubmitted.images.forEach((file: File, index: number) => {
+                formSubmitted.images.forEach((file: File) => {
                     formData.append(`TurfImages`, file); // Backend should handle multiple files under 'TurfImages'
                 });
             }
@@ -55,7 +38,7 @@ const TurfRegister: React.FC = () => {
                 latitude: formSubmitted.location?.lat,
                 longitude: formSubmitted.location?.lng,
             }));
-            formData.append("address", formSubmitted.address)
+            formData.append("address", formSubmitted.address || "")
             formData.append("turfName", formSubmitted.turfName);
             formData.append("price", formSubmitted.price);
             formData.append("turfSize", formSubmitted.turfSize);
@@ -87,9 +70,10 @@ const TurfRegister: React.FC = () => {
                 setTimeout(() => router.replace("/company/turf-management"), 1500);
                 return { success: true }
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error While Register Company:", err);
-            toast.error(err.response?.data?.error || "Something went wrong!");
+            const apiError = err as APIError;
+            toast.error(apiError?.response?.data?.error || "Something went wrong!");
         } finally {
             setLoading(false);
         }

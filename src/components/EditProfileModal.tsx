@@ -4,7 +4,6 @@ import { User } from "@/utils/type";
 import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Spinner from "./Spinner";
-Spinner
 
 
 interface ModalProps {

@@ -1,16 +1,20 @@
 import { axiosInstance } from "@/utils/constants";
 import MapComponent from "../OlaMapComponent";
 import { useState } from "react";
+import { Booking } from "./MyBookings";
+import { useAppSelector } from "@/store/hooks";
+import { SlotDetails } from "@/utils/type";
 
 interface ViewBookingDetailsProps {
-    booking: any;
+    booking: Booking;
     onClose: () => void;
     onCancelSlot: (slotId: string) => void;
 }
 
 const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClose, onCancelSlot }) => {
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
-
+    console.log("Map is visible :", isMapVisible);
+    const company = useAppSelector(state => state.companies.company)
     const cancelSlot = async (slotId: string) => {
         try {
             const { data } = await axiosInstance.delete(`/api/v1/user/cancel-slot/${slotId}`);
@@ -56,7 +60,7 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
                             </h3>
                             <MapComponent
                                 location={booking?.turfId.location}
-                                company={booking?.turfId}
+                                company={{ images: booking?.turfId.images || [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }}
                                 toggleview={toggleMapState}
                             />
                         </div>
@@ -69,7 +73,7 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">Booked Slots</h2>
                 {booking.selectedSlots?.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {booking.selectedSlots.map((slot: any, index: number) => (
+                        {booking.selectedSlots.map((slot: SlotDetails, index: number) => (
                             <div
                                 key={index}
                                 className="p-4 bg-white shadow-lg rounded-lg hover:shadow-xl transition duration-300"
@@ -85,7 +89,7 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
                                 </p>
                                 <button
                                     className="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-700 w-full"
-                                    onClick={() => cancelSlot(slot.slotId)}
+                                    onClick={() => cancelSlot(slot._id)}
                                 >
                                     Cancel Slot
                                 </button>

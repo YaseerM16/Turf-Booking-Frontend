@@ -1,8 +1,5 @@
 import axios from "axios";
 
-axios
-// const token = req.cookies.get("token")?.value;
-
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
     withCredentials: true,
@@ -55,3 +52,49 @@ export const PayU = {
 };
 
 export const FRONTEND_DOMAIN = "http://localhost:3000";
+
+export type BookedData = {
+    amount?: number; // Amount, default is 0
+    productinfo?: string; // Product information, default is an empty string
+    userId?: string; // User ID, default is an empty string
+    userDet?: {
+        name?: string; // User name, default is an empty string
+        email?: string; // User email, default is an empty string
+        phone?: string; // User phone, default is an empty string
+    };
+    firstname?: string;
+    email?: string;
+    selectedSlots?: object[]; // Selected slots (array), default is "nil"
+    companyId?: string; // Company ID, default is "nil"
+    turfId?: string; // Turf ID, default is "nil"
+    category?: string; // Category, default is "nil"
+    eventType?: string; // Event type, default is "nil"
+    EndingDate?: string; // Ending date, default is "nil"
+};
+
+
+export interface FormData {
+    images: File[]; // Assuming 'images' is an array of File objects
+    workingDays: string[]; // Array of selected working days (e.g., ["Monday", "Tuesday"])
+    selectedFacilities: string[]; // Array of selected facilities (e.g., ["Facility 1", "Facility 2"])
+    selectedGames: string[]; // Array of selected games (e.g., ["Football", "Basketball"])
+}
+
+export interface FormSubmitted {
+    images?: File[]; // Optional array of files (images)
+    location?: {
+        lat: number; // Latitude of the location
+        lng: number; // Longitude of the location
+    } | null;
+    address: string | null; // Turf address
+    turfName: string; // Turf name
+    price: string; // Turf price
+    turfSize: string; // Size of the turf
+    turfType: string; // Type of the turf
+    workingDays: string[]; // Array of working days
+    selectedFacilities: string[]; // Array of selected facilities
+    fromTime: string; // Start time
+    toTime: string; // End time
+    description: string; // Description of the turf
+    selectedGames: string[]; // Array of selected games
+}

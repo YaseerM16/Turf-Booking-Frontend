@@ -5,13 +5,8 @@ import { useRouter } from "next/navigation";
 import {
     FiHome,
     FiGrid,
-    FiMessageSquare,
-    FiBell,
-    FiUser,
-    FiHeart,
-    FiLogOut,
 } from "react-icons/fi";
-useAppSelector
+import Image from "next/image";
 
 const GuestNavbar: React.FC = () => {
     const user = useAppSelector(state => state.users)
@@ -22,12 +17,18 @@ const GuestNavbar: React.FC = () => {
             <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
                 {/* Logo Section */}
                 <div className="flex items-center space-x-4 cursor-pointer">
-                    <img
-                        src="/logo.jpeg"
-                        alt="Turf Booking Logo"
-                        className="h-10 w-10 rounded-md shadow-md"
+                    <div
+                        className="h-10 w-10 rounded-md shadow-md cursor-pointer"
                         onClick={() => router.replace("/")}
-                    />
+                    >
+                        <Image
+                            src="/logo.jpeg"
+                            alt="Turf Booking Logo"
+                            width={40}
+                            height={40}
+                            className="rounded-md"
+                        />
+                    </div>
                     <span className="font-bold text-2xl text-green-700 tracking-wide">
                         Turf Booking {user?.user?.name}
                     </span>

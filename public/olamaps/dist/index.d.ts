@@ -31,4 +31,4 @@ export declare class OlaMaps {
     getStaticMap(url: string, elementID: string): void;
 }
 
-export { }
+export { Map_2, GeolocateControl, Marker }
