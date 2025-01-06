@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function adminMiddleware(req: NextRequest) {
-    const token = req.cookies.get("token")?.value;
+    const token = req.cookies.get("AdminToken")?.value;
     const currentPath = req.nextUrl.pathname;
 
     // Define public and protected routes
     const adminPublic = ["/admin/login"];
-    const adminProtected = ["/admin/dashboard"];
+    const adminProtected = ["/admin/dashboard", "/admin/user-management", "/admin/registered-companies", "/admin/approved-companies"];
 
     // Check if the request is for a protected route
     if (adminProtected.some((route) => currentPath.startsWith(route))) {

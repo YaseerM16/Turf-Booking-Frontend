@@ -42,7 +42,13 @@ const Header: React.FC = () => {
     return (
         <div className="bg-yellow-100 p-8 rounded-lg shadow-md flex justify-between items-center mb-2">
             <div className="flex items-center space-x-6">
-                <Image src="/logo.jpeg" alt="Profile" className="h-16 w-16 rounded-full" /> {/* Profile picture */}
+                <Image
+                    src="/logo.jpeg"
+                    alt="Profile"
+                    className="h-16 w-16 rounded-full"
+                    width={64} // Adjust based on your desired dimensions
+                    height={64} // Adjust based on your desired dimensions
+                />
                 <div>
                     <h1 className="text-3xl font-semibold">{company.company?.companyname || "Company Name"}</h1>
                     <p className="text-gray-600 text-lg">Here is your company performance summary</p>

@@ -23,7 +23,7 @@ const PayUComponent = ({ BookedData }: Props) => {
     const txnidRef = useRef(generateTxnId(8)); // txnid is created once
     const txnid = txnidRef.current;
 
-    // console.log("BookedData: in PayUComp :", BookedData);
+    console.log("BookedData.selectedSlots: in PayUComp :", BookedData?.selectedSlots);
 
     const amount = BookedData?.amount || 0;
     const productinfo = BookedData?.productinfo || "";
@@ -32,7 +32,7 @@ const PayUComponent = ({ BookedData }: Props) => {
     const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData?.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
     const furl = `${FRONTEND_DOMAIN}/api/paymentFailure`;
     const udf2 = BookedData?.companyId || "nil";
-    const udf3 = BookedData?.selectedSlots || "nil";
+    const udf3 = BookedData?.companyId || "nil";
     const udf4 = BookedData?.turfId || "nil";
     const udf5 = BookedData?.category || "nil";
     const udf6 = BookedData?.eventType || "nil";
@@ -116,7 +116,7 @@ const PayUComponent = ({ BookedData }: Props) => {
                 <input type="hidden" name="phone" value={phone} />
                 <input type="hidden" name="udf1" value={udf1} />
                 <input type="hidden" name="udf2" value={udf2} />
-                <input type="hidden" name="udf3" value={"null"} />
+                <input type="hidden" name="udf3" value={udf3} />
                 <input type="hidden" name="udf4" value={udf4} />
                 <input type="hidden" name="udf5" value={udf5} />
                 <input type="hidden" name="udf6" value={udf6} />

@@ -83,7 +83,7 @@ export default function Register() {
 
         // </div>
 
-        <>
+        (<>
             <ToastContainer position="top-center" autoClose={3000} hideProgressBar={true} />
             <div className="flex h-screen">
                 {/* Sidebar */}
@@ -111,7 +111,6 @@ export default function Register() {
                     </div>
                 </div>
             </div>
-        </>
-
+        </>)
     );
 }

@@ -97,3 +97,21 @@ export type CompanyData = {
 export type AuthData = {
     user?: User | null;
 };
+
+export type Wallet = {
+    userId: string;
+    walletBalance: number;
+    walletTransaction: WalletTransaction[];
+    __v: number;
+    _id: string;
+};
+
+export type WalletTransaction = {
+    // Define fields for WalletTransaction if known, otherwise leave it as an empty object type.
+    // Example:
+    date: string;
+    type: string;
+    method: string;
+    balance: number;
+};
+

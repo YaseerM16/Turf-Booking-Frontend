@@ -6,8 +6,8 @@ import TurfDetail from '@/components/TurfDetail';
 import { useParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from 'react';
 import FireLoading from '@/components/FireLoading';
-import { axiosInstance } from '@/utils/constants';
 import { TurfDetails } from '@/utils/type';
+import { getTurfDetailsApi } from "@/services/userApi"
 
 const ProfilePage = () => {
     const [loading, setLoading] = useState<boolean>(false)
@@ -18,9 +18,7 @@ const ProfilePage = () => {
     const fetchTurf = useCallback(async () => {
         try {
             setLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/user/get-turf-details/${turfId}`
-            );
+            const data = await getTurfDetailsApi(turfId as string)
             if (data?.success) {
                 setTurf(data.turf);
             }

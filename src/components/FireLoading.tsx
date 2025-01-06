@@ -18,7 +18,7 @@ const FireLoading: React.FC<FireLoadingProps> = ({ renders }) => {
   }, []);
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+    <div className="flex flex-col justify-center align-center h-full items-center flex-grow w-full bg-gray-100">
       {/* Fireball Container */}
       <div className="relative flex justify-center items-center h-40 w-40 animate-pulse">
         {/* Fireball with Random Color, replaced with the image */}

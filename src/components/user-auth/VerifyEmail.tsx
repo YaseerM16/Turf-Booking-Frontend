@@ -63,6 +63,7 @@ const EmailVerification: React.FC = () => {
                     email: data?.user?.email,
                     phone: data?.user?.phone,
                     profilePicture: data?.user?.profilePicture,
+                    isVerified: data.user?.isVerified,
                 };
                 localStorage.setItem("auth", JSON.stringify(user));
                 setLoading(false);

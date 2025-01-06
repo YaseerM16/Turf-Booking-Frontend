@@ -52,6 +52,8 @@ export const PayU = {
 };
 
 export const FRONTEND_DOMAIN = "http://localhost:3000";
+export const BACKEND_USER_URL = "/api/v1/user"
+export const BACKEND_COMPANY_URL = "/api/v1/company"
 
 export type BookedData = {
     amount?: number; // Amount, default is 0

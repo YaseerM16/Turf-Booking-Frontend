@@ -8,6 +8,7 @@ import { FaClock, FaMapMarkerAlt } from "react-icons/fa";
 import Pagination from "./Pagination";
 import FireLoading from "./FireLoading";
 import Image from "next/image";
+import { getTurfsApi } from "@/services/userApi"
 
 
 const TurfList: React.FC = () => {
@@ -26,25 +27,29 @@ const TurfList: React.FC = () => {
     // console.log("selectedFILLS :", selectedFilters);
 
 
-    const fetchTurfs = async (page: number, searchQuery: string, filters?: { type: string[], price: string[], size: string[] }) => {
+    const fetchTurfs = async (page: number, searchQuery: string, typeFilter: string[], sizeFilter: string[], priceFilter: string[]) => {
         try {
             setLoading(true);
-            console.log("Filters :", filters);
+            // console.log("Filters :", filters);
 
             let query = `page=${page}&limit=${turfsPerPage}`;
+
             if (searchQuery) {
                 query += `&searchQry=${searchQuery}`;
             }
-            if (filters) {
-                if (filters.type.length) query += `&type=${filters.type.join(",")}`;
-                if (filters.size.length) query += `&size=${filters.size.join(",")}`;
-                if (filters.price.length) query += `&price=${filters.price.join(",")}`;
-            }
+            query += `&type=${typeFilter.join(",")}`;
+            query += `&size=${sizeFilter.join(",")}`;
+            query += `&price=${priceFilter.join(",")}`;
+            // if (filters) {
+            //     if (filters.type.length) query += `&type=${filters.type.join(",")}`;
+            //     if (filters.size.length) query += `&size=${filters.size.join(",")}`;
+            //     if (filters.price.length) query += `&price=${filters.price.join(",")}`;
+            // }
 
-            const { data } = await axiosInstance.get(
-                `/api/v1/user/get-turfs?${query}`
-            );
-
+            // const { data } = await axiosInstance.get(
+            //     `/api/v1/user/get-turfs?${query}`
+            // );
+            const data = await getTurfsApi(query)
             // console.log("res Data :", data);
 
 
@@ -56,25 +61,25 @@ const TurfList: React.FC = () => {
         } catch (error) {
             console.error("Error fetching user data:", error);
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     };
 
     useEffect(() => {
-        fetchTurfs(currentPage, searchQuery);
-    }, [currentPage, searchQuery]);
+        fetchTurfs(currentPage, searchQuery, typeFilters, sizeFilters, priceFilters);
+    }, [currentPage, searchQuery, typeFilters, sizeFilters, priceFilters]);
 
 
-    const handleApplyFilter = () => {
-        const filters = {
-            type: typeFilters,
-            size: sizeFilters,
-            price: priceFilters,
-        };
+    // const handleApplyFilter = () => {
+    //     // const filters = {
+    //     //     type: typeFilters,
+    //     //     size: sizeFilters,
+    //     //     price: priceFilters,
+    //     // };
 
-        // Pass the filters to the fetchTurfs function
-        fetchTurfs(currentPage, searchQuery, filters);
-    };
+    //     // Pass the filters to the fetchTurfs function
+    //     fetchTurfs(currentPage, searchQuery, typeFilters, sizeFilters, priceFilters);
+    // };
 
 
     const handleTypeFilterChange = (value: string) => {
@@ -99,6 +104,10 @@ const TurfList: React.FC = () => {
         setCurrentPage(page);
     };
 
+    console.log("SearchQuery :", searchQuery);
+    console.log("Filters :", typeFilters);
+
+
     return (
         <div className="h-[120vh] bg-gradient-to-br from-green-200 via-yellow-100 to-green-50 flex flex-col">
             {/* Header Section */}
@@ -122,133 +131,133 @@ const TurfList: React.FC = () => {
                 </div>
             </div>
 
-            {loading ? <FireLoading renders={"Fetching Turfs"} /> :
 
-                <div className="container w-full md:w-[90%] mx-auto grid grid-cols-12 gap-x-6 gap-y-8 h-full">
-                    {/* Filters Sidebar */}
-                    <aside className="col-span-12 md:col-span-2 bg-white p-4 rounded-lg shadow-md h-full overflow-y-auto">
-                        <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
-                        <div className="space-y-6">
-                            {/* Type Filter */}
-                            <div>
-                                <h3 className="text-green-600 font-medium mb-2">Type</h3>
-                                <div className="space-y-2">
-                                    <label className="flex items-center text-gray-700">
-                                        <input
-                                            type="checkbox"
-                                            className="mr-2 text-green-600"
-                                            onChange={() => handleTypeFilterChange("Open")}
-                                        />
-                                        Open
-                                    </label>
-                                    <label className="flex items-center text-gray-700">
-                                        <input
-                                            type="checkbox"
-                                            className="mr-2 text-green-600"
-                                            onChange={() => handleTypeFilterChange("Closed")}
-                                        />
-                                        Indoor
-                                    </label>
-                                </div>
-                            </div>
 
-                            {/* Size Filter */}
-                            <h3 className="text-green-600 font-medium mb-2">Size</h3>
+            <div className="container w-full md:w-[90%] mx-auto grid grid-cols-12 gap-x-6 gap-y-8 h-full">
+                {/* Filters Sidebar */}
+                <aside className="col-span-12 md:col-span-2 bg-white p-4 rounded-lg shadow-md h-full overflow-y-auto">
+                    <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
+                    <div className="space-y-6">
+                        {/* Type Filter */}
+                        <div>
+                            <h3 className="text-green-600 font-medium mb-2">Type</h3>
                             <div className="space-y-2">
                                 <label className="flex items-center text-gray-700">
                                     <input
                                         type="checkbox"
                                         className="mr-2 text-green-600"
-                                        onChange={() => handleSizeFilterChange("5s")}
+                                        onChange={() => handleTypeFilterChange("Open")}
                                     />
-                                    5s
+                                    Open
                                 </label>
                                 <label className="flex items-center text-gray-700">
                                     <input
                                         type="checkbox"
                                         className="mr-2 text-green-600"
-                                        onChange={() => handleSizeFilterChange("7s")}
+                                        onChange={() => handleTypeFilterChange("Closed")}
                                     />
-                                    7s
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handleSizeFilterChange("11s")}
-                                    />
-                                    11s
-                                </label>
-                            </div>
-
-                            {/* Price Filter */}
-                            <h3 className="text-green-600 font-medium mb-2">Price</h3>
-                            <div className="space-y-2">
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handlePriceFilterChange("500-1000")}
-                                    />
-                                    500 - 1000
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handlePriceFilterChange("1000-1300")}
-                                    />
-                                    1000 - 1300
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handlePriceFilterChange("1200-1600")}
-                                    />
-                                    1200 - 1600
+                                    Indoor
                                 </label>
                             </div>
                         </div>
 
-                        {/* Filter Button */}
-                        <div className="mt-4 text-center">
-                            <button
-                                className="px-6 py-3 bg-green-700 text-white font-medium rounded-md hover:bg-green-800"
-                                onClick={handleApplyFilter}
-                            >
-                                Apply Filters
-                            </button>
+                        {/* Size Filter */}
+                        <h3 className="text-green-600 font-medium mb-2">Size</h3>
+                        <div className="space-y-2">
+                            <label className="flex items-center text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2 text-green-600"
+                                    onChange={() => handleSizeFilterChange("5s")}
+                                />
+                                5s
+                            </label>
+                            <label className="flex items-center text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2 text-green-600"
+                                    onChange={() => handleSizeFilterChange("7s")}
+                                />
+                                7s
+                            </label>
+                            <label className="flex items-center text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2 text-green-600"
+                                    onChange={() => handleSizeFilterChange("11s")}
+                                />
+                                11s
+                            </label>
                         </div>
-                    </aside>
 
-                    {/* Turf Cards Section */}
-                    <main className="col-span-12 md:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  gap-x-6 cursor-pointer">
+                        {/* Price Filter */}
+                        <h3 className="text-green-600 font-medium mb-2">Price</h3>
+                        <div className="space-y-2">
+                            <label className="flex items-center text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2 text-green-600"
+                                    onChange={() => handlePriceFilterChange("500-1000")}
+                                />
+                                500 - 1000
+                            </label>
+                            <label className="flex items-center text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2 text-green-600"
+                                    onChange={() => handlePriceFilterChange("1000-1300")}
+                                />
+                                1000 - 1300
+                            </label>
+                            <label className="flex items-center text-gray-700">
+                                <input
+                                    type="checkbox"
+                                    className="mr-2 text-green-600"
+                                    onChange={() => handlePriceFilterChange("1200-1600")}
+                                />
+                                1200 - 1600
+                            </label>
+                        </div>
+                    </div>
+                </aside>
+                {loading ?
+                    <div className="col-span-2 md:col-span-10">
+                        <FireLoading renders={"Fetching Turfs"} />
+                    </div>
+                    :
+                    <main className="col-span-12 md:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 cursor-pointer">
                         {turfs && turfs.length > 0 ? (
                             turfs.map((turf: TurfDetails, idx: number) => (
                                 <div
                                     key={turf._id || idx}
                                     className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:scale-105"
-                                    style={{ height: "17rem", width: "22rem" }}
+                                    style={{ height: "15rem", width: "20rem" }}
                                     onClick={() => router.push(`/turfs/${turf._id}`)}
                                 >
-                                    <div className="relative w-full h-64">
+                                    {/* Image Section */}
+                                    <div className="relative h-28">
                                         <Image
                                             src={turf.images[0] || "/logo.jpeg"}
                                             alt={turf.turfName || "Turf"}
-                                            fill // Replaces layout="fill"
-                                            className="object-cover rounded-t-lg" // Mimics `object-cover`
+                                            fill
+                                            className="object-cover rounded-t-lg"
                                         />
                                         <span className="absolute top-2 left-2 px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-full shadow-lg">
                                             ₹{turf.price}/hour
                                         </span>
                                     </div>
-                                    <div className="p-4 space-y-3 flex flex-col justify-between h-full">
-                                        <div className="flex flex-col space-y-2">
+
+                                    {/* Details Section */}
+                                    <div className="p-3 flex flex-col justify-between h-full">
+                                        {/* Turf Details */}
+                                        <div className="space-y-2">
                                             <h3 className="text-md font-semibold text-green-700 truncate">
                                                 {turf.turfName || `Turf Name #${idx + 1}`}
                                             </h3>
-                                            <p className="text-xs text-gray-500 flex items-center gap-2">
+                                            <p
+                                                className="text-xs text-gray-500 flex items-center gap-2 h-8 overflow-hidden"
+                                                style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}
+                                            >
                                                 <FaMapMarkerAlt className="text-green-500" />
                                                 {turf.address || `Turf City #${idx + 1}`}
                                             </p>
@@ -257,6 +266,8 @@ const TurfList: React.FC = () => {
                                                 {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
                                             </p>
                                         </div>
+
+                                        {/* Book Now Button */}
                                         <button
                                             className="w-full py-2 bg-green-600 text-white text-sm font-medium rounded-md shadow-lg hover:bg-green-700 hover:shadow-xl transition-all"
                                             onClick={() => router.push(`/turfs/${turf._id}`)}
@@ -265,15 +276,15 @@ const TurfList: React.FC = () => {
                                         </button>
                                     </div>
                                 </div>
-
                             ))
                         ) : (
                             <p className="text-center col-span-3 text-gray-500">No turfs available</p>
                         )}
-                    </main>
+                    </main>}
+                {/* Turf Cards Section */}
 
-                </div>
-            }
+
+            </div>
 
 
             {/* Pagination */}

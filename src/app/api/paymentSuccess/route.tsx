@@ -20,16 +20,13 @@ export async function POST(req: NextRequest) {
             slots = null;
         }
     }
-    // console.log("SEARCH Params -->> Toekn :", accessToken);
-    // console.log("SEARCH Params -->> SSLOT :", slots);
+    console.log("SEARCH Params -->> Toekn :", accessToken);
+    console.log("SEARCH Params -->> SSLOT :", slots);
 
     const formData = await req.formData();
-
     const data: Partial<PaymentData> = {};
     formData.forEach((value, key) => {
-        if (key in data) {
-            (data as Record<string, unknown>)[key] = value; // Treat data as a generic object
-        }
+        (data as Record<string, unknown>)[key] = value; // Treat data as a generic object
     });
 
 
@@ -38,20 +35,21 @@ export async function POST(req: NextRequest) {
     let bookingDetails
     data.slots = slots
     // console.log("Slots Data :", data);
+    // console.log("FORM RESpon form SUccEss ====> :: > ", data)
 
     try {
         const savedBooking = await PayUApiCalls.saveBooking(data as PaymentData, accessToken);
-        console.log("Response form saveBooking!! :", savedBooking);
+        // console.log("Response form saveBooking!! :", savedBooking);
 
         bookingDetails = savedBooking.isBooked
-        console.log("RESULT from save :", savedBooking);
+        // console.log("RESULT from save :", savedBooking);
 
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
             console.log("Error while SAVE-BOOKING", error);
         }
     }
-    console.log("BOOKINGDETS to SuccessPage :", bookingDetails);
+    // console.log("BOOKINGDETS to SuccessPage :", bookingDetails);
 
     redirect(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(bookingDetails))}`);
 

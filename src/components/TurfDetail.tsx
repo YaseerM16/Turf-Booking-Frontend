@@ -51,14 +51,10 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
 
                 {/* Main Content */}
                 <div className="container mx-auto py-8 px-6">
-                    <div
-                        className={`grid gap-8 ${showSlot ? "grid-cols-3" : "grid-cols-1 md:grid-cols-2"
-                            }`}
-                    >
+                    <div className={`flex gap-8 ${showSlot ? "flex-col" : "flex-row"}`}>
                         {/* Turf Details */}
                         <div
-                            className={`${showSlot ? "col-span-1" : "col-span-2"
-                                } bg-gradient-to-b from-white to-green-50 rounded-lg shadow-xl p-8 space-y-6`}
+                            className={`flex-1 bg-gradient-to-b from-white to-green-50 rounded-lg shadow-xl p-8 space-y-6`}
                         >
                             <h2 className="text-green-800 text-2xl font-bold border-b-2 border-green-600 pb-2">
                                 Turf Details
@@ -70,25 +66,19 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                                     <span className="bg-green-600 text-white text-sm font-bold px-3 py-1 rounded-lg shadow-lg">
                                         Type
                                     </span>
-                                    <p className="ml-3 text-gray-800 text-lg font-medium">
-                                        {turf?.turfType}
-                                    </p>
+                                    <p className="ml-3 text-gray-800 text-lg font-medium">{turf?.turfType}</p>
                                 </div>
                                 <div className="flex items-center">
                                     <span className="bg-green-600 text-white text-sm font-bold px-3 py-1 rounded-lg shadow-lg">
                                         Size
                                     </span>
-                                    <p className="ml-3 text-gray-800 text-lg font-medium">
-                                        {turf?.turfSize}
-                                    </p>
+                                    <p className="ml-3 text-gray-800 text-lg font-medium">{turf?.turfSize}</p>
                                 </div>
                                 <div className="flex items-center">
                                     <span className="bg-green-600 text-white text-sm font-bold px-3 py-1 rounded-lg shadow-lg">
                                         Location
                                     </span>
-                                    <p className="ml-3 text-gray-800 text-lg font-medium">
-                                        {turf?.address}
-                                    </p>
+                                    <p className="ml-3 text-gray-800 text-lg font-medium">{turf?.address}</p>
                                 </div>
                                 <div className="flex items-center">
                                     <div
@@ -97,42 +87,44 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                                     >
                                         <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg"></div>
                                         <div className="relative">
-                                            <h3 className="text-lg font-semibold text-white mb-3">
-                                                Turf Location
-                                            </h3>
+                                            <h3 className="text-lg font-semibold text-white mb-3">Turf Location</h3>
                                             <MapComponent
                                                 location={turf?.location}
-                                                company={{ images: turf?.images || [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }}
+                                                company={{
+                                                    images: turf?.images || [],
+                                                    companyname: company?.companyname || "Turf company",
+                                                    phone: company?.phone || "N/A",
+                                                }}
                                                 toggleview={toggleMapState}
                                             />
-                                            {/* <MapComponent location={company.location} company={company} toggleview={toggleMapState} /> */}
-
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Price Section */}
-                            {showSlot ? "" : <div className="bg-green-100 rounded-lg shadow-lg p-6 flex flex-col items-center">
-                                <p className="text-green-800 text-3xl font-bold">₹{turf?.price}</p>
-                                <p className="text-gray-600 text-lg">Per Hour</p>
-                                <button
-                                    className="mt-4 px-6 py-3 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 shadow-md"
-                                    onClick={() => toggleSlotView()}
-                                >
-                                    Check Availability
-                                </button>
-                            </div>}
-
+                            {!showSlot && (
+                                <div className="bg-green-100 rounded-lg shadow-lg p-6 flex flex-col items-center">
+                                    <p className="text-green-800 text-3xl font-bold">₹{turf?.price}</p>
+                                    <p className="text-gray-600 text-lg">Per Hour</p>
+                                    <button
+                                        className="mt-4 px-6 py-3 bg-green-600 text-white rounded-md font-semibold hover:bg-green-700 shadow-md"
+                                        onClick={() => toggleSlotView()}
+                                    >
+                                        Check Availability
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {/* Available Slots Section */}
                         {showSlot && (
-                            <div className="col-span-2 bg-white rounded-lg shadow-lg p-6">
+                            <div className="flex-1 bg-white rounded-lg shadow-lg p-6">
                                 <AvailableSlots turf={turf} setShow={setShowSlot} />
                             </div>
                         )}
                     </div>
+
 
                     {/* Supported Games and Facilities */}
                     <div className="mt-12 flex gap-8">
@@ -173,11 +165,12 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
 
 
                     {/* Turf Gallery */}
-                    {/* Image Gallery */}
-                    <TurfGallery images={turf?.images || []} />
+                    <div className="p-3 mt-3">
+                        <TurfGallery images={turf?.images || []} />
+                    </div>
 
                     {/* Reviews Section */}
-                    <div className="mt-12 bg-white rounded-lg shadow-lg p-8">
+                    <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
                         <h2 className="text-xl font-bold text-green-700">Reviews</h2>
                         <div className="space-y-4 mt-4">
                             {reviews.map((review, idx) => (
@@ -193,6 +186,7 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                             ))}
                         </div>
                     </div>
+
                 </div>
             </div>
         </>

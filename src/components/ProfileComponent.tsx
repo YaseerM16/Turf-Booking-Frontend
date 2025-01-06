@@ -11,6 +11,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import Image from 'next/image';
 import { AxiosError } from 'axios';
+import { getVerificationMail, updateProfileDetsApi, uploadProfileImageApi } from '@/services/userApi';
 
 const ProfileComponent: React.FC = () => {
     const user = useAppSelector(state => state.users.user)
@@ -18,6 +19,7 @@ const ProfileComponent: React.FC = () => {
     const dispatch = useAppDispatch()
     const [isModalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [spinLoading, setSinLoading] = useState(false);
 
     const handleEditProfile = () => {
         setModalOpen(true);
@@ -27,30 +29,41 @@ const ProfileComponent: React.FC = () => {
         setModalOpen(false);
     };
 
+    const getVerifyMail = async () => {
+        try {
+            setSinLoading(true);
+            const response = await getVerificationMail(user?._id as string)
+            console.log("Res getEamil :", response);
+
+            if (response.success) {
+                setSinLoading(false);
+                toast.success("Verification email sent successfully!", {
+                    onClose: () => router.replace(`/checkmail?type=verify`),
+                });
+            }
+        } catch (error) {
+            console.error("Error updating profile image:", error);
+            toast.error("Failed to get verification mail.")
+        } finally {
+            setSinLoading(false);
+        }
+    }
+
 
     const handleSubmit = async (updatedUser: User) => {
         try {
             setLoading(true)
-            const response = await axiosInstance.patch(
-                `/api/v1/user/profile/update-details/${user?._id}`,
-                JSON.stringify(updatedUser),
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    withCredentials: true
-                }
-            );
-            console.log("Respon of update-profile :", response.data);
 
+            // console.log("Data of update-profile :", updatedUser);
+            const response = await updateProfileDetsApi(user?._id as string, updatedUser)
 
-            if (response.data.success) {
+            if (response?.data.success) {
                 handleCloseModal()
                 toast.success("Profile details updated successfully!");
                 localStorage.setItem("auth", JSON.stringify(response.data.user));
                 dispatch(setUser(response.data.user));
                 setLoading(false)
-            } else if (response.data.refreshTokenExpired) {
+            } else if (response?.data.refreshTokenExpired) {
                 setLoading(false)
                 const response = await axiosInstance.get("/api/v1/user/logout");
                 if (response.data.loggedOut) {
@@ -78,6 +91,8 @@ const ProfileComponent: React.FC = () => {
     };
 
     const handleFileChangeAndUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        console.log("THis si Callingoo :!!");
+
         const file = event.target.files?.[0];
         if (file) {
             const formData = new FormData();
@@ -85,16 +100,9 @@ const ProfileComponent: React.FC = () => {
 
             try {
                 setLoading(true)
-                const response = await axiosInstance.patch(
-                    `/api/v1/user/profile/upload-image/${user?._id}`,
-                    formData,
-                    {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                );
-                if (response.data.success) {
+                const response = await uploadProfileImageApi(user?._id as string, formData)
+
+                if (response?.data.success) {
                     toast.success("Profile picture updated successfully!");
                     localStorage.setItem("auth", JSON.stringify(response.data.user));
                     dispatch(setUser(response.data.user));
@@ -107,6 +115,9 @@ const ProfileComponent: React.FC = () => {
             }
         }
     };
+
+    // console.log("USEr in Profile :", user);
+
 
     return (
         <>
@@ -198,6 +209,17 @@ const ProfileComponent: React.FC = () => {
                                         className="w-full px-4 py-2 text-center bg-gray-100 text-gray-600 border border-gray-300 rounded-md shadow focus:outline-none cursor-not-allowed"
                                         readOnly
                                     />
+                                    {spinLoading ? <Spinner /> :
+                                        <>
+                                            {!user?.isVerified && <button
+                                                type="button"
+                                                className="mt-3 px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-green-500 to-green-600 text-white rounded-md shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
+                                                onClick={() => getVerifyMail()}
+                                            >
+                                                Verify Mail
+                                            </button>}
+                                        </>
+                                    }
                                 </div>
 
                                 {/* Phone */}
@@ -227,6 +249,7 @@ const ProfileComponent: React.FC = () => {
                     {/* Edit Profile Button */}
                     <div className="mt-8 flex justify-center">
                         <button
+                            type='button'
                             className="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-all"
                             onClick={handleEditProfile}
                         >

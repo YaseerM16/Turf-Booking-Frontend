@@ -85,26 +85,15 @@ import { adminMiddleware } from "./middleware/adminMiddleware";
 
 export function middleware(req: NextRequest) {
     const currentPath = req.nextUrl.pathname;
-    const token = req.cookies.get("token")?.value;
-    const decodedToken = token ? JSON.parse(Buffer.from(token.split(".")[1], "base64").toString()) : undefined;
-    const userRole = decodedToken?.userRole;
-    console.log("USUUUSERERERERE ROOOOOOLLLLLEEE  ::: ", userRole);
 
-
-    // Define route groups
-    const userRoutes = ["/profile"];
-    const companyRoutes = ["/company/dashboard", "/company/register-turf"];
-    const adminRoutes = ["/admin/dashboard"];
-
-    // Delegate to role-specific middleware
-    if (userRoutes.some((route) => currentPath.startsWith(route))) {
-        return userMiddleware(req);
+    if (currentPath.startsWith("/admin")) {
+        return adminMiddleware(req);
     }
-    if (companyRoutes.some((route) => currentPath.startsWith(route))) {
+    if (currentPath.startsWith("/company")) {
         return companyMiddleware(req);
     }
-    if (adminRoutes.some((route) => currentPath.startsWith(route))) {
-        return adminMiddleware(req);
+    if (currentPath.startsWith("/")) {
+        return userMiddleware(req);
     }
 
     return NextResponse.next();
@@ -113,8 +102,14 @@ export function middleware(req: NextRequest) {
 export const config = {
     matcher: [
         "/profile",
+        "/my-bookings",
+        "/admin/dashboard",
+        "/admin/user-management",
+        "/admin/registered-companies",
+        "/admin/approved-companies",
         "/company/dashboard",
         "/company/register-turf",
-        "/admin/dashboard",
+        "/company/turf-management",
+        "/company/slot-management",
     ],
 };

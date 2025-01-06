@@ -139,10 +139,10 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
     };
 
     return (
-        <div className="mb-6 flex flex-col p-4 bg-white rounded-lg shadow-lg">
+        (<div className="mb-6 flex flex-col p-4 bg-white rounded-lg shadow-lg">
             {!isEditing ? (
                 // Display Mode
-                <>
+                (<>
                     <div className="mt-4">
                         <h3 className="text-lg font-medium text-gray-700 mb-2">Add Working days</h3>
                         {/* Working Days */}
@@ -172,10 +172,10 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                             </button>
                         </div>
                     </div>
-                </>
+                </>)
             ) : (
                 // Edit Mode
-                <div className="mt-4">
+                (<div className="mt-4">
                     {/* Weekdays List with Add Option */}
                     <div className="flex flex-wrap gap-3">
                         {daysOrder.map((day) => {
@@ -230,14 +230,12 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                             </div>
                         </div>
                     </div>
-
                     {/* Error message for WorkingDays */}
                     {workingDaysError && (
                         <div className="text-red-500 text-sm mt-1">
                             {workingDaysError} {/* Display the error message here */}
                         </div>
                     )}
-
                     {/* Form for Adding Working Hours */}
                     <div className="mt-6">
                         <h3 className="text-lg font-medium mb-2">Set Working Hours</h3>
@@ -286,9 +284,8 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                             </button>}
                         </div>
                     </div>
-                </div>
+                </div>)
             )}
-
             <>
                 <div className="mt-4 flex flex-wrap gap-6">
                     {/* Working Days */}
@@ -406,7 +403,6 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                     </div>
                 )}
             </div>)}
-
             {isEditDay ? (
                 <div className="mt-4 flex flex-col gap-6">
                     {/* Editable Fields */}
@@ -477,8 +473,7 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
             ) : (
                 <div></div>
             )}
-
-        </div>
+        </div>)
     );
 };
 

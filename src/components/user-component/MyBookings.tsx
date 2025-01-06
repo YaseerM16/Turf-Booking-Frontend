@@ -1,12 +1,17 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { axiosInstance } from "@/utils/constants";
 import FireLoading from "../FireLoading";
 import ViewBookingDetails from "./ViewBookingDetails";
 import { useAppSelector } from "@/store/hooks";
 import { SlotDetails, TurfDetails } from "@/utils/type";
+import { getBookingsApi, cancelTheSlot } from "@/services/userApi"
 
 export interface Booking {
+    totalAmount: number;
+    paymentStatus: string;
+    paymentMethod: string;
+    paymentDate: any;
+    paymentTransactionId: string;
     _id: string; // Assuming each booking has an ID
     turfId: TurfDetails; // A reference to the associated turf object
     selectedSlots: SlotDetails[]; // Array of selected slots (could be strings or another type depending on your structure)
@@ -27,7 +32,8 @@ const MyBooking: React.FC = () => {
     const fetchBookings = useCallback(async () => {
         try {
             setLoading(true);
-            const { data } = await axiosInstance.get(`/api/v1/user/my-booking?userId=${user?._id}`);
+            // const { data } = await axiosInstance.get(`/api/v1/user/my-booking?userId=${user?._id}`);
+            const data = await getBookingsApi(user?._id as string)
             if (data?.success) {
                 setBooking(data.bookings);
             }
@@ -44,9 +50,25 @@ const MyBooking: React.FC = () => {
         }
     }, [user?._id, fetchBookings]);
 
+    const cancelSlot = async (slotId: string) => {
+        try {
+            console.log("SLOT ID in Parent :", slotId);
+
+            // const { data } = await axiosInstance.delete(`/api/v1/user/cancel-slot/${slotId}`);
+            const data = await cancelTheSlot(user?._id as string, slotId)
+            // if (data?.success) {
+            //     alert("Slot cancelled successfully.");
+            //     onCancelSlot(slotId); // Inform parent component
+            // }
+        } catch (error) {
+            console.error("Error cancelling slot:", error);
+            alert("Failed to cancel slot. Please try again.");
+        }
+    };
+
     // Conditional rendering: MyBookings list or ViewBookingDetails
     return (
-        <div className="min-h-screen bg-green-50">
+        (<div className="min-h-screen bg-green-50">
             {/* Header Section */}
             <section
                 className="h-64 bg-cover bg-center flex justify-center items-center"
@@ -56,26 +78,21 @@ const MyBooking: React.FC = () => {
                     My Bookings
                 </h2>
             </section>
-
             {/* Loading State */}
             {loading && <FireLoading renders={"Fetching Bookings"} />}
-
             {/* Main Content */}
             <section className="py-12 bg-white">
                 <div className="max-w-6xl mx-auto">
                     {selectedBooking ? (
                         // Booking Details Section
-                        <ViewBookingDetails
+                        (<ViewBookingDetails
                             booking={selectedBooking}
                             onClose={() => setSelectedBooking(null)} // Return to MyBookings
-                            onCancelSlot={(slotId) => {
-                                // Optional: Slot cancellation logic can be added here
-                                console.log("Cancel slot:", slotId);
-                            }}
-                        />
+                            onCancelSlot={cancelSlot}
+                        />)
                     ) : (
                         // Upcoming Bookings List
-                        <>
+                        (<>
                             <h3 className="text-2xl font-bold text-gray-800 mb-6">Booking History</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                 {booking?.length === 0 || booking === null ? (
@@ -155,16 +172,14 @@ const MyBooking: React.FC = () => {
                                                 </div>
                                             </div>
                                         </div>
-
-
                                     ))
                                 )}
                             </div>
-                        </>
+                        </>)
                     )}
                 </div>
             </section>
-        </div>
+        </div>)
     );
 };
 

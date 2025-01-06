@@ -265,8 +265,10 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
+                                zIndex: 9999, // Add a high z-index value
                             }}
                         >
+
                             <div
                                 style={{
                                     width: '80%',

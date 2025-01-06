@@ -1,8 +1,19 @@
+"use client"
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
+import Cookies from "js-cookie";
+import { useEffect } from "react";
+
 
 export default function Home() {
+  useEffect(() => {
+    const token = Cookies.get("token");
+
+    if (!token) {
+      localStorage.removeItem("auth");
+    }
+  }, []); // This runs only on the client side
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />

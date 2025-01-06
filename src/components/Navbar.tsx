@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
                 setLoading(false)
                 dispatch(logout())
                 localStorage.removeItem('auth');
-                router.replace("/")
+                router.replace("/login")
             }
         } catch (error) {
             console.error("Error updating profile:", error);

@@ -48,6 +48,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [loading, setLoading] = useState<boolean>(false)
     const [existingImages, setExistingImages] = useState<string[]>(turf?.turf?.images || []);
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+    const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
 
     const handleEdit = () => {
@@ -355,9 +356,6 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             <span className="text-red-500 text-sm">{errors.facilities.message}</span>
                                         )}
                                     </div>
-
-
-
                                     <div className="mb-4">
                                         <label className="block text-gray-600 font-medium mb-1">Supported Games</label>
                                         <div className="flex flex-wrap gap-2">
@@ -402,80 +400,103 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
 
                                 </div>
                                 <div className="mb-4">
-                                    <label className="block text-gray-600 font-medium mb-1">Images</label>
-                                    <input
-                                        type="file"
-                                        name="images"
-                                        accept="image/*"
-                                        multiple
-                                        disabled={!isEditable}
-                                        onChange={handleNewImages}
-                                        ref={imageInputRef}
-                                        className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
-                                    />
+                                    {isEditable && <>
+                                        <label className="block text-gray-600 font-medium mb-1">Images</label>
+                                        <input
+                                            type="file"
+                                            name="images"
+                                            accept="image/*"
+                                            multiple
+                                            disabled={!isEditable}
+                                            onChange={handleNewImages}
+                                            ref={imageInputRef}
+                                            className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                        />
+                                    </>}
 
                                     {/* Error display */}
                                     {errors.images && <span className="text-red-500 text-sm">{errors.images.message}</span>}
                                     {loading ? <Spinner /> : ""}
-                                    {!isMapVisible &&
-                                        <div className="mt-4 flex flex-wrap relative z-10">
+                                    <div className="mt-4 flex flex-wrap relative z-10">
 
-                                            {/* Existing Images */}
-                                            <div className="mt-4">
-                                                <h4 className="text-gray-700 font-medium mb-2">Existing Images</h4>
-                                                <div className="flex flex-wrap gap-4">
-                                                    {existingImages.map((image, index) => (
-                                                        <div key={index} className="relative w-24 h-24">
-                                                            <Image
-                                                                src={image}
-                                                                alt={`Existing Image ${index + 1}`}
-                                                                width={96} // 24 * 4 = 96px for width
-                                                                height={96} // 24 * 4 = 96px for height
-                                                                className="w-full h-full object-cover rounded-lg border"
-                                                                priority={index === 0} // Optional: Prioritize the first image
-                                                            />
-                                                            {isEditable && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleDeleteExistingImage(index)}
-                                                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
-                                                                >
-                                                                    ✖
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* New Images */}
-                                            <div className="mt-4">
-                                                <h4 className="text-gray-700 font-medium mb-2">New Images</h4>
-                                                <div className="flex flex-wrap gap-4">
-                                                    {newImages.map((image, index) => (
-                                                        <div key={index} className="relative w-24 h-24">
-                                                            <Image
-                                                                src={URL.createObjectURL(image)} // Convert File to previewable URL
-                                                                alt={`New Image ${index + 1}`}
-                                                                className="w-full h-full object-cover rounded-lg border"
-                                                                layout="fill" // Makes it responsive within the container
-                                                                objectFit="cover" // Ensures the image maintains aspect ratio
-                                                                unoptimized // Allows local file URLs without optimization
-                                                            />
+                                        {/* Existing Images */}
+                                        <div className="mt-4">
+                                            <h4 className="text-gray-700 font-medium mb-2">Existing Images</h4>
+                                            <div className="flex flex-wrap gap-4">
+                                                {existingImages.map((image, index) => (
+                                                    <div key={index} className="relative w-24 h-24">
+                                                        <Image
+                                                            src={image}
+                                                            alt={`Existing Image ${index + 1}`}
+                                                            width={96}
+                                                            height={96}
+                                                            className="w-full h-full object-cover rounded-lg border cursor-pointer"
+                                                            onClick={() => setExpandedImage(image)} // Set the clicked image
+                                                        />
+                                                        {isEditable && (
                                                             <button
                                                                 type="button"
-                                                                onClick={() => setNewImages((prev) => prev.filter((_, i) => i !== index))}
+                                                                onClick={() => handleDeleteExistingImage(index)}
                                                                 className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
                                                             >
                                                                 ✖
                                                             </button>
-                                                        </div>
-                                                    ))}
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {expandedImage && (
+                                                <div
+                                                    className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
+                                                    onClick={() => setExpandedImage(null)} // Close when clicking outside
+                                                >
+                                                    <div className="relative">
+                                                        <Image
+                                                            src={expandedImage}
+                                                            alt="Expanded Image"
+                                                            width={500}
+                                                            height={500}
+                                                            className="w-auto h-auto max-w-full max-h-full rounded-lg"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setExpandedImage(null)} // Close button
+                                                            className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+                                                        >
+                                                            ✖
+                                                        </button>
+                                                    </div>
                                                 </div>
+                                            )}
+                                        </div>
+
+
+                                        {/* New Images */}
+                                        <div className="mt-4">
+                                            {isEditable && <h4 className="text-gray-700 font-medium mb-2">New Images</h4>}
+                                            <div className="flex flex-wrap gap-4">
+                                                {newImages.map((image, index) => (
+                                                    <div key={index} className="relative w-24 h-24">
+                                                        <Image
+                                                            src={URL.createObjectURL(image)} // Convert File to previewable URL
+                                                            alt={`New Image ${index + 1}`}
+                                                            className="w-full h-full object-cover rounded-lg border"
+                                                            layout="fill" // Makes it responsive within the container
+                                                            objectFit="cover" // Ensures the image maintains aspect ratio
+                                                            unoptimized // Allows local file URLs without optimization
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setNewImages((prev) => prev.filter((_, i) => i !== index))}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                                        >
+                                                            ✖
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
-                                    }
-
+                                    </div>
                                 </div>
                             </div>
                             {isEditable ? <button

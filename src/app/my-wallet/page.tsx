@@ -1,17 +1,13 @@
-"use client";
-
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-// import TurfList from '@/components/TurfList';
+import MyWallet from '@/components/user-component/MyWallet';
 import React from 'react';
-import TurfList from '@/components/TurfList';
-
 
 const ProfilePage = () => {
     return (
         <>
             <Navbar />
-            <TurfList />
+            <MyWallet />
             <Footer />
         </>
     );
