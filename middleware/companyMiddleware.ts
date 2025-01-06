@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function companyMiddleware(req: NextRequest) {
-    const token = req.cookies.get("token")?.value;
+    const token = req.cookies.get("CompanyToken")?.value;
     const currentPath = req.nextUrl.pathname;
 
     // Define public and protected routes
     const companyPublic = ["/company/login", "/company/register"];
-    const companyProtected = ["/company/dashboard", "/company/register-turf"];
+    const companyProtected = ["/company/dashboard", "/company/register-turf", "/company/turf-management", "/company/slot-management"];
 
     // Check if the request is for a protected route
     if (companyProtected.some((route) => currentPath.startsWith(route))) {

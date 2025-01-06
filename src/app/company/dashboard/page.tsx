@@ -1,7 +1,4 @@
 import CompanyDashboard from "@/components/company/CompanyDashboard";
-import Header from "@/components/company/CompanyHeader";
-import AuthNavbar from "@/components/user-auth/AuthNavbar";
-
 
 export default function Register() {
 

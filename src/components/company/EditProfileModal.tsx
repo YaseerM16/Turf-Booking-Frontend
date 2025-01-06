@@ -5,9 +5,6 @@ import React, { useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import Spinner from "../Spinner";
 
-Spinner
-
-
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -17,7 +14,6 @@ interface ModalProps {
 
 const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loading }) => {
     const company = useAppSelector((state) => state.companies.company);
-
 
     const {
         register,
@@ -53,7 +49,7 @@ const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loa
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        (<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-96">
                 <h2 className="text-lg font-bold mb-4">Edit Profile</h2>
                 <form onSubmit={handleSubmit(onSubmitForm)}>
@@ -128,7 +124,7 @@ const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loa
                     </div>
                 </form>
             </div>
-        </div>
+        </div>)
     );
 };
 

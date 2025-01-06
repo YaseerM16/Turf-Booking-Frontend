@@ -2448,14 +2448,14 @@ var Fu = { exports: {} };
       }], "filter-id->=": [Be, [je], (i, [t]) => {
         const r = i.id(), s = t.value;
         return typeof r == typeof s && r >= s;
-      }], "filter-has": [Be, [je], (i, [t]) => t.value in i.properties()], "filter-has-id": [Be, [], (i) => i.id() !== null && i.id() !== void 0], "filter-type-in": [Be, [M(qe)], (i, [t]) => t.value.indexOf(i.geometryType()) >= 0], "filter-id-in": [Be, [M(je)], (i, [t]) => t.value.indexOf(i.id()) >= 0], "filter-in-small": [Be, [qe, M(je)], (i, [t, r]) => r.value.indexOf(i.properties()[t.value]) >= 0], "filter-in-large": [Be, [qe, M(je)], (i, [t, r]) => function(s, l, u, d) {
+      }], "filter-has": [Be, [je], (i, [t]) => t.value in i.properties()], "filter-has-id": [Be, [], (i) => i.id() !== null && i.id() !== void 0], "filter-type-in": [Be, [M(qe)], (i, [t]) => t.value.indexOf(i.geometryType()) >= 0], "filter-id-in": [Be, [M(je)], (i, [t]) => t.value.indexOf(i.id()) >= 0], "filter-in-small": [Be, [qe, M(je)], (i, [t, r]) => r.value.indexOf(i.properties()[t.value]) >= 0], "filter-in-large": [Be, [qe, M(je)], (i, [t, r]) => (function(s, l, u, d) {
         for (; u <= d; ) {
           const f = u + d >> 1;
           if (l[f] === s) return !0;
           l[f] > s ? d = f - 1 : u = f + 1;
         }
         return !1;
-      }(i.properties()[t.value], r.value, 0, r.value.length - 1)], all: { type: Be, overloads: [[[Be, Be], (i, [t, r]) => t.evaluate(i) && r.evaluate(i)], [tn(Be), (i, t) => {
+      })(i.properties()[t.value], r.value, 0, r.value.length - 1)], all: { type: Be, overloads: [[[Be, Be], (i, [t, r]) => t.evaluate(i) && r.evaluate(i)], [tn(Be), (i, t) => {
         for (const r of t) if (!r.evaluate(i)) return !1;
         return !0;
       }]] }, any: { type: Be, overloads: [[[Be, Be], (i, [t, r]) => t.evaluate(i) || r.evaluate(i)], [tn(Be), (i, t) => {
@@ -7150,7 +7150,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
         }
         query(t, r, s, l) {
           this.loadVTLayers();
-          const u = t.params || {}, d = Dt / t.tileSize / t.scale, f = Ka(u.filter), g = t.queryGeometry, x = t.queryPadding * d, v = gu(g), w = this.grid.query(v.minX - x, v.minY - x, v.maxX + x, v.maxY + x), I = gu(t.cameraQueryGeometry), A = this.grid3D.query(I.minX - x, I.minY - x, I.maxX + x, I.maxY + x, (F, j, Q, G) => function(J, re, ce, we, Le) {
+          const u = t.params || {}, d = Dt / t.tileSize / t.scale, f = Ka(u.filter), g = t.queryGeometry, x = t.queryPadding * d, v = gu(g), w = this.grid.query(v.minX - x, v.minY - x, v.maxX + x, v.maxY + x), I = gu(t.cameraQueryGeometry), A = this.grid3D.query(I.minX - x, I.minY - x, I.maxX + x, I.maxY + x, (F, j, Q, G) => (function(J, re, ce, we, Le) {
             for (const ye of J) if (re <= ye.x && ce <= ye.y && we >= ye.x && Le >= ye.y) return !0;
             const ve = [new me(re, ce), new me(re, Le), new me(we, Le), new me(we, ce)];
             if (J.length > 2) {
@@ -7158,7 +7158,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
             }
             for (let ye = 0; ye < J.length - 1; ye++) if (Zu(J[ye], J[ye + 1], ve)) return !0;
             return !1;
-          }(t.cameraQueryGeometry, F - x, j - x, Q + x, G + x));
+          })(t.cameraQueryGeometry, F - x, j - x, Q + x, G + x));
           for (const F of A) w.push(F);
           w.sort(dp);
           const k = {};
@@ -7927,7 +7927,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
           const s = {}, l = [];
           (function(d, f, g, x) {
             let v;
-            for (v in f = f || {}, d = d || {}) Object.prototype.hasOwnProperty.call(d, v) && (Object.prototype.hasOwnProperty.call(f, v) || zr(v, g, x));
+            for (v in (f = f || {}, d = d || {})) Object.prototype.hasOwnProperty.call(d, v) && (Object.prototype.hasOwnProperty.call(f, v) || zr(v, g, x));
             for (v in f) Object.prototype.hasOwnProperty.call(f, v) && (Object.prototype.hasOwnProperty.call(d, v) ? tt(d[v], f[v]) || (d[v].type === "geojson" && f[v].type === "geojson" && mn(d, f, v) ? wt(g, { command: "setGeoJSONSourceData", args: [v, f[v].data] }) : xr(v, f, g, x)) : es(v, f, g));
           })(i.sources, t.sources, l, s);
           const u = [];
@@ -7940,7 +7940,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
             for (let J = 0, re = 0; J < x.length; J++) E = x[J], Object.prototype.hasOwnProperty.call(I, E) ? re++ : (wt(g, { command: "removeLayer", args: [E] }), A.splice(A.indexOf(E, re), 1));
             for (let J = 0, re = 0; J < v.length; J++) E = v[v.length - 1 - J], A[A.length - 1 - J] !== E && (Object.prototype.hasOwnProperty.call(w, E) ? (wt(g, { command: "removeLayer", args: [E] }), A.splice(A.lastIndexOf(E, A.length - re), 1)) : re++, Q = A[A.length - J], wt(g, { command: "addLayer", args: [I[E], Q] }), A.splice(A.length - J, 0, E), k[E] = !0);
             for (let J = 0; J < v.length; J++) if (E = v[J], F = w[E], j = I[E], !k[E] && !tt(F, j)) if (tt(F.source, j.source) && tt(F["source-layer"], j["source-layer"]) && tt(F.type, j.type)) {
-              for (G in Mi(F.layout, j.layout, g, E, null, "setLayoutProperty"), Mi(F.paint, j.paint, g, E, null, "setPaintProperty"), tt(F.filter, j.filter) || wt(g, { command: "setFilter", args: [E, j.filter] }), tt(F.minzoom, j.minzoom) && tt(F.maxzoom, j.maxzoom) || wt(g, { command: "setLayerZoomRange", args: [E, j.minzoom, j.maxzoom] }), F) Object.prototype.hasOwnProperty.call(F, G) && G !== "layout" && G !== "paint" && G !== "filter" && G !== "metadata" && G !== "minzoom" && G !== "maxzoom" && (G.indexOf("paint.") === 0 ? Mi(F[G], j[G], g, E, G.slice(6), "setPaintProperty") : tt(F[G], j[G]) || wt(g, { command: "setLayerProperty", args: [E, G, j[G]] }));
+              for (G in (Mi(F.layout, j.layout, g, E, null, "setLayoutProperty"), Mi(F.paint, j.paint, g, E, null, "setPaintProperty"), tt(F.filter, j.filter) || wt(g, { command: "setFilter", args: [E, j.filter] }), tt(F.minzoom, j.minzoom) && tt(F.maxzoom, j.maxzoom) || wt(g, { command: "setLayerZoomRange", args: [E, j.minzoom, j.maxzoom] }), F)) Object.prototype.hasOwnProperty.call(F, G) && G !== "layout" && G !== "paint" && G !== "filter" && G !== "metadata" && G !== "minzoom" && G !== "maxzoom" && (G.indexOf("paint.") === 0 ? Mi(F[G], j[G], g, E, G.slice(6), "setPaintProperty") : tt(F[G], j[G]) || wt(g, { command: "setLayerProperty", args: [E, G, j[G]] }));
               for (G in j) Object.prototype.hasOwnProperty.call(j, G) && !Object.prototype.hasOwnProperty.call(F, G) && G !== "layout" && G !== "paint" && G !== "filter" && G !== "metadata" && G !== "minzoom" && G !== "maxzoom" && (G.indexOf("paint.") === 0 ? Mi(F[G], j[G], g, E, G.slice(6), "setPaintProperty") : tt(F[G], j[G]) || wt(g, { command: "setLayerProperty", args: [E, G, j[G]] }));
             } else wt(g, { command: "removeLayer", args: [E] }), Q = A[A.lastIndexOf(E) + 1], wt(g, { command: "addLayer", args: [j, Q] });
           }(u, t.layers, r);
@@ -8318,7 +8318,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
             } catch (O) {
               const H = new Uint8Array(L.data);
               let W = `Unable to parse the tile at ${M.request.url}, `;
-              throw W += H[0] === 31 && H[1] === 139 ? "please make sure the data is not gzipped and that you have configured the relevant header in the server" : `got error: ${O.message}`, new Error(W);
+              throw (W += H[0] === 31 && H[1] === 139 ? "please make sure the data is not gzipped and that you have configured the relevant header in the server" : `got error: ${O.message}`, new Error(W));
             }
           });
         }
@@ -8348,7 +8348,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
                 delete this.fetching[P];
               }
             } catch (W) {
-              throw delete this.loading[P], O.status = "done", this.loaded[P] = O, W;
+              throw (delete this.loading[P], O.status = "done", this.loaded[P] = O, W);
             }
           });
         }
@@ -9021,12 +9021,12 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
             if (!this._geoJSONIndex) throw new Error("Unable to parse the data into a cluster or geojson");
             const O = this._geoJSONIndex.getTile(L.z, L.x, L.y);
             if (!O) return null;
-            const H = new class {
+            const H = new (class {
               constructor(Y) {
                 this.layers = { _geojsonTileLayer: this }, this.name = "_geojsonTileLayer", this.extent = z.X, this.length = Y.length, this._features = Y;
               }
               feature(Y) {
-                return new class {
+                return new (class {
                   constructor(q) {
                     this._feature = q, this.extent = z.X, this.type = q.type, this.properties = q.tags, "id" in q && !isNaN(q.id) && (this.id = parseInt(q.id, 10));
                   }
@@ -9049,9 +9049,9 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
                   toGeoJSON(q, ne, le) {
                     return Mr.call(this, q, ne, le);
                   }
-                }(this._features[Y]);
+                })(this._features[Y]);
               }
-            }(O.features);
+            })(O.features);
             let W = rr(H);
             return W.byteOffset === 0 && W.byteLength === W.buffer.byteLength || (W = new Uint8Array(W)), { vectorTile: H, rawData: W.buffer };
           });
@@ -9212,7 +9212,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
               const O = { pluginStatus: "loaded", pluginURL: L };
               return z.bD.setState(O), O;
             }
-            throw z.bD.setState({ pluginStatus: "error", pluginURL: "" }), new Error(`RTL Text Plugin failed to import scripts from ${L}`);
+            throw (z.bD.setState({ pluginStatus: "error", pluginURL: "" }), new Error(`RTL Text Plugin failed to import scripts from ${L}`));
           });
         }
         _getAvailableImages(M) {
@@ -10167,7 +10167,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
               }
             } catch (a) {
               if (delete e.abortController, e.aborted) e.state = "unloaded";
-              else if (a) throw e.state = "errored", a;
+              else if (a) throw (e.state = "errored", a);
             }
           });
         }
@@ -10208,7 +10208,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
               }
             } catch (o) {
               if (delete e.abortController, e.aborted) e.state = "unloaded";
-              else if (o) throw e.state = "errored", o;
+              else if (o) throw (e.state = "errored", o);
             }
           });
         }
@@ -10517,7 +10517,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
         }
         _syncState(e) {
           return this.status = e, this.dispatcher.broadcast("SRPS", { pluginStatus: e, pluginURL: this.url }).catch((n) => {
-            throw this.status = "error", n;
+            throw (this.status = "error", n);
           });
         }
         getRTLTextPluginStatus() {
@@ -10662,7 +10662,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
           }
         }
         getExpiryTimeout() {
-          if (this.expirationTime) return this.expiredRequestCount ? 1e3 * (1 << Math.min(this.expiredRequestCount - 1, 31)) : Math.min(this.expirationTime - (/* @__PURE__ */ new Date()).getTime(), Math.pow(2, 31) - 1);
+          if (this.expirationTime) return this.expiredRequestCount ? 1e3 * (1 << Math.min(this.expiredRequestCount - 1, 31)) : Math.min(this.expirationTime - (/* @__PURE__ */ (new Date())).getTime(), Math.pow(2, 31) - 1);
         }
         setFeatureState(e, n) {
           if (!this.latestFeatureIndex || !this.latestFeatureIndex.rawTileData || Object.keys(e).length === 0) return;
@@ -10776,7 +10776,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
           if (this.deletedStates[e] === null) return;
           const o = String(n);
           if (this.deletedStates[e] = this.deletedStates[e] || {}, a && n !== void 0) this.deletedStates[e][o] !== null && (this.deletedStates[e][o] = this.deletedStates[e][o] || {}, this.deletedStates[e][o][a] = null);
-          else if (n !== void 0) if (this.stateChanges[e] && this.stateChanges[e][o]) for (a in this.deletedStates[e][o] = {}, this.stateChanges[e][o]) this.deletedStates[e][o][a] = null;
+          else if (n !== void 0) if (this.stateChanges[e] && this.stateChanges[e][o]) for (a in (this.deletedStates[e][o] = {}, this.stateChanges[e][o])) this.deletedStates[e][o][a] = null;
           else this.deletedStates[e][o] = null;
           else this.deletedStates[e] = null;
         }
@@ -11911,7 +11911,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
           return !1;
         }, projectTileCoordinates(h, e, n, a) {
           throw new Error("Not implemented.");
-        }, translatePosition: (h, e, n, a) => function(o, c, m, _, y = !1) {
+        }, translatePosition: (h, e, n, a) => (function(o, c, m, _, y = !1) {
           if (!m[0] && !m[1]) return [0, 0];
           const b = y ? _ === "map" ? o.angle : 0 : _ === "viewport" ? -o.angle : 0;
           if (b) {
@@ -11919,7 +11919,7 @@ Use an identity property function instead: \`{ "type": "identity", "property": $
             m = [m[0] * S - m[1] * T, m[0] * T + m[1] * S];
           }
           return [y ? m[0] : He(c, m[0], o.zoom), y ? m[1] : He(c, m[1], o.zoom)];
-        }(h, e, n, a), getCircleRadiusCorrection: (h) => 1 };
+        })(h, e, n, a), getCircleRadiusCorrection: (h) => 1 };
       }
       class Et {
         constructor(e) {

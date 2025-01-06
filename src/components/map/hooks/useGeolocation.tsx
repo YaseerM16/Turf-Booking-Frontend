@@ -17,7 +17,7 @@ export default function useGeolocation() {
     useEffect(() => {
         const geo = navigator.geolocation;
 
-        function onSuccess(position: any): void {
+        function onSuccess(position: { coords: GeolocationPosition }): void {
             setPosition({
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,

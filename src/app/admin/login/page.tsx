@@ -1,8 +1,6 @@
 import AdminLoginForm from "@/components/admin/LoginForm";
 import AuthNavbar from "@/components/user-auth/AuthNavbar";
 
-AdminLoginForm
-
 export default function Login() {
 
     return (

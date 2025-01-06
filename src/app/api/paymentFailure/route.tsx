@@ -1,9 +1,8 @@
-// import PayUApiCalls from "@/utils/apiCalls/PayUApiCalls";
-import PayUApiCalls from "@/utils/PayUApiCalls";
+
 import { redirect } from "next/navigation";
 
 
-export async function POST(req: any) {
+export async function POST() {
     // const contentType = req.headers.get("content-type") || "";
     // const { searchParams } = req.nextUrl;
     // const slotsString = searchParams.get('slots');

@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { Calendar } from 'react-calendar';
 import 'react-calendar/dist/Calendar.css'; // Import default styles
 
-type WorkingDay = { day: string; date: string };
 
 interface TurfCalendarProps {
-    workingDays: any[]; // List of working days
-    onDaySelect: (day: string, date: any) => Promise<void>; // Callback when a day is selected
+    workingDays: { date: string, day: string }[]; // List of working days
+    onDaySelect: (day: string, date: string) => Promise<void>; // Callback when a day is selected
 }
 
 const TurfCalendar: React.FC<TurfCalendarProps> = ({ workingDays, onDaySelect }) => {
@@ -44,7 +43,6 @@ const TurfCalendar: React.FC<TurfCalendarProps> = ({ workingDays, onDaySelect })
                     }
                 }}
                 tileClassName={({ date }) => {
-                    const dateString = date.toISOString().split('T')[0];
                     if (isWorkingDay(date)) {
                         return 'bg-green-500 text-white font-bold'; // Highlight working days
                     }

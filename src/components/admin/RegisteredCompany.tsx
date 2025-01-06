@@ -6,20 +6,23 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import Map from "./ComapanyLocationMap";
 import "react-toastify/dist/ReactToastify.css";
-import { FaMapMarkerAlt } from "react-icons/fa";
 import FireLoading from "../FireLoading";
 import MapComponent from "../OlaMapComponent";
+import { Company } from "@/utils/type";
+import Image from "next/image";
 
 
 const RegisteredCompanies: React.FC = () => {
-    const [companies, setCompanies] = useState<any[]>([]);
+    const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [totalPages, setTotalPages] = useState<number>(1);
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+    console.log("Map is visible :", isMapVisible);
 
-    const [selectedCompany, setSelectedCompany] = useState<any | null>(null); // For the modal display
+
+    const [selectedCompany, setSelectedCompany] = useState<Company | null>(null); // For the modal display
     const companiesPerPage = 10;
 
     const fetchUsers = async (page: number, searchQry: string) => {
@@ -83,10 +86,6 @@ const RegisteredCompanies: React.FC = () => {
                 toast.info("Action canceled.");
             }
         });
-    };
-
-    const handleLocationClick = (company: any) => {
-        setSelectedCompany(company);
     };
 
     const closeModal = () => {
@@ -157,7 +156,7 @@ const RegisteredCompanies: React.FC = () => {
                                                 </button>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
-                                                <MapComponent location={company.location} company={company} toggleview={toggleMapState} />
+                                                <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} toggleview={toggleMapState} />
                                             </td>
                                         </tr>
                                     ))}
@@ -201,11 +200,14 @@ const RegisteredCompanies: React.FC = () => {
                             &times;
                         </button>
                         <div className="flex gap-4">
-                            <img
-                                src={selectedCompany.profilePicture}
+                            <Image
+                                src={selectedCompany.profilePicture || '/logo.jpeg'}
                                 alt={selectedCompany.companyname}
-                                className="w-24 h-24 object-cover rounded-lg"
+                                width={96}
+                                height={96}
+                                className="object-cover rounded-lg"
                             />
+
                             <div>
                                 <h2 className="text-2xl font-bold">{selectedCompany.companyname}</h2>
                                 <p>Email: {selectedCompany.companyemail}</p>

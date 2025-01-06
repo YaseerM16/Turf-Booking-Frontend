@@ -1,15 +1,16 @@
 'use client'
 
 import { OlaMaps } from '../../public/olamaps/dist/olamaps-js-sdk.es';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import '../../public/olamaps/dist/style.css'
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import Swal from 'sweetalert2';
+import { Map_2, GeolocateControl, Marker } from '../../public/olamaps/dist';
 
 
 interface PlacePrediction {
-    structured_formatting: any;
+    structured_formatting: { secondary_text: string };
     place_id: string;
     description: string;
     formatted_address: string;
@@ -36,24 +37,18 @@ interface MapComponentProps {
 const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose, toggleMapView }) => {
     const [coordinates, setCoordinates] = useState<{ lat: number; lng: number } | null>(null);
     const [searchResults, setSearchResults] = useState<PlacePrediction[]>([]);
-    const [isDropdownVisible, setDropdownVisible] = useState(false);
-    const [removeCurrentLoc, setRemoveCurrentLoc] = useState(false);
+    const [isDropdownVisible, setDropdownVisible] = useState<boolean>(false);
+    const [removeCurrentLoc, setRemoveCurrentLoc] = useState<boolean>(false);
     const [selectedAddress, setSelectedAddress] = useState<string | null>(null); // Store the address
-
-    const [errorMessage, setErrorMessage] = useState('');
-    const [query, setQuery] = useState('');
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [query, setQuery] = useState<string>('');
     const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
-    const geoLocateRef = useRef<any>(null); // Store the geoLocate instance
-    const geoLocateInitializedRef = useRef(false); // Track initialization
-    const mapRef = useRef<any>(null);
-    const markerRef = useRef<any>(null); // Reference to the marker
+    const geoLocateRef = useRef<GeolocateControl | null>(null); // Store the geoLocate instance
+    const mapRef = useRef<Map_2 | null>(null);
+    const markerRef = useRef<Marker | null>(null); // Reference to the marker
 
-    console.log("Coordinate :", coordinates);
-
-
-
-    const handleGeoLocateError = (error: any) => {
+    const handleGeoLocateError = useCallback((error: { PERMISSION_DENIED: number }) => {
         if (error.PERMISSION_DENIED) {
             Swal.fire({
                 icon: 'info',
@@ -67,9 +62,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
 
         }
         console.log('An error event has occurred.', error)
-    }
+    }, [])
 
-    const handleGeoLocateSuccess = (event: any) => {
+    const handleGeoLocateSuccess = useCallback((event: { coords: { latitude: number, longitude: number } }) => {
         console.log("GEOLocale inside CallBAck :", event);
         const lat = event.coords.latitude
         const lng = event.coords.longitude
@@ -82,8 +77,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
         setRemoveCurrentLoc(true)
         console.log("AFTER settin the REVMOVe LOCCa");
 
-    }
-
+    }, [])
 
     const setCurrentLocation = () => {
         // console.log("HEELLOO");
@@ -127,7 +121,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                 trackUserLocation: true,
             })
 
-            geoLocate.on('geolocate', (event: Event) => handleGeoLocateSuccess(event))
+            geoLocate.on('geolocate', (event: Event) => handleGeoLocateSuccess(event as unknown as { coords: { latitude: number, longitude: number } }))
             geoLocate.on('error', handleGeoLocateError)
             // if (!geoLocateInitializedRef.current) {
             //     geoLocateInitializedRef.current = true;
@@ -202,7 +196,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                 geoLocate.off("geolocate", handleGeoLocateSuccess)
             };
         }
-    }, [mapView]);
+    }, [mapView, coordinates, handleGeoLocateSuccess, handleGeoLocateError]);
 
     // Reverse Geocode to get the address
     const getReverseGeocode = async (lat: number, lng: number): Promise<string | undefined> => {
@@ -390,13 +384,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                             backgroundColor: 'rgba(0, 0, 0, 0.5)',
                             paddingLeft: "18%",
                             paddingTop: "150px", // Optional top padding
-                            // paddingRight: "50%",
-                            // transform: "translateX(-25%)",
-                            // paddingTop: "205px",
-                            // paddingBottom: "200px"
-                            // display: 'flex',
-                            // justifyContent: 'center',
-                            // alignItems: 'center',
                         }}
                     >
                         <div
@@ -551,7 +538,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                                 </button>
                             </div>
 
-
+                            {errorMessage && (
+                                <p>{errorMessage}</p>
+                            )}
 
                             {/* Display Selected Address */}
                             {selectedAddress && (

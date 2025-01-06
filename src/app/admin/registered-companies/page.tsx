@@ -1,7 +1,4 @@
-import AdminDashboard from "@/components/admin/AdminDashboard";
 import RegisteredCompanies from "@/components/admin/RegisteredCompany";
-
-
 
 export default function Login() {
 

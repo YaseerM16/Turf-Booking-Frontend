@@ -2,7 +2,6 @@
 
 // import {  }from "@reduxjs/toolkit"
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from "../store"
 import { AuthData } from "../../utils/type"
 
 const initialState: AuthData = {

@@ -1,9 +1,4 @@
 import CompanyProfile from "@/components/company/CompanyProfile";
-import CompanyRegister from "@/components/company/register/CompanyRegister";
-import AuthNavbar from "@/components/user-auth/AuthNavbar";
-// import LoginPage from "@/components/user/LoginForm";
-
-
 
 export default function Register() {
 

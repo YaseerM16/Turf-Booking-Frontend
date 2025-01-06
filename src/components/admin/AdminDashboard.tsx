@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "./SideBar";
-
+import Image from "next/image";
 
 
 const AdminDashboard: React.FC = () => {
@@ -20,13 +20,16 @@ const AdminDashboard: React.FC = () => {
                     <header className="bg-yellow-100 p-6 rounded-lg shadow-md flex items-center justify-between">
                         <div>
                             <h2 className="text-2xl font-semibold text-gray-800">Welcome, Admin!</h2>
-                            <p className="text-gray-600">Here's our operation statistic report</p>
+                            <p className="text-gray-600">Here&apos;s our operation statistic report</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            <img
+                            <Image
                                 src="/admin-avatar.png"
                                 alt="Admin Avatar"
                                 className="h-16 w-16 rounded-full border-2 border-green-600"
+                                width={64} // Specify the width explicitly
+                                height={64} // Specify the height explicitly
+                                priority // Optional: If this image is critical for the page load
                             />
                             <div>
                                 <p className="text-xl font-medium text-gray-700">Admin Tester</p>

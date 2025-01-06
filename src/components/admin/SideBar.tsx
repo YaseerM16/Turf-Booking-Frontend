@@ -3,14 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { axiosInstance } from "@/utils/constants";
-import { useAppDispatch } from "@/store/hooks";
 import { useRouter, usePathname } from "next/navigation";
 import Spinner from "../Spinner";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-Spinner
-useAppDispatch
 
 const Sidebar: React.FC = () => {
     const [loading, setLoading] = useState(false);

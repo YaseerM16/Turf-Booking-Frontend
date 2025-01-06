@@ -1,24 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { axiosInstance } from "@/utils/constants";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import FireLoading from "@/components/FireLoading";
 import Sidebar from "../../CompanySidebar";
 import Header from "../../CompanyHeader";
-
-useRouter
-Sidebar
-useAppDispatch
+import { TurfDetails } from "@/utils/type"
+import Image from "next/image";
 
 const SlotTurfList: React.FC = () => {
     const router = useRouter()
     const company = useAppSelector(state => state.companies.company)
     const [loading, setLoading] = useState(false);
-    const [turfs, setTurfs] = useState<any[]>([]);
+    const [turfs, setTurfs] = useState<TurfDetails[]>([]);
 
 
-    async function fetchTurfs() {
+    const fetchTurfs = useCallback(async () => {
         try {
             setLoading(true);
             const { data } = await axiosInstance.get(
@@ -35,14 +33,14 @@ const SlotTurfList: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [company?._id])
 
 
     useEffect(() => {
         if (company?._id) {
             fetchTurfs();
         }
-    }, []);
+    }, [company?._id, fetchTurfs]);
 
     return (
         <>
@@ -72,9 +70,11 @@ const SlotTurfList: React.FC = () => {
                                                 {/* Turf Image */}
                                                 <div className="flex-shrink-0 w-24 h-24">
                                                     {turf.images && turf.images[0] ? (
-                                                        <img
+                                                        <Image
                                                             src={turf.images[0]}
                                                             alt={turf.turfName}
+                                                            width={200} // Adjust dimensions based on design
+                                                            height={200} // Adjust dimensions based on design
                                                             className="w-full h-full object-cover rounded-md shadow-md border"
                                                         />
                                                     ) : (

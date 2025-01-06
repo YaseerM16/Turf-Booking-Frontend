@@ -1,33 +1,31 @@
 import Spinner from "@/components/Spinner";
-import { axiosInstance } from "@/utils/constants";
+import { axiosInstance, daysOrder } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
 import { useState } from "react";
-import { FaCheck, FaEdit, FaPlus, FaTimes } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTimes } from "react-icons/fa";
 import Swal from "sweetalert2";
 
-const daysOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> = ({ turf, onClose }) => {
+const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isEditDay, setIsEditDay] = useState(false);
-    const [selectedDay, setSelectedDay] = useState<any>(null)
-    const [workingDays, setWorkingDays] = useState<any>([]);
+    const [selectedDay, setSelectedDay] = useState<string | null>(null)
+    const [workingDays, setWorkingDays] = useState<string[]>([]);
     const [fromTime, setFromTime] = useState("");
     const [toTime, setToTime] = useState("");
     const [fromTimeError, setFromTimeError] = useState<string | null>(null);
     const [toTimeError, setToTimeError] = useState<string | null>(null);
     const [workingDaysError, setworkingDaysError] = useState<string | null>(null);
     const [spinLoading, setSpinLoading] = useState<boolean>(false)
-    const [price, setPrice] = useState<any>(null)
-    const conflictingSlots: any[] = []
+    const [price, setPrice] = useState<number | null>(null)
+    const conflictingSlots: { fromTime: string, toTime: string }[] = []
     const toggleEdit = () => setIsEditing(!isEditing);
     const toggleDayEdit = () => setIsEditDay(!isEditDay);
-    const toggleIsEditDay = () => setIsEditDay(!isEditDay);
 
     const handleToggleDay = (day: string) => {
         if (workingDays.includes(day)) {
             // Remove the day if already selected
-            setWorkingDays(workingDays.filter((d: any) => d !== day));
+            setWorkingDays(workingDays.filter((d: string) => d !== day));
         } else {
             // Add the day if not selected
             setWorkingDays([...workingDays, day]);
@@ -141,10 +139,10 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> =
     };
 
     return (
-        <div className="mb-6 flex flex-col p-4 bg-white rounded-lg shadow-lg">
+        (<div className="mb-6 flex flex-col p-4 bg-white rounded-lg shadow-lg">
             {!isEditing ? (
                 // Display Mode
-                <>
+                (<>
                     <div className="mt-4">
                         <h3 className="text-lg font-medium text-gray-700 mb-2">Add Working days</h3>
                         {/* Working Days */}
@@ -174,10 +172,10 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> =
                             </button>
                         </div>
                     </div>
-                </>
+                </>)
             ) : (
                 // Edit Mode
-                <div className="mt-4">
+                (<div className="mt-4">
                     {/* Weekdays List with Add Option */}
                     <div className="flex flex-wrap gap-3">
                         {daysOrder.map((day) => {
@@ -232,14 +230,12 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> =
                             </div>
                         </div>
                     </div>
-
                     {/* Error message for WorkingDays */}
                     {workingDaysError && (
                         <div className="text-red-500 text-sm mt-1">
                             {workingDaysError} {/* Display the error message here */}
                         </div>
                     )}
-
                     {/* Form for Adding Working Hours */}
                     <div className="mt-6">
                         <h3 className="text-lg font-medium mb-2">Set Working Hours</h3>
@@ -288,9 +284,8 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> =
                             </button>}
                         </div>
                     </div>
-                </div>
+                </div>)
             )}
-
             <>
                 <div className="mt-4 flex flex-wrap gap-6">
                     {/* Working Days */}
@@ -408,7 +403,6 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> =
                     </div>
                 )}
             </div>)}
-
             {isEditDay ? (
                 <div className="mt-4 flex flex-col gap-6">
                     {/* Editable Fields */}
@@ -479,8 +473,7 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, onClose: () => void }> =
             ) : (
                 <div></div>
             )}
-
-        </div>
+        </div>)
     );
 };
 

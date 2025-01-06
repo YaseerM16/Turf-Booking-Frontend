@@ -6,11 +6,6 @@ import { AiOutlineWarning } from 'react-icons/ai';
 const PaymentFailed = () => {
     const router = useRouter();
 
-    const handleRetry = () => {
-        // Navigate to the payment retry page
-        router.push('/payment');
-    };
-
     const handleBackHome = () => {
         // Navigate to the home page
         router.push('/');

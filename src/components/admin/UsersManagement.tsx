@@ -6,23 +6,19 @@ import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./SideBar";
 import Swal from 'sweetalert2';
 import Pagination from "../Pagination";
-Pagination
+import FireLoading from "../FireLoading";
+import { User } from "@/utils/type";
 
-Sidebar
 
 const UserManagement: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<string>("/dashboard");
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [spinLoading, setSpinLoading] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [totalUsers, setTotalUsers] = useState<number>(0);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [filter, setFilter] = useState<string>("all"); // "all", "active", "inactive"
 
     const usersPerPage = 10;
-
 
     const fetchUsers = async (page: number, searchQuery: string, filter: string) => {
         try {
@@ -45,7 +41,6 @@ const UserManagement: React.FC = () => {
 
             if (data?.success) {
                 setUsers(data.users);
-                setTotalUsers(data.totalUsers);
                 setTotalPages(Math.ceil(data.totalUsers / usersPerPage));
             }
 
@@ -76,7 +71,6 @@ const UserManagement: React.FC = () => {
                 timerProgressBar: true,
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    setSpinLoading(true);
                     const { data } = await axiosInstance.get(
                         `/api/v1/admin/user-toggle-block?email=${email}&userId=${userId}`
                     );
@@ -101,8 +95,6 @@ const UserManagement: React.FC = () => {
 
         } catch (error) {
             console.error("Error fetching user data:", error);
-        } finally {
-            setSpinLoading(false);
         }
     };
 
@@ -164,9 +156,7 @@ const UserManagement: React.FC = () => {
                                 </select>
                             </div>
 
-                            {loading ? (<div className="flex justify-center items-center h-screen">
-                                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-green-700 border-solid"></div>
-                            </div>) : (<table className="w-full text-left border-collapse">
+                            {loading ? <FireLoading renders={"Fetching Users"} /> : (<table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-green-700 text-white">
                                         <th className="px-4 py-3">#</th>
@@ -199,6 +189,7 @@ const UserManagement: React.FC = () => {
                                                     </span>
                                                 </td>
                                                 <td className="border px-4 py-3">
+                                                    { }
                                                     <button
                                                         className={`${user.isActive ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"} text-white px-4 py-2 rounded-md font-medium`}
                                                         onClick={() => handleToggleBlock(user.email, user._id)}

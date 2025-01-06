@@ -1,21 +1,18 @@
 'use client'
 
 import { useEffect, useRef, useState } from "react";
-import { FRONTEND_DOMAIN, PayU } from "@/utils/constants"
+import { BookedData, FRONTEND_DOMAIN, PayU } from "@/utils/constants"
 import { generateTxnId } from "@/utils/generateTxnld";
 import { toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import PayUApiCalls from "@/utils/PayUApiCalls";
+import PayUApiCalls, { PaymentData } from "@/utils/PayUApiCalls";
 import Cookies from "js-cookie";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 type Props = {
-    BookedData: any;
+    BookedData: BookedData | null;
 };
 const accessToken = Cookies.get("token")
-// console.log("summa log ;");
-
-// console.log("ACCESS Token in PayUComponent :) :", accessToken);
 
 const PayUComponent = ({ BookedData }: Props) => {
     // console.log("BookedData prop :", BookedData);
@@ -26,20 +23,20 @@ const PayUComponent = ({ BookedData }: Props) => {
     const txnidRef = useRef(generateTxnId(8)); // txnid is created once
     const txnid = txnidRef.current;
 
-    // console.log("BookedData: in PayUComp :", BookedData);
+    console.log("BookedData.selectedSlots: in PayUComp :", BookedData?.selectedSlots);
 
-    const amount = BookedData.amount || 0;
-    const productinfo = BookedData.productinfo || "";
-    const udf1 = BookedData.userId || "";
-    const { name = "", email = "", phone = "" } = BookedData.userDet || {};
-    const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
+    const amount = BookedData?.amount || 0;
+    const productinfo = BookedData?.productinfo || "";
+    const udf1 = BookedData?.userId || "";
+    const { name = "", email = "", phone = "" } = BookedData?.userDet || {};
+    const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData?.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
     const furl = `${FRONTEND_DOMAIN}/api/paymentFailure`;
-    const udf2 = BookedData.companyId || "nil";
-    const udf3 = BookedData.selectedSlots || "nil";
-    const udf4 = BookedData.turfId || "nil";
-    const udf5 = BookedData.category || "nil";
-    const udf6 = BookedData.eventType || "nil";
-    const udf7 = BookedData.EndingDate || "nil";
+    const udf2 = BookedData?.companyId || "nil";
+    const udf3 = BookedData?.companyId || "nil";
+    const udf4 = BookedData?.turfId || "nil";
+    const udf5 = BookedData?.category || "nil";
+    const udf6 = BookedData?.eventType || "nil";
+    const udf7 = BookedData?.EndingDate || "nil";
 
     const key = PayU.merchantKey;
 
@@ -48,7 +45,7 @@ const PayUComponent = ({ BookedData }: Props) => {
 
     const requestSentRef = useRef(false);
     useEffect(() => {
-        const data = {
+        const data: PaymentData = {
             txnid,
             amount,
             productinfo,
@@ -76,10 +73,12 @@ const PayUComponent = ({ BookedData }: Props) => {
                 requestSentRef.current = true;
 
                 // toast.success("Payment hash generated successfully!");
-            } catch (error: any) {
-                console.error("Payment Error: " + error.message);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Payment Error: " + error.message);
+                    toast.error(error.message);
+                }
                 // setError("Failed to generate payment hash. Please try again.");
-                toast.error(error.message);
             }
         };
 

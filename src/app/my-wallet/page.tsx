@@ -1,13 +1,13 @@
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import MyBooking from '@/components/user-component/MyBookings';
+import MyWallet from '@/components/user-component/MyWallet';
 import React from 'react';
 
 const ProfilePage = () => {
     return (
         <>
             <Navbar />
-            <MyBooking />
+            <MyWallet />
             <Footer />
         </>
     );

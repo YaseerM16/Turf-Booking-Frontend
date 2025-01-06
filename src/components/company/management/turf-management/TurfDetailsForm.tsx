@@ -3,14 +3,16 @@ import Spinner from "@/components/Spinner";
 import { availableFacilities, availableGames, axiosInstance } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
 import React, { useRef, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import Sidebar from "../../CompanySidebar";
 import Header from "../../CompanyHeader";
+import { useAppSelector } from "@/store/hooks";
+import Image from "next/image";
 
 type TurfDetailsProps = {
-    turf: TurfData; // Define the type for the props
+    turf: TurfData | null; // Define the type for the props
 };
 
 interface TurfDetails {
@@ -29,32 +31,29 @@ interface TurfDetails {
 
 const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [newImages, setNewImages] = useState<File[]>([]);
-    const company: any = JSON.parse(localStorage.getItem("companyAuth") as any)
+    const company = useAppSelector(state => state.companies.company)
     const { handleSubmit, register, setError, clearErrors, reset, watch, setValue, formState: { errors } } = useForm<TurfDetails>({
         defaultValues: {
-            turfName: turf.turf?.turfName,
-            facilities: turf.turf?.facilities,
-            supportedGames: turf.turf?.supportedGames,
+            turfName: turf?.turf?.turfName,
+            facilities: turf?.turf?.facilities,
+            supportedGames: turf?.turf?.supportedGames,
             images: [],
-            turfType: turf.turf?.turfType,
-            turfSize: turf.turf?.turfSize,
-            description: turf.turf?.description
+            turfType: turf?.turf?.turfType,
+            turfSize: turf?.turf?.turfSize,
+            description: turf?.turf?.description
         }
     });
     const [isEditable, setIsEditable] = useState(false);
-    const [turfDetails, setTurfDetails] = useState<TurfData>(turf);
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [loading, setLoading] = useState<boolean>(false)
-    const [existingImages, setExistingImages] = useState<string[]>(turf.turf?.images || []);
+    const [existingImages, setExistingImages] = useState<string[]>(turf?.turf?.images || []);
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+    const [expandedImage, setExpandedImage] = useState<string | null>(null);
 
 
     const handleEdit = () => {
         setIsEditable(!isEditable);
     };
-
-    // console.log("TurfFFF :", turf);
-
 
     const supportedGames = watch("supportedGames")
     const facilities = watch("facilities")
@@ -75,12 +74,11 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
         clearErrors("images");
     };
 
-
     const handleDeleteExistingImage = async (index: number) => {
         try {
             console.log("INdex :", index);
             setLoading(true)
-            const formData = { turfId: turf.turf?._id, index }
+            const formData = { turfId: turf?.turf?._id, index }
 
             const { data } = await axiosInstance.patch("/api/v1/company/delete-turf-image", formData, {
                 headers: {
@@ -158,7 +156,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                     formData.append(`TurfImages`, file); // Backend should handle multiple files under 'TurfImages'
                 });
             }
-            formData.append("turfId", JSON.stringify(turf.turf?._id))
+            formData.append("turfId", JSON.stringify(turf?.turf?._id))
             formData.append("turfName", turfDet.turfName);
             formData.append("price", JSON.stringify(turfDet.pricePerHour));
             formData.append("turfSize", turfDet.turfSize);
@@ -166,7 +164,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
             formData.append("selectedFacilities", JSON.stringify(turfDet.facilities));
             formData.append("games", JSON.stringify(turfDet.supportedGames))
             formData.append("description", turfDet.description);
-            formData.append("companyId", company?._id);
+            formData.append("companyId", company?._id as string);
 
 
 
@@ -253,7 +251,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             {...register("turfName", { required: "Turf name is required" })}
                                             type="text"
                                             name="turfName"
-                                            defaultValue={turfDetails.turf?.turfName}
+                                            defaultValue={turf?.turf?.turfName}
                                             // value={turf.turf?.turfName}
                                             readOnly={!isEditable}
                                             className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
@@ -268,7 +266,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                         <select
                                             id="turfSize"
                                             {...register("turfSize", { required: "Please select the turf size" })}
-                                            defaultValue={turfDetails.turf?.turfSize || ""} // Pre-selects the value if available
+                                            defaultValue={turf?.turf?.turfSize || ""} // Pre-selects the value if available
                                             className={`w-full px-4 py-2 border rounded-lg focus:ring focus:ring-green-400 ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"
                                                 }`}
                                             disabled={!isEditable} // Disables the dropdown if not editable
@@ -291,7 +289,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                         <select
                                             id="turfType"
                                             {...register("turfType", { required: "Turf type is required" })}
-                                            defaultValue={turfDetails.turf?.turfType || ""}
+                                            defaultValue={turf?.turf?.turfType || ""}
                                             disabled={!isEditable} // Disable dropdown if not editable
                                             className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"
                                                 }`}
@@ -312,7 +310,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             {...register("pricePerHour", { required: "Price per hour is required", valueAsNumber: true })}
                                             type="number"
                                             name="pricePerHour"
-                                            defaultValue={turfDetails.turf?.price}
+                                            defaultValue={turf?.turf?.price}
                                             readOnly={!isEditable}
                                             className={`w-full p-2 border rounded ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
                                         />
@@ -324,7 +322,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                         <textarea
                                             {...register("description", { required: "Turf description is required" })}
                                             name="description"
-                                            defaultValue={turfDetails.turf?.description}
+                                            defaultValue={turf?.turf?.description}
                                             readOnly={!isEditable}
                                             className={`w-full p-2 border rounded resize-none ${isEditable ? "border-green-500" : "bg-gray-100 border-gray-300"}`}
                                             rows={3} // Adjust the rows attribute to control the height of the textarea
@@ -358,9 +356,6 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             <span className="text-red-500 text-sm">{errors.facilities.message}</span>
                                         )}
                                     </div>
-
-
-
                                     <div className="mb-4">
                                         <label className="block text-gray-600 font-medium mb-1">Supported Games</label>
                                         <div className="flex flex-wrap gap-2">
@@ -392,84 +387,116 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             </h3>
                                             <MapComponent
                                                 location={turf?.turf?.location}
-                                                company={turf.turf}
+                                                company={{
+                                                    images: turf?.turf?.images || [], // Ensure it's an array
+                                                    companyname: company?.companyname || "Default Company Name", // Provide a default fallback
+                                                    phone: company?.phone || "N/A", // Provide a default fallback
+                                                }}
                                                 toggleview={toggleMapState}
                                             />
+
                                         </div>
                                     </div>
 
                                 </div>
                                 <div className="mb-4">
-                                    <label className="block text-gray-600 font-medium mb-1">Images</label>
-                                    <input
-                                        type="file"
-                                        name="images"
-                                        accept="image/*"
-                                        multiple
-                                        disabled={!isEditable}
-                                        onChange={handleNewImages}
-                                        ref={imageInputRef}
-                                        className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
-                                    />
+                                    {isEditable && <>
+                                        <label className="block text-gray-600 font-medium mb-1">Images</label>
+                                        <input
+                                            type="file"
+                                            name="images"
+                                            accept="image/*"
+                                            multiple
+                                            disabled={!isEditable}
+                                            onChange={handleNewImages}
+                                            ref={imageInputRef}
+                                            className={`w-full p-2 border rounded ${!isEditable ? "bg-gray-200 cursor-not-allowed" : ""}`}
+                                        />
+                                    </>}
 
                                     {/* Error display */}
                                     {errors.images && <span className="text-red-500 text-sm">{errors.images.message}</span>}
                                     {loading ? <Spinner /> : ""}
-                                    {!isMapVisible &&
-                                        <div className="mt-4 flex flex-wrap relative z-10">
+                                    <div className="mt-4 flex flex-wrap relative z-10">
 
-                                            {/* Existing Images */}
-                                            <div className="mt-4">
-                                                <h4 className="text-gray-700 font-medium mb-2">Existing Images</h4>
-                                                <div className="flex flex-wrap gap-4">
-                                                    {existingImages.map((image, index) => (
-                                                        <div key={index} className="relative w-24 h-24">
-                                                            <img
-                                                                src={image}
-                                                                alt={`Existing Image ${index + 1}`}
-                                                                className="w-full h-full object-cover rounded-lg border"
-                                                            />
-                                                            {isEditable && (
-                                                                <button
-                                                                    type="button"
-                                                                    onClick={() => handleDeleteExistingImage(index)}
-                                                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
-                                                                >
-                                                                    ✖
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* New Images */}
-                                            <div className="mt-4">
-                                                <h4 className="text-gray-700 font-medium mb-2">New Images</h4>
-                                                <div className="flex flex-wrap gap-4">
-                                                    {newImages.map((image, index) => (
-                                                        <div key={index} className="relative w-24 h-24">
-                                                            <img
-                                                                src={URL.createObjectURL(image)} // Convert File to previewable URL
-                                                                alt={`New Image ${index + 1}`}
-                                                                className="w-full h-full object-cover rounded-lg border"
-                                                            />
+                                        {/* Existing Images */}
+                                        <div className="mt-4">
+                                            <h4 className="text-gray-700 font-medium mb-2">Existing Images</h4>
+                                            <div className="flex flex-wrap gap-4">
+                                                {existingImages.map((image, index) => (
+                                                    <div key={index} className="relative w-24 h-24">
+                                                        <Image
+                                                            src={image}
+                                                            alt={`Existing Image ${index + 1}`}
+                                                            width={96}
+                                                            height={96}
+                                                            className="w-full h-full object-cover rounded-lg border cursor-pointer"
+                                                            onClick={() => setExpandedImage(image)} // Set the clicked image
+                                                        />
+                                                        {isEditable && (
                                                             <button
                                                                 type="button"
-                                                                onClick={() =>
-                                                                    setNewImages((prev) => prev.filter((_, i) => i !== index))
-                                                                }
+                                                                onClick={() => handleDeleteExistingImage(index)}
                                                                 className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
                                                             >
                                                                 ✖
                                                             </button>
-                                                        </div>
-                                                    ))}
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            {expandedImage && (
+                                                <div
+                                                    className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
+                                                    onClick={() => setExpandedImage(null)} // Close when clicking outside
+                                                >
+                                                    <div className="relative">
+                                                        <Image
+                                                            src={expandedImage}
+                                                            alt="Expanded Image"
+                                                            width={500}
+                                                            height={500}
+                                                            className="w-auto h-auto max-w-full max-h-full rounded-lg"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setExpandedImage(null)} // Close button
+                                                            className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full"
+                                                        >
+                                                            ✖
+                                                        </button>
+                                                    </div>
                                                 </div>
+                                            )}
+                                        </div>
+
+
+                                        {/* New Images */}
+                                        <div className="mt-4">
+                                            {isEditable && <h4 className="text-gray-700 font-medium mb-2">New Images</h4>}
+                                            <div className="flex flex-wrap gap-4">
+                                                {newImages.map((image, index) => (
+                                                    <div key={index} className="relative w-24 h-24">
+                                                        <Image
+                                                            src={URL.createObjectURL(image)} // Convert File to previewable URL
+                                                            alt={`New Image ${index + 1}`}
+                                                            className="w-full h-full object-cover rounded-lg border"
+                                                            layout="fill" // Makes it responsive within the container
+                                                            objectFit="cover" // Ensures the image maintains aspect ratio
+                                                            unoptimized // Allows local file URLs without optimization
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setNewImages((prev) => prev.filter((_, i) => i !== index))}
+                                                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                                                        >
+                                                            ✖
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
-                                    }
-
+                                    </div>
                                 </div>
                             </div>
                             {isEditable ? <button

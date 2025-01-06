@@ -2,23 +2,22 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../CompanySidebar";
 import { axiosInstance } from "@/utils/constants";
-import { toast, ToastContainer } from "react-toastify";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { ToastContainer } from "react-toastify";
+import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import Header from "../CompanyHeader";
 import { AiOutlinePlus } from "react-icons/ai";
 import FireLoading from "@/components/FireLoading";
 import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
+import { TurfDetails } from "@/utils/type";
+import Spinner from "@/components/Spinner";
 
-useRouter
-Sidebar
-useAppDispatch
 
 const TurfManagement: React.FC = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false);
-    const [turfs, setTurfs] = useState<any[]>([]);
+    const [turfs, setTurfs] = useState<TurfDetails[]>([]);
     const [spinLoading, setSpinLoading] = useState<boolean>(false)
     const company = useAppSelector((state) => state.companies);
 
@@ -130,8 +129,6 @@ const TurfManagement: React.FC = () => {
 
                     if (data?.success) {
                         setSpinLoading(false)
-                        // setSelectedSlot(null)
-                        // fetchSlotsByDay(turf?._id, day)
                         fetchTurfs(company.company?._id as string)
                         Swal.fire({
                             position: "top-end",
@@ -242,23 +239,26 @@ const TurfManagement: React.FC = () => {
                                                     >
                                                         View Turf
                                                     </button>
-
-                                                    {/* Block/Unblock Button */}
-                                                    {turf.isBlocked ? (
-                                                        <button
-                                                            className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
-                                                            onClick={() => handleUnblockTurf(turf._id)}
-                                                        >
-                                                            Unblock Turf
-                                                        </button>
-                                                    ) : (
-                                                        <button
-                                                            className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
-                                                            onClick={() => handleBlockTurf(turf._id)}
-                                                        >
-                                                            Block Turf
-                                                        </button>
-                                                    )}
+                                                    {spinLoading ? <Spinner /> :
+                                                        <>
+                                                            {/* Block/Unblock Button */}
+                                                            {turf.isBlocked ? (
+                                                                <button
+                                                                    className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
+                                                                    onClick={() => handleUnblockTurf(turf._id)}
+                                                                >
+                                                                    Unblock Turf
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
+                                                                    onClick={() => handleBlockTurf(turf._id)}
+                                                                >
+                                                                    Block Turf
+                                                                </button>
+                                                            )}
+                                                        </>
+                                                    }
                                                 </div>
                                             </div>
                                         ))}

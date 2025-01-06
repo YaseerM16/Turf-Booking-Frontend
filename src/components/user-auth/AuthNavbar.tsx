@@ -1,4 +1,6 @@
 "use client";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -8,29 +10,27 @@ const AuthNavbar: React.FC = () => {
         <nav className="bg-green-800 h-16 flex items-center justify-between px-6">
             {/* Logo Section */}
             <div className="flex items-center cursor-pointer">
-                <img
+                <Image
                     src="/logo.jpeg"
-                    alt="Turf Logo"
-                    className="h-12 w-12 object-cover rounded-md bg-white p-1 shadow-md"
+                    alt="Logo"
+                    width={48}  // Fixed size
+                    height={48}
+                    style={{ objectFit: "contain" }} // Prevent distortion
+                    priority
                 />
                 <span className="text-white text-md font-bold ml-2">Turf Booking</span>
             </div>
 
             {/* Links Section */}
             <div className="flex items-center space-x-6">
-                <a
-                    href="/"
-                    className="text-white text-xs font-medium hover:text-yellow-400"
-                >
+                <Link href="/" className="text-white text-xs font-medium hover:text-yellow-400">
                     Home
-                </a>
-                <a
-                    href="/turfs"
-                    className="text-white text-xs font-medium hover:text-yellow-400"
-                >
+                </Link>
+                <Link href="/turfs" className="text-white text-xs font-medium hover:text-yellow-400">
                     Discover
-                </a>
+                </Link>
             </div>
+
 
             {/* Button Section */}
             <div className="flex items-center space-x-2">

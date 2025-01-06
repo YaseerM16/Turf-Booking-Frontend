@@ -5,23 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout, setCompany } from '@/store/slices/CompanySlice';
 import { toast } from 'react-toastify';
+import { AxiosError } from "axios";
 import { axiosInstance } from '@/utils/constants';
 import Header from './CompanyHeader';
 import Sidebar from './CompanySidebar';
 import Spinner from '../Spinner';
 import { Company } from '@/utils/type';
 import EditProfileModal from './EditProfileModal';
-EditProfileModal
+import Image from 'next/image';
 
-
-Sidebar
-
-// interface CompanyProfileProps {
-//     companyName: string;
-//     companyDescription: string;
-//     companyLogo: string;
-//     handleLogout: () => void;
-// }
 
 const CompanyProfile: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -73,27 +65,29 @@ const CompanyProfile: React.FC = () => {
                 setLoading(false)
             } else if (data?.refreshTokenExpired) {
                 setLoading(false)
-                const response: any = await axiosInstance.get("/api/v1/user/logout");
+                const response = await axiosInstance.get("/api/v1/user/logout");
                 if (response.data.loggedOut) {
                     dispatch(logout())
                     localStorage.removeItem('auth');
                     router.replace("/")
                 }
             }
-        } catch (error: any) {
-            if (error.status === 403) {
-                toast.error(`${error.response.data.message}`)
-                const response: any = await axiosInstance.get("/api/v1/company/logout");
+        } catch (error) {
+            const axiosError = error as AxiosError<{ message: string }>;
+            if (axiosError.response?.status === 403) {
+                toast.error(`${axiosError.response.data.message}`);
+                const response = await axiosInstance.get("/api/v1/company/logout");
                 if (response.data.loggedOut) {
-                    dispatch(logout())
+                    dispatch(logout());
                     localStorage.removeItem('companyAuth');
-                    setLoading(false)
-                    toast.warn("you're Logging Out ...!", { onClose: () => router.replace("/company/login") })
+                    setLoading(false);
+                    toast.warn("You're logging out...!", { onClose: () => router.replace("/company/login") });
                 }
             } else {
-                console.log("Error While Updating Details :", error);
+                console.log("Error while updating details:", error);
             }
         }
+
     };
 
     const handleFileChangeAndUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,11 +121,6 @@ const CompanyProfile: React.FC = () => {
         }
     };
 
-    // Handle navigation (optional)
-    const handleNavigation = (path: string) => {
-        router.push(path);
-    };
-
     return (
         <>
             <div className="flex min-h-screen">
@@ -148,10 +137,13 @@ const CompanyProfile: React.FC = () => {
                                     {loading ? (
                                         <Spinner />
                                     ) : (
-                                        <img
-                                            src={company?.company?.profilePicture ? company?.company?.profilePicture : "/logo.jpeg"}
+                                        <Image
+                                            src={company?.company?.profilePicture || "/images/logo.jpeg"} // Ensure logo.jpeg is in the `public/images` directory
                                             alt="Profile"
-                                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                                            width={500} // Adjust width
+                                            height={500} // Adjust height
+                                            className="object-cover transition-transform duration-300 group-hover:scale-110"
+                                            layout="responsive"
                                         />
                                     )}
                                     <label
