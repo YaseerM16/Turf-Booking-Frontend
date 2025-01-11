@@ -41,6 +41,10 @@ export type Company = {
 };
 
 export type TurfDetails = {
+    generatedSlots: {
+        fromDate: string,
+        toDate: string
+    };
     companyId: string;
     createdAt: string;
     description: string;
@@ -61,15 +65,27 @@ export type TurfDetails = {
     turfType: string;
     updatedAt: string;
     workingSlots: {
-        fromTime: string; // Time in HH:mm format
-        toTime: string; // Time in HH:mm format
-        workingDays: string[]; // Array of working days
-    };
+        toTime: string;
+        fromTime: string;
+        workingDays: [
+            {
+                day: string;  // Day of the week (e.g., "Tuesday")
+                fromTime: string;  // Time in HH:mm format
+                toTime: string;  // Time in HH:mm format
+                price: number;  // Price for the time slot
+                _id: string;  // Unique identifier for the slot
+            }
+        ];
+    }
+
     __v: number;
     _id: string;
 };
 
 export type SlotDetails = {
+    refundDate: string | number | Date;
+    refundTransactionId: string;
+    isCancelled: boolean;
     slotId(slotId: string): void;
     isUnavail: boolean;
     turfId: string,
@@ -79,6 +95,7 @@ export type SlotDetails = {
     slot: string,
     isBooked: boolean,
     _id: string,
+    price?: number
 }
 
 export type SlotData = {
@@ -107,6 +124,10 @@ export type Wallet = {
 };
 
 export type WalletTransaction = {
+    transactionAmount: number;
+    transactionMethod: string;
+    transactionType: string;
+    transactionDate: string | number | Date;
     // Define fields for WalletTransaction if known, otherwise leave it as an empty object type.
     // Example:
     date: string;

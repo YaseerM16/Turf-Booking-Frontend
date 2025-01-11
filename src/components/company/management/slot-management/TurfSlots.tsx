@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { axiosInstance, daysOrder } from "@/utils/constants";
 import { TurfData, SlotDetails } from "@/utils/type";
 import SlotDetailsComponent from "./SlotDetailsComponent";
@@ -29,6 +29,11 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
     const [workingSlots, setWorkingSlots] = useState<SlotDetails[]>([]);
     const [spinLoading, setSpinLoading] = useState<boolean>(false)
     const [isEditing, setIsEditing] = useState(false);
+    // console.log("THIS si TUref : ", turf);
+
+    const workingDaysArray = useMemo(() => {
+        return turf?.workingSlots.workingDays?.map((dayDetails) => dayDetails?.day) || [];
+    }, [turf?.workingSlots.workingDays]);
 
     const handleEditToggle = () => {
         setIsEditing(!isEditing);
@@ -37,39 +42,27 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        if (turf?.workingSlots?.workingDays) {
+        if (workingDaysArray) {
             const ruleSet = new RRuleSet();
 
-            turf.workingSlots.workingDays.forEach((day: string) => {
+            workingDaysArray.forEach((day: string) => {
                 const dayIndex = daysOrder.indexOf(day);
 
                 // Map dayIndex to RRule weekday constants (e.g., 0 = Sunday, 1 = Monday, etc.)
                 const rRuleDay = mapDayIndexToRRuleDay(dayIndex);
+                const toDateMinusOneDay = new Date(turf?.generatedSlots.toDate || "");
+                toDateMinusOneDay.setDate(toDateMinusOneDay.getDate() - 1); // Subtract one day
 
                 const rule = new RRule({
                     freq: RRule.DAILY,
                     byweekday: [rRuleDay], // Use the Weekday constants in byweekday
                     dtstart: new Date(),
-                    until: new Date(new Date().setMonth(new Date().getMonth() + 1)), // Limit to the next month
+                    until: toDateMinusOneDay,
                 });
                 ruleSet.rrule(rule);
             });
-
-            // Get working dates
-            const workingDates = ruleSet.all();
-
-            // Map working dates to day and formatted date
-            const daysWithDates = workingDates.map((date) => ({
-                day: daysOrder[date.getDay()],
-                date: date.toISOString().split('T')[0], // Format as YYYY-MM-DD
-            }));
-
-            console.log("DAys with Dates", daysWithDates);
-
-
-            // setWorkingDays(turf.workingSlots.workingDays);
         }
-    }, [turf?.workingSlots?.workingDays]);
+    }, [workingDaysArray, turf?.generatedSlots.toDate]);
 
     const handleDayClick = (date: Date | null) => {
         if (!date) {
@@ -91,12 +84,15 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
 
     // Render the calendar using react-calendar
     const renderCalendar = () => {
-        // console.log("IUTs Inside the REndeerCalendar :");
-
         const today = new Date();
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the current month
         const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Start of today
-        const endOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
+        // Parse `toDate` from `generatedSlots` or default to end of next month if not available
+        const endOfRange = turf?.generatedSlots?.toDate
+            ? new Date(turf.generatedSlots.toDate)
+            : new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
         return (
             <div className="w-full">
                 <Calendar
@@ -105,11 +101,11 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
                     tileDisabled={({ date }) => {
                         // Disable dates before today and non-working days
                         const day = date.toLocaleString('en-US', { weekday: 'long' });
-                        return date < startOfToday || (turf?.workingSlots.workingDays || []).includes(day);
+                        return date < startOfToday || !(workingDaysArray || []).includes(day);
                     }}
                     value={selectedDay ? new Date(selectedDay) : null} // Highlight selected day
                     minDate={startOfMonth} // Allow navigation only from the start of the current month
-                    maxDate={endOfNextMonth} // Restrict navigation to the end of the next month
+                    maxDate={endOfRange} // Restrict navigation to the `toDate` from `generatedSlots`
                     view="month" // Keep the calendar in month view
                     navigationLabel={({ label }) => label} // Keep navigation labels
                     next2Label={null} // Hide double forward arrow (yearly)
@@ -119,12 +115,17 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
         );
     };
 
+
     const fetchSlotsByDay = async (turfId: string, day: string, date: string) => {
         try {
+            // console.log("turfID :", turfId);
+            // console.log("day & date :", day, date)
             setLoading(true);
             const { data } = await axiosInstance.get(
                 `/api/v1/company/get-slots-by-day?turfId=${turfId}&day=${day}&date=${date}`
             );
+            // console.log("DATA REspone of fetSlotByday :", data);
+
             if (data?.success) {
                 setDate(data.slots[0]?.date || "");
                 // memoizedSlots[day] = data.slots;
@@ -196,7 +197,7 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
                     <div className="lg:w-1/3">
                         <h2 className="text-xl font-semibold mb-4">Select a Day</h2>
                         <div className="flex justify-center mt-4">
-                            {turf?.workingSlots.workingDays.length === 0 ? (
+                            {workingDaysArray.length === 0 ? (
                                 <p>Loading working days...</p>
                             ) : (
                                 renderCalendar()
@@ -321,8 +322,8 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
                         <div className="flex flex-col">
                             <h3 className="text-lg font-medium text-gray-700 mb-2">Working Days</h3>
                             <div className="flex flex-wrap gap-3">
-                                {(turf?.workingSlots.workingDays || []).length > 0 ? (
-                                    turf?.workingSlots.workingDays.map((day, index) => (
+                                {(workingDaysArray || []).length > 0 ? (
+                                    workingDaysArray.map((day, index) => (
                                         <span
                                             key={index}
                                             className="px-3 py-1 bg-green-100 text-green-700 font-medium rounded-full shadow-md"
@@ -336,23 +337,23 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
                             </div>
                         </div>
 
-                        {/* Working Hours */}
-                        <div className="flex flex-col">
-                            <h3 className="text-lg font-medium text-gray-700 mb-2">Working Hours</h3>
-                            <div className="flex flex-wrap gap-3">
-                                {turf?.workingSlots.fromTime && turf?.workingSlots.toTime ? (
-                                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 font-medium rounded-full shadow-md">
-                                        {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
-                                    </span>
-                                ) : (
-                                    <p className="text-gray-600">No working hours set.</p>
-                                )}
-                            </div>
-                        </div>
                     </div>
                 ) : (
-                    <WorkingDaysManagement turf={{ turf: turf }} />
+                    <WorkingDaysManagement turf={{ turf: turf }} workingDaysArr={workingDaysArray} />
                 )}
+                {/* Working Hours */}
+                <div className="flex flex-col">
+                    <h3 className="text-lg font-medium text-gray-700 mb-2">Working Hours</h3>
+                    <div className="flex flex-wrap gap-3">
+                        {turf?.workingSlots.fromTime && turf?.workingSlots.toTime ? (
+                            <span className="px-3 py-1 bg-yellow-100 text-yellow-700 font-medium rounded-full shadow-md">
+                                {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
+                            </span>
+                        ) : (
+                            <p className="text-gray-600">No working hours set.</p>
+                        )}
+                    </div>
+                </div>
             </div>
 
         </div>

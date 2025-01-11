@@ -15,9 +15,13 @@ export const axiosInstance = axios.create({
 export const signupApi = async (signupData: SignupData) => {
     try {
         const response = await axiosInstance.post(`${BACKEND_USER_URL}/auth/signup`, signupData);
+        console.log("Signup REs in Api :-> ", response.data);
         return response.data;
     } catch (error: unknown) {
         console.log(error, "from user signUp api Call <-:")
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
     }
 };
 
@@ -111,6 +115,7 @@ export const getTurfDetailsApi = async (turfId: string) => {
 };
 
 
+
 ////////////////   Slots   /////////////////
 
 export const getSlotsByDayApi = async (turfId: string, day: string, date: string) => {
@@ -124,9 +129,9 @@ export const getSlotsByDayApi = async (turfId: string, day: string, date: string
     }
 };
 
-export const cancelTheSlot = async (userId: string, slotId: string) => {
+export const cancelTheSlot = async (userId: string, slotId: string, bookingId: string) => {
     try {
-        const response = await axiosInstance.delete(`${BACKEND_USER_URL}/booking/cancel/${userId}/${slotId}`);
+        const response = await axiosInstance.delete(`${BACKEND_USER_URL}/booking/cancel/${userId}/${slotId}/${bookingId}`);
         return response.data;
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
@@ -139,9 +144,9 @@ export const cancelTheSlot = async (userId: string, slotId: string) => {
 
 ////////////////   Bookings   /////////////////
 
-export const getBookingsApi = async (userId: string) => {
+export const getBookingsApi = async (userId: string, page: number, limit: number) => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_USER_URL}/my-booking?userId=${userId}`);
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/my-booking?userId=${userId}&page=${page}&limit=${limit}`);
         return response.data;
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
@@ -172,6 +177,29 @@ export const getWalletApi = async (userId: string) => {
         const response = await axiosInstance.get(`${BACKEND_USER_URL}/my-wallet/${userId}`);
         return response.data;
     } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const getWalletBalanceApi = async (userId: string, grandTotal: number) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/wallet/check-balance/${userId}?grandTotal=${grandTotal}`);
+        return response.data;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const bookSlotsByWalletApi = async (userId: string, bookingDets: object) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/book-slots-by-wallet/${userId}`, bookingDets);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("ERRor while BookByWallet ::: ", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }

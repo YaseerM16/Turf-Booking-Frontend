@@ -1,6 +1,5 @@
 "use client";
 
-import { axiosInstance } from "@/utils/constants";
 import { TurfDetails } from "@/utils/type";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

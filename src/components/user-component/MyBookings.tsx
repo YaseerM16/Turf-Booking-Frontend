@@ -4,13 +4,14 @@ import FireLoading from "../FireLoading";
 import ViewBookingDetails from "./ViewBookingDetails";
 import { useAppSelector } from "@/store/hooks";
 import { SlotDetails, TurfDetails } from "@/utils/type";
-import { getBookingsApi, cancelTheSlot } from "@/services/userApi"
+import { getBookingsApi } from "@/services/userApi"
+import Pagination from "../Pagination";
 
 export interface Booking {
     totalAmount: number;
     paymentStatus: string;
     paymentMethod: string;
-    paymentDate: any;
+    paymentDate: string;
     paymentTransactionId: string;
     _id: string; // Assuming each booking has an ID
     turfId: TurfDetails; // A reference to the associated turf object
@@ -22,49 +23,44 @@ const MyBooking: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [booking, setBooking] = useState<Booking[] | null>([]);
     const user = useAppSelector(state => state.users.user)
-    // const company = useAppSelector(state => state.companies.company)
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [totalBooking, setTotalBooking] = useState<number | null>(null)
+    // const [totalBooking,setTotalB]
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // For toggling between details and booking list
     // const userDet = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("auth") || "{}") : null;
-    console.log("Bookings :", booking);
+    const bookingPerPage = 6
+    // console.log("Bookings :", booking);
 
-
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
     // Fetch bookings from the server
     const fetchBookings = useCallback(async () => {
         try {
             setLoading(true);
+            // page = ${ page }& limit=${ turfsPerPage }
             // const { data } = await axiosInstance.get(`/api/v1/user/my-booking?userId=${user?._id}`);
-            const data = await getBookingsApi(user?._id as string)
+            const data = await getBookingsApi(user?._id as string, currentPage, bookingPerPage)
             if (data?.success) {
-                setBooking(data.bookings);
+                console.log(data);
+
+                setBooking(data.bookings.bookings);
+                setTotalBooking(Math.ceil(data.bookings.totalBookings / bookingPerPage))
             }
         } catch (error) {
             console.error("Error fetching bookings:", error);
         } finally {
             setLoading(false);
         }
-    }, [user?._id])
+    }, [user?._id, currentPage, bookingPerPage])
 
     useEffect(() => {
         if (user?._id) {
             fetchBookings();
         }
-    }, [user?._id, fetchBookings]);
+    }, [user?._id, fetchBookings, currentPage]);
 
-    const cancelSlot = async (slotId: string) => {
-        try {
-            console.log("SLOT ID in Parent :", slotId);
 
-            // const { data } = await axiosInstance.delete(`/api/v1/user/cancel-slot/${slotId}`);
-            const data = await cancelTheSlot(user?._id as string, slotId)
-            // if (data?.success) {
-            //     alert("Slot cancelled successfully.");
-            //     onCancelSlot(slotId); // Inform parent component
-            // }
-        } catch (error) {
-            console.error("Error cancelling slot:", error);
-            alert("Failed to cancel slot. Please try again.");
-        }
-    };
 
     // Conditional rendering: MyBookings list or ViewBookingDetails
     return (
@@ -88,7 +84,7 @@ const MyBooking: React.FC = () => {
                         (<ViewBookingDetails
                             booking={selectedBooking}
                             onClose={() => setSelectedBooking(null)} // Return to MyBookings
-                            onCancelSlot={cancelSlot}
+                            userId={user?._id as string}
                         />)
                     ) : (
                         // Upcoming Bookings List
@@ -179,6 +175,14 @@ const MyBooking: React.FC = () => {
                     )}
                 </div>
             </section>
+            {/* Pagination */}
+            <div className="flex justify-center items-center py-4">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalBooking!}
+                    onPageChange={handlePageChange}
+                />
+            </div>
         </div>)
     );
 };

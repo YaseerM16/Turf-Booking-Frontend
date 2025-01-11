@@ -49,6 +49,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [existingImages, setExistingImages] = useState<string[]>(turf?.turf?.images || []);
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
+    console.log("is map visible :", isMapVisible);
 
 
     const handleEdit = () => {

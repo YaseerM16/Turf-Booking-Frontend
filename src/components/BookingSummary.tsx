@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { SlotDetails } from "@/utils/type";
 import { FaWallet } from "react-icons/fa";
 import { SiPyup } from "react-icons/si";
@@ -8,12 +8,15 @@ import { BsCurrencyRupee } from "react-icons/bs";
 import PayUComponent from "./PayUComponent ";
 import { useAppSelector } from "@/store/hooks";
 import { BookedData } from "@/utils/constants";
+import { bookSlotsByWalletApi, getWalletBalanceApi } from "@/services/userApi";
+import Swal from "sweetalert2";
+import { generateTxnId } from "@/utils/generateTxnld";
+import { useRouter } from "next/navigation";
 
 
 interface BookingSummaryProps {
     selectedSlots: SlotDetails[];
     onCancel: () => void;
-    price: number;
     turfId: string;
     companyId: string
 }
@@ -21,24 +24,118 @@ interface BookingSummaryProps {
 const BookingSummary: React.FC<BookingSummaryProps> = ({
     selectedSlots,
     onCancel,
-    price,
     turfId,
     companyId
 }) => {
     // console.log("PRICE inside SUMMary ", price);
-    const grandTotal = price * selectedSlots.length
+    let grandTotal = 0;
+    for (const slot of selectedSlots) {
+        grandTotal += slot.price!;
+    }
+
+    console.log("GRande : ", grandTotal);
+
+
     const [selectedPayment, setSelectedPayment] = useState("");
 
     const userDet = useAppSelector(state => state.users.user)
     // const userDet = JSON.parse(localStorage.getItem("auth") as string);
     const [showPayU, setShowPayU] = useState<boolean>(false)
     const [bookingDets, setBookingDets] = useState<BookedData | null>(null)
+    const [walletPay, setWalletPay] = useState<boolean>(false)
+    const txnidRef = useRef(generateTxnId(8)); // txnid is created once
+    const txnid = txnidRef.current;
+    const router = useRouter()
     // let BookingDets: any
-    console.log("bookingDets in BokingSumary :", bookingDets);
+    // console.log("bookingDets in BokingSumary :", bookingDets);
 
     const handlePaymentSelection = (method: string) => {
         setSelectedPayment(method === selectedPayment ? "" : method);
     };
+
+    const handleWalletPayment = async () => {
+        try {
+            const bookingDets = {
+                companyId,
+                turfId,
+                selectedSlots,
+                totalAmount: grandTotal,
+                paymentTransactionId: txnid,
+            };
+
+            const data = await bookSlotsByWalletApi(userDet?._id as string, bookingDets);
+
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Booking Confirmed!',
+                    text: 'Your slot has been successfully booked.',
+                    confirmButtonText: 'OK',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        router.replace(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`)
+                        console.log("Booking successful!", data.isBookingCompleted)
+                        // Add any additional actions after confirmation, like redirecting or updating UI
+                        // redirect(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`);
+
+                    }
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Booking Failed!',
+                    text: `Failed to book your slot. Reason: ${data.message || 'Unknown error.'}`,
+                    confirmButtonText: 'Try Again',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log("User acknowledged the failure.");
+                        // Handle retry logic or additional actions here
+                    }
+                });
+            }
+        } catch (error) {
+            console.error("Error during booking:", error);
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Something went wrong while processing your booking. Please try again later.',
+                confirmButtonText: 'OK',
+            });
+        }
+    }
+
+    const handlePayWithWallet = async () => {
+        try {
+            const data = await getWalletBalanceApi(userDet?._id as string, grandTotal)
+            console.log("DAta By the WalletBalance :", data);
+            if (data.success) {
+                if (data.walletBalance.isSufficient) {
+                    setWalletPay(true)
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Insufficient Balance',
+                        text: `Your current wallet balance is ₹${data.walletBalance.currentBalance}.`,
+                        confirmButtonText: 'OK',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // console.log("Hi");
+                            setSelectedPayment("")
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.log("Error while checkWalletBalance :", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while checking your wallet balance. Please try again later.',
+                confirmButtonText: 'OK',
+            });
+        }
+    }
 
     const toggleSetPayU = () => {
         setShowPayU(prev => !prev)
@@ -117,14 +214,12 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                     {/* Selected Slots */}
                     <h3 className="text-2xl flex font-semibold mb-4">
                         Selected Slots
-                        <div className="flex text-white bg-green-800 font-bold px-3 py-2 rounded-full ml-2 shadow-lg">
-                            <BsCurrencyRupee className="mr-1" /> {price} / hour
-                        </div>
+
                     </h3>
                     <div className="bg-white flex flex-wrap p-6 rounded-lg shadow-lg mb-6">
                         {selectedSlots.map((slot, ind) => (
-                            <div key={ind}>
-                                <span className="text-sm text-gray-500 ml-8">
+                            <div key={ind} className="flex flex-col items-center w-40 h-auto mx-2 my-3">
+                                <span className="text-sm text-gray-500 mb-1">
                                     {slot.date &&
                                         new Date(slot.date).toLocaleDateString("en-US", {
                                             weekday: "short",
@@ -133,16 +228,23 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                                         })}
                                 </span>
                                 <button
-                                    className="relative flex flex-col items-center justify-between w-32 h-24 mx-2 my-2 rounded-md transition-all duration-300 bg-green-100 text-green-900 hover:shadow-lg hover:scale-105"
+                                    className="relative flex flex-col items-center justify-between w-full h-auto rounded-md transition-all duration-300 bg-green-100 text-green-900 hover:shadow-lg hover:scale-105 p-4"
                                 >
-                                    <p className="p-3 mt-3 text-l font-bold text-center">{slot.slot}</p>
+                                    <p className="text-lg font-bold text-center mb-1">{slot.slot}</p>
+
+                                    <p className="text-xl font-semibold text-green-700 mb-5">
+                                        ₹{slot.price}
+                                    </p>
+
                                     <div className="absolute bottom-2 text-xs font-medium px-3 py-1 rounded-full bg-green-500 text-white">
                                         {"Selected"}
                                     </div>
                                 </button>
+
                             </div>
                         ))}
                     </div>
+
 
                     {/* Grand Total */}
                     <div className="bg-green-800 flex justify-between items-center p-6 rounded-lg shadow-lg mb-6 w-1/3 mx-auto">
@@ -162,7 +264,11 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                                     ? "bg-green-500 text-white"
                                     : "bg-gray-200 text-gray-700"
                                     }`}
-                                onClick={() => handlePaymentSelection("wallet")}
+                                onClick={() => {
+                                    handlePaymentSelection("wallet")
+                                    handlePayWithWallet()
+                                }
+                                }
                             >
                                 <FaWallet size={24} />
                                 <span className="text-lg font-medium">Wallet</span>
@@ -201,6 +307,16 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                         <PayUComponent BookedData={bookingDets} />
                     )}
 
+                    {walletPay && (<div className="flex justify-center mt-8">
+                        <button
+                            type="button"
+                            className="bg-green-500 text-white text-lg font-semibold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform duration-300 hover:shadow-xl"
+                            onClick={() => handleWalletPayment()}
+                        >
+                            Pay with Wallet
+                        </button>
+                    </div>)}
+
                     {/* Cancel Booking */}
                     <div className="flex justify-center mt-8">
                         <button
@@ -210,6 +326,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                             Cancel Booking
                         </button>
                     </div>
+
                 </main>
             </div>
 

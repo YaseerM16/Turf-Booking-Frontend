@@ -32,7 +32,6 @@ const TurfRegister: React.FC = () => {
                 });
             }
 
-
             // Append other form fields to FormData
             formData.append("location", JSON.stringify({
                 latitude: formSubmitted.location?.lat,

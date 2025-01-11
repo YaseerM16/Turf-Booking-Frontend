@@ -5,14 +5,12 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Spinner from "../Spinner";
-import { axiosInstance } from "@/utils/constants";
 import { setUser } from "@/store/slices/UserSlice"
 import { useAppDispatch } from "@/store/hooks";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { app } from "../../../FireBaseConfig"
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
-import { AxiosError } from "axios";
 import { loginApi, googleLoginApi } from "@/services/userApi"
 
 export type LoginData = {
