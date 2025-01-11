@@ -100,3 +100,36 @@ export interface FormSubmitted {
     description: string; // Description of the turf
     selectedGames: string[]; // Array of selected games
 }
+
+
+interface SlotDetails {
+    date: string; // Assuming the date is in ISO string format
+    slot: string; // The time or identifier for the slot
+}
+
+interface UserDetails {
+    name: string;
+    email: string;
+    phone: string;
+}
+
+interface TurfDetails {
+    turfName: string;
+    turfType: string;
+    turfSize: string;
+    price: number;
+    facilities: string[];
+    address: string;
+}
+
+export interface BookingDetails {
+    booking: {
+        _id: string; // Booking ID
+        userDetails: UserDetails;
+        paymentTransactionId: string;
+        paymentMethod: string;
+        totalAmount: number;
+        turfId: TurfDetails;
+        selectedSlots: SlotDetails[];
+    };
+}

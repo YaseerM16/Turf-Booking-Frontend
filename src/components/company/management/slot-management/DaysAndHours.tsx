@@ -1,12 +1,13 @@
 import Spinner from "@/components/Spinner";
+import { editWorkingDayDetails, getDetailsOfDayApi } from "@/services/companyApi";
 import { axiosInstance, daysOrder } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
 import { useState } from "react";
-import { FaEdit, FaPlus, FaTimes } from "react-icons/fa";
+import { FaPlus, FaTimes } from "react-icons/fa";
 import Swal from "sweetalert2";
 
 
-const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
+const WorkingDaysManagement: React.FC<{ turf: TurfData, workingDaysArr: string[] }> = ({ turf, workingDaysArr }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isEditDay, setIsEditDay] = useState(false);
     const [selectedDay, setSelectedDay] = useState<string | null>(null)
@@ -15,10 +16,18 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
     const [toTime, setToTime] = useState("");
     const [fromTimeError, setFromTimeError] = useState<string | null>(null);
     const [toTimeError, setToTimeError] = useState<string | null>(null);
+    const [dayPriceError, setDayPriceError] = useState<string | null>(null);
     const [workingDaysError, setworkingDaysError] = useState<string | null>(null);
     const [spinLoading, setSpinLoading] = useState<boolean>(false)
-    const [price, setPrice] = useState<number | null>(null)
-    const conflictingSlots: { fromTime: string, toTime: string }[] = []
+    const [dayLoading, setDayLoading] = useState<boolean>(false)
+    const [dayPrice, setDayPrice] = useState<number | null>(null)
+    const [editFromTime, setEditFromTime] = useState("");
+    const [editFromTimeError, setEditFromTimeError] = useState<string | null>(null)
+    const [editToTimeError, setEditToTimeError] = useState<string | null>(null)
+    const [editPriceError, setEditPriceError] = useState<string | null>(null)
+    const [editToTime, setEditToTime] = useState("");
+    const [editPrice, setEditPrice] = useState<string | number>("");
+
     const toggleEdit = () => setIsEditing(!isEditing);
     const toggleDayEdit = () => setIsEditDay(!isEditDay);
 
@@ -32,10 +41,21 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
         }
     };
 
-    const handleDayClick = (day: string) => {
-        console.log(`Selected day: ${day}`);
-        // Perform further actions like setting the day for editing or fetching related data
-        setSelectedDay(day);
+    const handleDayClick = async (day: string) => {
+        try {
+            setDayLoading(true);
+            const data = await getDetailsOfDayApi(turf.turf?._id as string, day);
+            console.log("Details of Day:", data.dayDetails.dayDets);
+            setEditFromTime(data.dayDetails.dayDets?.fromTime || "");
+            setEditToTime(data.dayDetails.dayDets?.toTime || "");
+            setEditPrice(data.dayDetails.dayDets?.price || 0);
+            setDayLoading(false);
+            setSelectedDay(day);
+        } catch (error) {
+            console.log("Error while getting day details:", error);
+        } finally {
+            setDayLoading(false);
+        }
     };
 
 
@@ -45,13 +65,18 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
         setworkingDaysError(null)
         // Submit new working days and hours
         // console.log("Working Hours:", { fromTime, toTime });
-        if (fromTime == "") {
+        if (fromTime == "" || fromTime == "00:00") {
             setFromTimeError("Provide the From Time")
             return
         }
 
-        if (toTime == "") {
+        if (toTime == "" || toTime == "00:00") {
             setToTimeError("Provide the To Time")
+            return
+        }
+
+        if (!dayPrice || dayPrice == null) {
+            setDayPriceError("Provide Price for the Day")
             return
         }
 
@@ -62,9 +87,10 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
         }
         // "/:turfId/add-working-days"
 
-        setworkingDaysError(null)
         setFromTimeError(null)
         setToTimeError(null)
+        setDayPriceError(null)
+        setworkingDaysError(null)
         // const workingDaysUpdate = workingDays
         // const formTimeUpdate = fromTime
         // const toTimeUpdate = toTime
@@ -72,7 +98,8 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
         const payload = {
             workingDays: workingDays, // Updated working days
             fromTime: fromTime,      // Updated start time
-            toTime: toTime           // Updated end time
+            toTime: toTime,           // Updated end time
+            price: dayPrice
         };
         try {
             Swal.fire({
@@ -138,6 +165,74 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
         // toggleEdit();
     };
 
+    const editDayDetails = async () => {
+        try {
+
+            setEditFromTimeError(null)
+            setEditToTimeError(null)
+            setEditPriceError(null)
+            // Submit new working days and hours
+            // console.log("Working Hours:", { fromTime, toTime });
+            if (editFromTime == "" || editFromTime == "00:00") {
+                setEditFromTimeError("Provide the From Time")
+                return
+            }
+
+            if (editToTime == "" || editToTime == "00:00") {
+                setEditToTimeError("Provide the To Time")
+                return
+            }
+
+            if (!editPrice || editPrice == null || editPrice == 0) {
+                setEditPriceError("Provide Price for the Day")
+                return
+            }
+
+            const updates = {
+                fromTime: editFromTime,
+                toTime: editToTime,
+                price: editPrice,
+                day: selectedDay
+            }
+
+            const data = await editWorkingDayDetails(turf.turf?._id as string, updates)
+            if (data.success) {
+                Swal.fire({
+                    title: "Success!",
+                    text: "The working day details have been updated successfully.",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                });
+            } else {
+                Swal.fire({
+                    title: "Error!",
+                    text: data.message || "Something went wrong while updating the working day details.",
+                    icon: "error",
+                    confirmButtonText: "Try Again",
+                });
+            }
+
+            setEditFromTimeError(null)
+            setEditToTimeError(null)
+            setEditPriceError(null)
+
+        } catch (error) {
+            console.log("Error while Edit the Day Details :", error);
+        }
+    }
+
+    // async function genSlot() {
+    //     try {
+    //         console.log("GenSlot is Called :");
+
+    //         const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/example-gen-slots/${turf.turf?._id}`)
+    //         console.log("TESPosnw is :", response);
+
+    //     } catch (error) {
+    //         console.log("Error while try Gen Slots :", error);
+    //     }
+    // }
+
     return (
         (<div className="mb-6 flex flex-col p-4 bg-white rounded-lg shadow-lg">
             {!isEditing ? (
@@ -150,7 +245,7 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                             {daysOrder.map((day) => (
                                 <span
                                     key={day}
-                                    className={`px-3 py-1 rounded-full shadow-md ${turf.turf?.workingSlots?.workingDays.includes(day)
+                                    className={`px-3 py-1 rounded-full shadow-md ${workingDaysArr.includes(day)
                                         ? "bg-green-100 text-green-700 cursor-not-allowed"
                                         : "bg-gray-200 text-gray-600"
                                         }`}
@@ -179,7 +274,7 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                     {/* Weekdays List with Add Option */}
                     <div className="flex flex-wrap gap-3">
                         {daysOrder.map((day) => {
-                            const isDayInWorkingSlots = turf.turf?.workingSlots?.workingDays.includes(day);
+                            const isDayInWorkingSlots = workingDaysArr.includes(day);
                             const isDaySelected = workingDays.includes(day);
 
                             return (
@@ -238,10 +333,10 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                     )}
                     {/* Form for Adding Working Hours */}
                     <div className="mt-6">
-                        <h3 className="text-lg font-medium mb-2">Set Working Hours</h3>
+                        <h3 className="text-lg font-medium mb-2">Add Working Days</h3>
                         <div className="flex items-center gap-4">
                             From time
-                            <div className="w-full">
+                            <div>
                                 {/* <label htmlFor=""></label> */}
                                 <input
                                     type="time"
@@ -258,7 +353,7 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                                 )}
                             </div>
                             To time
-                            <div className="w-full">
+                            <div>
                                 <input
                                     type="time"
                                     value={toTime}
@@ -273,6 +368,21 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                                     </div>
                                 )}
                             </div>
+                            <label className="block text-gray-700 font-medium mb-1">Price</label>
+                            <div className="d-flex">
+                                <input
+                                    type="number"
+                                    className="border border-gray-300 rounded px-3 py-2 w-40"
+                                    value={dayPrice || ""}
+                                    onChange={(e) => setDayPrice(Number(e.target.value))}
+                                />
+                            </div>
+                            {/* Error message for priceDay */}
+                            {dayPriceError && (
+                                <div className="text-red-500 text-sm mt-1">
+                                    {dayPriceError} {/* Display the error message here */}
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex justify-between">
@@ -288,15 +398,18 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
             )}
             <>
                 <div className="mt-4 flex flex-wrap gap-6">
-                    {/* Working Days */}
                     <div className="flex flex-col">
                         <h3 className="text-lg font-medium text-gray-700 mb-2">Edit Working Days</h3>
                         <div className="flex flex-wrap gap-3">
-                            {(turf?.turf?.workingSlots.workingDays || []).length > 0 ? (
-                                turf?.turf?.workingSlots.workingDays.map((day, index) => (
+                            {(workingDaysArr || []).length > 0 ? (
+                                workingDaysArr.map((day, index) => (
                                     <span
                                         key={index}
-                                        className="px-3 py-1 bg-green-100 text-green-700 font-medium rounded-full shadow-md cursor-pointer transition-all hover:bg-green-700 hover:text-white"
+                                        className={`px-3 py-1 font-medium rounded-full shadow-md cursor-pointer transition-all 
+                                    ${selectedDay === day
+                                                ? "bg-green-700 text-white"
+                                                : "bg-green-100 text-green-700 hover:bg-green-700 hover:text-white"
+                                            }`}
                                         onClick={() => handleDayClick(day)} // Function to handle day click
                                     >
                                         {day}
@@ -307,23 +420,8 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                             )}
                         </div>
                     </div>
-
-
-                    {/* Working Hours */}
-                    <div className="flex flex-col">
-                        <h3 className="text-lg font-medium text-gray-700 mb-2">Working Hours</h3>
-                        <div className="flex flex-wrap gap-3">
-                            {turf?.turf?.workingSlots.fromTime && turf?.turf.workingSlots.toTime ? (
-                                <span className="px-3 py-1 bg-yellow-100 text-yellow-700 font-medium rounded-full shadow-md">
-                                    {turf.turf.workingSlots.fromTime} - {turf.turf.workingSlots.toTime}
-                                </span>
-                            ) : (
-                                <p className="text-gray-600">No working hours set.</p>
-                            )}
-                        </div>
-                    </div>
                 </div>
-                <div className="mt-3 mx-3 flex items-center justify-between">
+                {/* <div className="mt-3 mx-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <button
                             onClick={toggleDayEdit} // Define the edit functionality in the handler
@@ -335,84 +433,20 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                         </button>
 
                     </div>
-                </div>
+                </div> */}
             </>
-            {selectedDay && (<div className="mt-4 flex flex-col gap-6">
-                {/* Editable Fields */}
-                <div className="flex flex-wrap gap-4">
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Working Day</label>
-                        <input
-                            type="text"
-                            className="border border-gray-300 rounded px-3 py-2 w-40"
-                            value={"selectedDay"}
-                            readOnly
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">From Time</label>
-                        <input
-                            type="time"
-                            className="border border-gray-300 rounded px-3 py-2 w-40"
-                            value={fromTime}
-                            onChange={(e) => setFromTime(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">To Time</label>
-                        <input
-                            type="time"
-                            className="border border-gray-300 rounded px-3 py-2 w-40"
-                            value={toTime}
-                            onChange={(e) => setToTime(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-gray-700 font-medium mb-1">Price</label>
-                        <input
-                            type="number"
-                            className="border border-gray-300 rounded px-3 py-2 w-40"
-                            value={price || 89}
-                            onChange={(e) => setPrice(Number(e.target.value))}
-                        />
-                    </div>
-                </div>
 
-                {/* Check Conflict Button */}
-                <button
-                    // onClick={checkConflicts}
-                    className="mt-4 bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md"
-                >
-                    Check Conflict Bookings
-                </button>
+            {dayLoading ? <Spinner /> : <></>}
 
-                {/* Conflict Slots */}
-                {(conflictingSlots || []).length > 0 && (
-                    <div className="mt-6">
-                        <h3 className="text-lg font-medium text-gray-700 mb-2">Conflicting Slots</h3>
-                        <div className="grid grid-cols-3 gap-4">
-                            {conflictingSlots.map((slot, index) => (
-                                <div
-                                    key={index}
-                                    className="border border-red-300 bg-red-50 rounded p-2 text-sm text-red-700 shadow"
-                                >
-                                    {slot.fromTime} - {slot.toTime}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>)}
-            {isEditDay ? (
-                <div className="mt-4 flex flex-col gap-6">
-                    {/* Editable Fields */}
+            {selectedDay && (
+                <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-6">
                     <div className="flex flex-wrap gap-4">
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Working Day</label>
                             <input
                                 type="text"
                                 className="border border-gray-300 rounded px-3 py-2 w-40"
-                                value={"selectedDay"}
+                                value={selectedDay}
                                 readOnly
                             />
                         </div>
@@ -421,58 +455,79 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData }> = ({ turf }) => {
                             <input
                                 type="time"
                                 className="border border-gray-300 rounded px-3 py-2 w-40"
-                                value={fromTime}
-                                onChange={(e) => setFromTime(e.target.value)}
+                                value={editFromTime}
+                                readOnly={!isEditDay}
+                                onChange={(e) => setEditFromTime(e.target.value)}
                             />
+                            {editFromTimeError && (
+                                <div className="text-red-500 text-sm mt-1">
+                                    {editFromTimeError} {/* Display the error message here */}
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">To Time</label>
                             <input
                                 type="time"
                                 className="border border-gray-300 rounded px-3 py-2 w-40"
-                                value={toTime}
-                                onChange={(e) => setToTime(e.target.value)}
+                                value={editToTime}
+                                readOnly={!isEditDay}
+                                onChange={(e) => setEditToTime(e.target.value)}
                             />
+                            {editToTimeError && (
+                                <div className="text-red-500 text-sm mt-1">
+                                    {editToTimeError} {/* Display the error message here */}
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label className="block text-gray-700 font-medium mb-1">Price</label>
                             <input
                                 type="number"
                                 className="border border-gray-300 rounded px-3 py-2 w-40"
-                                value={price || 89}
-                                onChange={(e) => setPrice(Number(e.target.value))}
+                                value={editPrice || ""}
+                                readOnly={!isEditDay}
+                                onChange={(e) => setEditPrice(Number(e.target.value))}
                             />
+                            {editPriceError && (
+                                <div className="text-red-500 text-sm mt-1">
+                                    {editPriceError} {/* Display the error message here */}
+                                </div>
+                            )}
                         </div>
                     </div>
-
-                    {/* Check Conflict Button */}
-                    <button
-                        // onClick={checkConflicts}
-                        className="mt-4 bg-red-500 hover:bg-red-600 text-white font-medium px-4 py-2 rounded shadow-md"
-                    >
-                        Check Conflict Bookings
-                    </button>
-
-                    {/* Conflict Slots */}
-                    {(conflictingSlots || []).length > 0 && (
-                        <div className="mt-6">
-                            <h3 className="text-lg font-medium text-gray-700 mb-2">Conflicting Slots</h3>
-                            <div className="grid grid-cols-3 gap-4">
-                                {conflictingSlots.map((slot, index) => (
-                                    <div
-                                        key={index}
-                                        className="border border-red-300 bg-red-50 rounded p-2 text-sm text-red-700 shadow"
-                                    >
-                                        {slot.fromTime} - {slot.toTime}
-                                    </div>
-                                ))}
-                            </div>
+                    {isEditDay ? (
+                        <div className="flex gap-4">
+                            <button
+                                type="button"
+                                className="bg-green-500 hover:bg-green-600 text-white font-medium px-4 py-2 rounded shadow-md"
+                                onClick={() => editDayDetails()}
+                            >
+                                Save Changes
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSelectedDay(null)
+                                    toggleDayEdit()
+                                }}
+                                className="bg-gray-500 hover:bg-gray-600 text-white font-medium px-4 py-2 rounded shadow-md"
+                            >
+                                Cancel
+                            </button>
                         </div>
+                    ) : (
+                        <button
+                            type="button"
+                            onClick={toggleDayEdit}
+                            className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded shadow-md"
+                        >
+                            Edit Day
+                        </button>
                     )}
-                </div>
-            ) : (
-                <div></div>
+                </form>
             )}
+            {/* <button type="button" onClick={() => genSlot()}>srgrenrggenjg</button> */}
         </div>)
     );
 };

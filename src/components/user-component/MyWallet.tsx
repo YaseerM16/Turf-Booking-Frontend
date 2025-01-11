@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import FireLoading from '../FireLoading';
 import { useAppSelector } from '@/store/hooks';
 import { getVerificationMail, getWalletApi } from "@/services/userApi"
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { toast, ToastContainer } from 'react-toastify';
 import Spinner from '../Spinner';
 import "react-toastify/dist/ReactToastify.css";
+import Pagination from '../Pagination';
 
 
 const MyWallet: React.FC = () => {
@@ -17,7 +18,10 @@ const MyWallet: React.FC = () => {
     const [spinLoading, setSpinLoading] = useState<boolean>(false);
     const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
     const [currentBalance, setCurrentBalance] = useState<number | null>(null)
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [walletLength, setWalletLength] = useState<number | null>(null)
     const user = useAppSelector((state) => state.users.user);
+    const transactionPerPage = 6
     // console.log("USER :", user);
     const getTheWallet = useCallback(async (userId: string) => {
         try {
@@ -27,18 +31,23 @@ const MyWallet: React.FC = () => {
 
             setTransactions(wallet.wallet.walletTransaction)
             setCurrentBalance(wallet.wallet.walletBalance)
+            setWalletLength(Math.ceil(wallet.wallet.walletTransaction.length / transactionPerPage))
         } catch (error) {
             console.log("THis is the getting wallet Error :", error);
         } finally {
             setLoading(false)
         }
-    }, [user?._id])
+    }, [])
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     useEffect(() => {
         if (user?._id) {
             getTheWallet(user._id)
         }
-    }, [user?._id]);
+    }, [user?._id, getTheWallet]);
     // console.log("CUURENT VAlance :", currentBalance);
     // console.log("CUURENT TRans :", transactions);
 
@@ -112,7 +121,7 @@ const MyWallet: React.FC = () => {
                                 <div className="text-center">
                                     <h2 className="text-3xl font-bold text-gray-800 mb-4">No Wallet Found!</h2>
                                     <p className="text-lg text-gray-600">
-                                        You don't have a wallet yet. Please verify your email to create your wallet and start using our services.
+                                        You don&apos;t have a wallet yet. Please verify your email to create your wallet and start using our services.
                                     </p>
                                 </div>
                                 {spinLoading ? <Spinner /> : <button
@@ -148,32 +157,42 @@ const MyWallet: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {transactions && transactions.map((transaction, index) => (
-                                                <tr
-                                                    key={index}
-                                                    className={`transition-colors duration-200 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                                                        } hover:bg-green-50`}
-                                                >
-                                                    <td className="py-4 px-6 text-gray-700">
-                                                        {new Date(transaction.date).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="py-4 px-6 text-gray-700 font-medium">
-                                                        <span
-                                                            className={`py-1 px-3 rounded-full text-sm ${transaction.type === 'Credit'
-                                                                ? 'bg-green-200 text-green-700'
-                                                                : 'bg-red-200 text-red-700'
-                                                                }`}
-                                                        >
-                                                            {transaction.type}
-                                                        </span>
-                                                    </td>
-                                                    <td className="py-4 px-6 text-gray-700">{transaction.method}</td>
-                                                    <td className="py-4 px-6 text-gray-800 font-semibold">
-                                                        ₹{transaction.balance.toFixed(2)}
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {transactions &&
+                                                transactions.map((transaction, index) => (
+                                                    <tr
+                                                        key={index}
+                                                        className={`transition-colors duration-200 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                                                            } hover:bg-green-50`}
+                                                    >
+                                                        {/* Correctly map the `transactionDate` field */}
+                                                        <td className="py-4 px-6 text-gray-700">
+                                                            {new Date(transaction?.transactionDate).toLocaleDateString()}
+                                                        </td>
+
+                                                        {/* Correctly map the `transactionType` field */}
+                                                        <td className="py-4 px-6 text-gray-700 font-medium">
+                                                            <span
+                                                                className={`py-1 px-3 rounded-full text-sm ${transaction.transactionType === 'credit'
+                                                                    ? 'bg-green-200 text-green-700'
+                                                                    : 'bg-red-200 text-red-700'
+                                                                    }`}
+                                                            >
+                                                                {transaction.transactionType.charAt(0).toUpperCase() +
+                                                                    transaction.transactionType.slice(1)}
+                                                            </span>
+                                                        </td>
+
+                                                        {/* Correctly map the `transactionMethod` field */}
+                                                        <td className="py-4 px-6 text-gray-700">{transaction.transactionMethod}</td>
+
+                                                        {/* Correctly map the `transactionAmount` field */}
+                                                        <td className="py-4 px-6 text-gray-800 font-semibold">
+                                                            ₹{transaction.transactionAmount}
+                                                        </td>
+                                                    </tr>
+                                                ))}
                                         </tbody>
+
                                     </table>
                                 </div>
                             )}
@@ -182,7 +201,14 @@ const MyWallet: React.FC = () => {
 
                     </div>
                 </div>
-
+                {/* Pagination */}
+                <div className="flex justify-center items-center py-4">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={walletLength!}
+                        onPageChange={handlePageChange}
+                    />
+                </div>
             </div>
 
         </>

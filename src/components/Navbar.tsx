@@ -6,9 +6,9 @@ import {
     FiGrid,
     FiMessageSquare,
     FiBell,
-    FiUser,
-    FiHeart,
     FiLogOut,
+    FiCreditCard,
+    FiCalendar,
 } from "react-icons/fi";
 import GuestNavbar from "./user-auth/GuestNavbar";
 import { axiosInstance } from "@/utils/constants";
@@ -65,10 +65,10 @@ const Navbar: React.FC = () => {
                     {[
                         { icon: <FiHome size={20} />, label: "Home", route: "/" },
                         { icon: <FiGrid size={20} />, label: "Turfs", route: "/turfs" },
-                        { icon: <FiHeart size={20} />, label: "Favourite Turf" },
+                        { icon: <FiCreditCard size={20} />, label: "Wallet", route: "/my-wallet" },
                         { icon: <FiMessageSquare size={20} />, label: "Messages" },
                         { icon: <FiBell size={20} />, label: "Notification" },
-                        { icon: <FiUser size={20} />, label: "MyBookings", route: "/my-bookings" },
+                        { icon: <FiCalendar size={20} />, label: "MyBookings", route: "/my-bookings" },
                     ].map((item, index) => (
                         <li key={index} className="relative group" onClick={() => router.replace(item.route || "")}>
                             <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">

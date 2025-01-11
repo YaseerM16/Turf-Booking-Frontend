@@ -21,3 +21,32 @@ export const companyRegisterApi = async (registerData: RegisterData) => {
         }
     }
 };
+export const getDetailsOfDayApi = async (turfId: string, day: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-details-by-day/${turfId}/${day}`);
+        return response.data;
+    } catch (error: unknown) {
+        // console.log("Error in CmpRegApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+
+
+//////////////////// SLOT //////////////////
+
+// /edit-day-details/: turfId
+
+export const editWorkingDayDetails = async (turfId: string, updates: object) => {
+    try {
+        const response = await axiosInstance.patch(`${BACKEND_COMPANY_URL}/edit-day-details/${turfId}`, updates);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Edit WordJay Error !:! :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};

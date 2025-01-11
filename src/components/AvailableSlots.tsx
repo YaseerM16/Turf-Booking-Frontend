@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { TurfDetails } from "@/utils/type";
+import React, { useState, useEffect, Dispatch, SetStateAction, useMemo } from "react";
+import { TurfDetails, User } from "@/utils/type";
 import { daysOrder } from "@/utils/constants";
 import { mapDayIndexToRRuleDay } from "@/utils/dateUtils";
 import { RRule, RRuleSet } from 'rrule';
@@ -29,12 +29,25 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
     const [workingSlots, setWorkingSlots] = useState<SlotDetails[]>([]);
     const [selectedSlots, setSelectedSlots] = useState<SlotDetails[]>([]);
     const [showSummary, setShowSummary] = useState(false);
+    const [price, setPrice] = useState<number>(turf?.price || 0)
 
-    const userLogged = localStorage.getItem("auth")
+    const workingDaysArray = useMemo(() => {
+        return turf?.workingSlots.workingDays?.map((dayDetails) => dayDetails?.day) || [];
+    }, [turf?.workingSlots.workingDays]);
+
+    console.log("workingDaysArray :", workingDaysArray);
+
+
+    const userLogged: User | null = JSON.parse(localStorage.getItem("auth") as string)
 
     const handleProceedToBooking = () => {
         if (userLogged) {
-            setShowSummary(true); // Show the summary
+            if (userLogged?.isVerified) {
+                setShowSummary(true); // Show the summary
+            } else {
+                toast.warn("please Verify your Email to proceed booking !!")
+                return
+            }
         } else {
             toast.warn("please Login or sign up to proceed booking !!")
             return
@@ -51,11 +64,11 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
 
 
     useEffect(() => {
-        if (turf?.workingSlots?.workingDays) {
+        if (workingDaysArray) {
 
             const ruleSet = new RRuleSet();
 
-            turf.workingSlots.workingDays.forEach((day: string) => {
+            workingDaysArray.forEach((day: string) => {
                 const dayIndex = daysOrder.indexOf(day);
 
                 // Map dayIndex to RRule weekday constants (e.g., 0 = Sunday, 1 = Monday, etc.)
@@ -81,7 +94,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
 
             setWorkingDays(daysWithDates);
         }
-    }, [turf?.workingSlots?.workingDays]);
+    }, [workingDaysArray]);
 
 
 
@@ -108,7 +121,12 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
         const today = new Date();
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1); // Start of the current month
         const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Start of today
-        const endOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+        // const endOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
+        const endOfRange = turf?.generatedSlots?.toDate
+            ? new Date(turf.generatedSlots.toDate)
+            : new Date(today.getFullYear(), today.getMonth() + 2, 0);
+
         return (
             <>
                 <div className="w-full flex flex-col justify-center items-center mb-4">
@@ -125,10 +143,10 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                         tileDisabled={({ date }) => {
                             // Disable dates before today and non-working days
                             const day = date.toLocaleString('en-US', { weekday: 'long' });
-                            return date < startOfToday || !turf?.workingSlots.workingDays.includes(day);
+                            return date < startOfToday || !workingDaysArray!.includes(day);
                         }}
                         minDate={startOfMonth} // Allow navigation only from the start of the current month
-                        maxDate={endOfNextMonth} // Restrict navigation to the end of the next month
+                        maxDate={endOfRange} // Restrict navigation to the end of the next month
                         view="month" // Keep the calendar in month view
                         navigationLabel={({ label }) => label} // Keep navigation labels
                         next2Label={null} // Hide double forward arrow (yearly)
@@ -163,7 +181,12 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                 setDate(date)
                 // memoizedSlots[day] = data.slots;
                 setSelectedDay(day);
-                setWorkingSlots(data.slots);
+                setWorkingSlots(data.slots.slots);
+                console.log("SLOTSSSSLOTSS", data.slots.slots);
+
+                setPrice(data.slots.price)
+                console.log("PRiceddd :", data.slots.price);
+
             }
         } catch (error) {
             console.error("Error fetching Turf's Slot[] data:", error);
@@ -182,6 +205,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
             );
         } else {
             // Select slot
+            slot.price = price
             setSelectedSlots((prev) => [...prev, slot]);
         }
     };
@@ -207,7 +231,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                 pauseOnHover
             />
             <div className="min-h-screen bg-gradient-to-br from-green-100 via-yellow-50 to-green-50">
-                {showSummary ? <BookingSummary selectedSlots={selectedSlots} price={Number(turf?.price)} onCancel={handleCancelPayment} turfId={turf?._id || ""} companyId={turf?.companyId || ""} /> :
+                {showSummary ? <BookingSummary selectedSlots={selectedSlots} onCancel={handleCancelPayment} turfId={turf?._id || ""} companyId={turf?.companyId || ""} /> :
                     <>
                         <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-lg">
                             <h1 className="text-3xl font-bold text-center">Available Slots</h1>
@@ -238,7 +262,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                                 }) : <div>loading..</div>}
                                             </span>
                                             <div className="flex text-white bg-green-800 font-bold px-3 py-2 rounded-full ml-2 shadow-lg">
-                                                <BsCurrencyRupee className="mr-1" /> {turf?.price} / hour
+                                                <BsCurrencyRupee className="mr-1" /> {price} / hour
                                             </div>
                                         </h3>
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 max-w-5xl mx-auto bg-[url('./turf-background-image.jpg')] bg-cover bg-center bg-no-repeat p-6 rounded-lg shadow-lg backdrop-blur-md justify-items-center">
@@ -299,7 +323,6 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                     </div>
                                 )}
                             </div>
-
 
                             {selectedSlots.length > 0 && (
                                 <>

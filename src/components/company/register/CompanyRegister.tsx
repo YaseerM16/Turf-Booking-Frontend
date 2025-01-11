@@ -4,7 +4,7 @@ import Spinner from "@/components/Spinner";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { Location } from "@/components/OlaMapInput"
 import MapInput from "@/components/OlaMapInput"
 import Swal from "sweetalert2";

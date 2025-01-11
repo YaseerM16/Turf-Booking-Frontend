@@ -14,6 +14,7 @@ const SlotTurfList: React.FC = () => {
     const company = useAppSelector(state => state.companies.company)
     const [loading, setLoading] = useState(false);
     const [turfs, setTurfs] = useState<TurfDetails[]>([]);
+    console.log("Turfs :", turfs);
 
 
     const fetchTurfs = useCallback(async () => {
@@ -103,12 +104,12 @@ const SlotTurfList: React.FC = () => {
                                                     <div className="mt-4">
                                                         <p className="text-sm font-medium text-gray-500">Working Days</p>
                                                         <div className="flex flex-wrap gap-2 mt-1">
-                                                            {turf.workingSlots.workingDays.map((day: string, index: number) => (
+                                                            {turf.workingSlots.workingDays.map((day, index: number) => (
                                                                 <span
                                                                     key={index}
                                                                     className="px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full shadow-sm"
                                                                 >
-                                                                    {day}
+                                                                    {day.day}
                                                                 </span>
                                                             ))}
                                                         </div>
