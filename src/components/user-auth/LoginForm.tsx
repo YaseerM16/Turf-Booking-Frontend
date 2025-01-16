@@ -31,8 +31,10 @@ const LoginForm: React.FC = () => {
     const onSubmit: SubmitHandler<LoginData> = async (formData: LoginData) => {
         try {
             setLoading(true);
-            const data = await loginApi(formData)
-            // console.log("USer DATA of Login :", data.user?.isVerified);
+            const { data } = await loginApi(formData)
+            console.log("DTA By LoginApi : ", data);
+
+            console.log("(VERifIResd) USer DATA of Login :", data.user?.isVerified);
 
             if (data?.loggedIn) {
                 const user = {
@@ -77,21 +79,22 @@ const LoginForm: React.FC = () => {
             const response = await googleLoginApi(user)
 
             if (response) {
-                if (response.data.success) {
+                if (response.success) {
                     // const googleUser = response.data.user;
                     // console.log("GooleUser ", googleUser);
+                    const { data } = response
 
                     const user = {
-                        _id: response.data?.user?._id,
-                        name: response.data?.user?.name,
-                        email: response.data?.user?.email,
-                        phone: response.data?.user?.phone,
-                        profilePicture: response.data?.user?.profilePicture,
+                        _id: data?.user?._id,
+                        name: data?.user?.name,
+                        email: data?.user?.email,
+                        phone: data?.user?.phone,
+                        profilePicture: data?.user?.profilePicture,
                     };
                     localStorage.setItem("auth", JSON.stringify(user));
                     setLoading(false);
 
-                    dispatch(setUser(response.data.user));
+                    dispatch(setUser(data.user));
                     toast.success("You were Logged successfully redirecting to home!", {
                         onClose: () => router.replace("/"),
                     });

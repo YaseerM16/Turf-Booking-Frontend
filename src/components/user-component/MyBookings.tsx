@@ -40,10 +40,10 @@ const MyBooking: React.FC = () => {
             setLoading(true);
             // page = ${ page }& limit=${ turfsPerPage }
             // const { data } = await axiosInstance.get(`/api/v1/user/my-booking?userId=${user?._id}`);
-            const data = await getBookingsApi(user?._id as string, currentPage, bookingPerPage)
-            if (data?.success) {
-                console.log(data);
-
+            const response = await getBookingsApi(user?._id as string, currentPage, bookingPerPage)
+            if (response?.success) {
+                const { data } = response
+                // console.log("Destructured DAta of bboks", data);
                 setBooking(data.bookings.bookings);
                 setTotalBooking(Math.ceil(data.bookings.totalBookings / bookingPerPage))
             }

@@ -15,7 +15,7 @@ interface ModalProps {
 
 const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loading }) => {
     const user = useAppSelector((state) => state.users.user);
-
+    console.log("USer in Store in Modela :", user);
 
     const {
         register,
@@ -30,9 +30,7 @@ const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loa
             phone: "",
             profilePicture: "",
             token: "",
-            role: "",
-            isActive: false,
-            isVerified: false,
+            role: ""
         },
     });
 
@@ -46,6 +44,7 @@ const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loa
     }, [isOpen, user, setValue]);
 
     const onSubmitForm: SubmitHandler<User> = (data) => {
+        console.log("Sending from MODal :", data);
         onSubmit(data); // Pass validated data to parent
     };
 

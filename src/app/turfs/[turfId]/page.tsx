@@ -18,8 +18,9 @@ const ProfilePage = () => {
     const fetchTurf = useCallback(async () => {
         try {
             setLoading(true);
-            const data = await getTurfDetailsApi(turfId as string)
-            if (data?.success) {
+            const response = await getTurfDetailsApi(turfId as string)
+            if (response?.success) {
+                const { data } = response
                 setTurf(data.turf);
             }
         } catch (error) {

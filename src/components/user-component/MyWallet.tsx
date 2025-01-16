@@ -20,27 +20,49 @@ const MyWallet: React.FC = () => {
     const [currentBalance, setCurrentBalance] = useState<number | null>(null)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [walletLength, setWalletLength] = useState<number | null>(null)
+    const [paginatedTransactions, setPaginatedTransactions] = useState<any[]>([]);
+
     const user = useAppSelector((state) => state.users.user);
     const transactionPerPage = 6
     // console.log("USER :", user);
     const getTheWallet = useCallback(async (userId: string) => {
         try {
             setLoading(true);
-            const wallet: { wallet: Wallet } = await getWalletApi(userId)
-            console.log("WALET :", wallet.wallet);
 
-            setTransactions(wallet.wallet.walletTransaction)
-            setCurrentBalance(wallet.wallet.walletBalance)
-            setWalletLength(Math.ceil(wallet.wallet.walletTransaction.length / transactionPerPage))
+            const response = await getWalletApi(userId);
+            if (response.success) {
+                const { data } = response
+                const wallet: { wallet: Wallet } = data
+                const walletTransactions = wallet.wallet.walletTransaction || [];
+                setTransactions(walletTransactions); // Set full transaction list
+                setCurrentBalance(wallet.wallet.walletBalance);
+
+                const totalPages = Math.ceil(walletTransactions.length / transactionPerPage);
+                setWalletLength(totalPages);
+
+                // Paginate initial page
+                const startIndex = (currentPage - 1) * transactionPerPage;
+                const endIndex = startIndex + transactionPerPage;
+                setPaginatedTransactions(walletTransactions.slice(startIndex, endIndex));
+            }
+
         } catch (error) {
-            console.log("THis is the getting wallet Error :", error);
+            console.log("Error while fetching wallet data:", error);
+            toast.error("Error while fetching wallet data")
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
-    }, [])
+    }, [currentPage, transactionPerPage]);
+    console.log("Pginationesd fWeaers : ", paginatedTransactions);
+
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
+
+        // Update paginated transactions
+        const startIndex = (page - 1) * transactionPerPage;
+        const endIndex = startIndex + transactionPerPage;
+        setPaginatedTransactions(transactions.slice(startIndex, endIndex));
     };
 
     useEffect(() => {
@@ -86,25 +108,26 @@ const MyWallet: React.FC = () => {
             />
             {loading && <FireLoading renders="Fetching Wallet Details" />}
 
-            <div className="min-h-screen bg-green-50">
+            <div className="h-[120vh] bg-gradient-to-br from-green-200 via-yellow-100 to-green-50 flex flex-col">
                 {/* Header Section */}
-                <section
+                {/* <section
                     className="h-64 bg-cover bg-center flex justify-center items-center"
                     style={{ backgroundImage: `url('/turf-background-image.jpg')` }}
                 >
                     <h2 className="text-3xl font-bold text-white bg-black bg-opacity-50 p-4 rounded-lg">
                         My Wallet
                     </h2>
-                </section>
+                </section> */}
 
 
 
-                <div className="py-12 bg-gradient-to-b from-gray-100 to-gray-200">
+                <div className="bg-gradient-to-b from-gray-100 to-gray-200">
                     <div className="max-w-6xl mx-auto p-6 bg-white rounded-lg shadow-xl">
                         {/* Header Section */}
-                        <div className="flex justify-between items-center mb-8">
+                        <div className="h-60 bg-cover bg-center flex justify-around items-center"
+                            style={{ backgroundImage: `url('/turf-background-image.jpg')` }}>
                             {/* Title */}
-                            <h3 className="text-3xl font-extrabold text-gray-800 tracking-tight">
+                            <h3 className="text-3xl font-bold text-white bg-black bg-opacity-50 p-4 rounded-lg">
                                 Wallet Transactions
                             </h3>
 
@@ -135,10 +158,10 @@ const MyWallet: React.FC = () => {
                             </div>
 
                         </> : <>
-                            {transactions && transactions?.length === 0 ? (
+                            {paginatedTransactions && paginatedTransactions?.length === 0 ? (
                                 <p className="text-center text-gray-600 text-lg">You have no transactions yet.</p>
                             ) : (
-                                <div className="overflow-x-auto">
+                                <div className="overflow-x-auto h-[60vh]">
                                     <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
                                         <thead className="bg-gradient-to-r from-green-700 to-green-600 text-white">
                                             <tr>
@@ -157,8 +180,8 @@ const MyWallet: React.FC = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {transactions &&
-                                                transactions.map((transaction, index) => (
+                                            {paginatedTransactions &&
+                                                paginatedTransactions.map((transaction, index) => (
                                                     <tr
                                                         key={index}
                                                         className={`transition-colors duration-200 ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
@@ -201,14 +224,23 @@ const MyWallet: React.FC = () => {
 
                     </div>
                 </div>
+                {/* <div>
+                    PaginatedTransaction
+                    {paginatedTransactions.map((transaction, index) => (
+                        <div key={index}>
+                        <p>{transaction.detail}</p>
+                        </div>
+                        ))}
+                        </div> */}
                 {/* Pagination */}
-                <div className="flex justify-center items-center py-4">
+                {user?.isVerified && <div className="flex justify-center items-center">
                     <Pagination
                         currentPage={currentPage}
                         totalPages={walletLength!}
                         onPageChange={handlePageChange}
                     />
-                </div>
+                </div>}
+
             </div>
 
         </>

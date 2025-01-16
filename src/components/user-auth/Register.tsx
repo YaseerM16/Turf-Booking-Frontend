@@ -56,7 +56,7 @@ const Register: React.FC = () => {
         try {
             setLoading(true);
             const data = await signupApi(formData)
-            // console.log("SignUpAPI result:", data); // Debugging line
+            console.log("SignUpAPI result:", data); // Debugging line
             if (data?.success) {
                 setLoading(false);
                 toast.success("Verification email sent successfully!", {
@@ -84,19 +84,20 @@ const Register: React.FC = () => {
             const response = await googleSignupApi(user)
 
             if (response) {
-                if (response.data.success) {
+                if (response.success) {
+                    const { data } = response
                     const user = {
-                        _id: response.data?.user?._id,
-                        name: response.data?.user?.name,
-                        email: response.data?.user?.email,
-                        phone: response.data?.user?.phone,
-                        profilePicture: response.data?.user?.profilePicture,
-                        isVerified: response.data.user?.isVerified,
+                        _id: data?.user?._id,
+                        name: data?.user?.name,
+                        email: data?.user?.email,
+                        phone: data?.user?.phone,
+                        profilePicture: data?.user?.profilePicture,
+                        isVerified: data.user?.isVerified,
                     };
                     localStorage.setItem("auth", JSON.stringify(user));
                     setLoading(false);
 
-                    dispatch(setUser(response.data.user));
+                    dispatch(setUser(data.user));
                     toast.success("You were Logged successfully redirecting to home!", {
                         onClose: () => router.replace("/"),
                     });

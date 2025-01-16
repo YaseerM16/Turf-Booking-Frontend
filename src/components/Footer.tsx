@@ -3,16 +3,16 @@ import React from "react";
 
 const Footer: React.FC = () => {
     return (
-        <footer className="bg-black text-white py-8">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-4 gap-8">
+        <footer className="bg-black text-white py-10">
+            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
                 {/* Brand Section */}
                 <div className="flex flex-col items-start">
                     <div className="flex items-center space-x-3">
                         <Image
                             src="/logo.jpeg"
                             alt="Turf_Book Logo"
-                            width={40} // Equivalent to w-10 (10 * 4 = 40px)
-                            height={40} // Equivalent to h-10 (10 * 4 = 40px)
+                            width={40}
+                            height={40}
                             className="w-10 h-10"
                         />
                         <span className="text-lg font-bold text-green-500">
@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
                     </ul>
                 </div>
 
-                {/* Connect With Us */}
+                {/* Connect With Us Section */}
                 <div>
                     <h4 className="text-base font-semibold mb-4">Connect with us</h4>
                     <div className="flex space-x-4">
@@ -103,3 +103,4 @@ const Footer: React.FC = () => {
 };
 
 export default Footer;
+

@@ -55,15 +55,16 @@ const ProfileComponent: React.FC = () => {
             setLoading(true)
 
             // console.log("Data of update-profile :", updatedUser);
-            const response = await updateProfileDetsApi(user?._id as string, updatedUser)
+            const { data } = await updateProfileDetsApi(user?._id as string, updatedUser)
+            // console.log("DATA By the updateProfileDetailsApi :", data);
 
-            if (response?.data.success) {
+            if (data.success) {
                 handleCloseModal()
                 toast.success("Profile details updated successfully!");
-                localStorage.setItem("auth", JSON.stringify(response.data.user));
-                dispatch(setUser(response.data.user));
+                localStorage.setItem("auth", JSON.stringify(data.user));
+                dispatch(setUser(data.user));
                 setLoading(false)
-            } else if (response?.data.refreshTokenExpired) {
+            } else if (data.refreshTokenExpired) {
                 setLoading(false)
                 const response = await axiosInstance.get("/api/v1/user/logout");
                 if (response.data.loggedOut) {
@@ -91,7 +92,7 @@ const ProfileComponent: React.FC = () => {
     };
 
     const handleFileChangeAndUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("THis si Callingoo :!!");
+        // console.log("THis si Callingoo :!!");
 
         const file = event.target.files?.[0];
         if (file) {
@@ -101,11 +102,15 @@ const ProfileComponent: React.FC = () => {
             try {
                 setLoading(true)
                 const response = await uploadProfileImageApi(user?._id as string, formData)
+                console.log("REponser by IMageUPloda :", response);
 
-                if (response?.data.success) {
+                if (response.success) {
+                    const { data } = response
+                    console.log("Its Success :");
+
                     toast.success("Profile picture updated successfully!");
-                    localStorage.setItem("auth", JSON.stringify(response.data.user));
-                    dispatch(setUser(response.data.user));
+                    localStorage.setItem("auth", JSON.stringify(data.user));
+                    dispatch(setUser(data.user));
                     setLoading(false)
                 }
 
