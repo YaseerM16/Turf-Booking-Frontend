@@ -1,4 +1,4 @@
-import { BACKEND_USER_URL } from "@/utils/constants";
+import { BACKEND_USER_URL, FRONTEND_DOMAIN } from "@/utils/constants";
 import axios, { AxiosError } from "axios";
 import { SignupData } from "@/components/user-auth/Register"
 import { LoginData } from "@/components/user-auth/LoginForm"
@@ -215,3 +215,30 @@ export const bookSlotsByWalletApi = async (userId: string, bookingDets: object) 
         }
     }
 };
+
+
+///////////////// Chat ///////////////////
+
+export const createChatRoom = async (userId: string, companyId: string) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/create-chat-room/${userId}/${companyId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while CreateChatRoom ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const onSendMessage = async (userId: string, companyId: string, data: object) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/send-message/${userId}/${companyId}`, data)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while SendMessageAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
