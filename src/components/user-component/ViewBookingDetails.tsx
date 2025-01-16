@@ -3,9 +3,11 @@ import { useState } from "react";
 import { Booking } from "./MyBookings";
 import { useAppSelector } from "@/store/hooks";
 import { SlotDetails } from "@/utils/type";
-import { cancelTheSlot } from "@/services/userApi";
+import { cancelTheSlot, createChatRoom } from "@/services/userApi";
 import Spinner from "../Spinner";
 import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+
 
 interface ViewBookingDetailsProps {
     booking: Booking;
@@ -16,8 +18,11 @@ interface ViewBookingDetailsProps {
 const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClose, userId }) => {
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
     const [bookingDet, setBookingDet] = useState(booking);
+    const router = useRouter()
+    const [loadingSlots, setLoadingSlots] = useState<Record<string, boolean>>({});
     const [loading, setLoading] = useState<boolean>(false)
     console.log("Map is visible :", isMapVisible);
+    console.log("BookinGG CompnyID: ", booking.companyId);
 
     const company = useAppSelector(state => state.companies.company)
 
@@ -28,7 +33,7 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
     const cancelSlot = async (slotId: string, bookingId: string) => {
         try {
             // console.log("SLOT ID in Parent :", slotId);
-            setLoading(true)
+            setLoadingSlots((prev) => ({ ...prev, [slotId]: true }));
             const data = await cancelTheSlot(userId, slotId, bookingId)
             if (data?.success) {
                 Swal.fire({
@@ -37,7 +42,7 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
                     text: 'The slot has been cancelled successfully.',
                     confirmButtonText: 'OK',
                 }).then(() => {
-                    setLoading(false)
+                    setLoadingSlots((prev) => ({ ...prev, [slotId]: false }));
                     // console.log("Updated & Cancelled Booking : ", data);
                     setBookingDet(data.booking.booking);
                 });
@@ -46,13 +51,31 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
             console.error("Error cancelling slot:", error);
             alert("Failed to cancel slot. Please try again.");
         } finally {
-            setLoading(false)
+            setLoadingSlots((prev) => ({ ...prev, [slotId]: false }));
         }
     };
 
-    function handleChatClick(): void {
-        throw new Error("Function not implemented.");
+    const handleChatClick = async () => {
+        try {
+            setLoading(true)
+            const response = await createChatRoom(userId, booking.companyId)
+            if (response.success) {
+                const { data } = response
+                console.log("Chat Room Responser : ", data.room);
+                setLoading(false)
+                router.replace(`/my-bookings/chat?chatRoom=${encodeURIComponent(JSON.stringify(data.room))}`)
+            }
+        } catch (error) {
+            console.log("ERror while create or gettin the Chat Room ::", error);
+        } finally {
+            setLoading(false)
+        }
     }
+
+    // function handleChatClick(): void {
+    //     throw new Error("Function not implemented.");
+
+    // }
 
     return (
         <div className="flex flex-col h-full bg-gray-50">
@@ -70,13 +93,14 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
                 </div>
                 <div className="flex items-stretch gap-4">
                     {/* Chat Button */}
-                    <button
+                    {loading ? <Spinner /> : <button
                         type="button"
                         onClick={() => handleChatClick()} // Replace with your chat button logic
                         className="bg-white text-green-600 font-semibold px-6 rounded-lg shadow-md hover:bg-green-700 hover:text-white transition-all duration-300 flex-grow flex items-center justify-center"
                     >
                         Chat<br /> With Turf
-                    </button>
+                    </button>}
+
                     {/* Location Div */}
                     <div
                         className="border border-gray-300 rounded-lg shadow-md p-4 relative bg-cover bg-center flex-grow"
@@ -212,13 +236,13 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
 
                                 ) : (
                                     <>
-                                        {loading && <Spinner />}
-                                        <button
+                                        {loadingSlots[slot._id] ? <Spinner /> : <button
                                             className="mt-4 py-2 px-6 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold rounded-full shadow-lg hover:from-red-600 hover:to-red-700 hover:shadow-xl transition-all w-full text-sm"
                                             onClick={() => cancelSlot(slot._id, bookingDet._id)}
                                         >
                                             Cancel Slot
-                                        </button>
+                                        </button>}
+
                                     </>
                                 )}
                             </div>

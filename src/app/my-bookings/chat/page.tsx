@@ -1,8 +1,11 @@
 'use client'
+import { onSendMessage } from '@/services/userApi';
+import { useAppSelector } from '@/store/hooks';
 // import { CHAT_SERVICE_URL } from '@/utils/constants';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState, useRef } from 'react';
+
 // import io from "socket.io-client";
 
 // const socket = io("https://jobclub.live", {
@@ -21,13 +24,16 @@ interface Message {
 
 function Page() {
     const searchParams = useSearchParams();
-    const roomDetailsString = searchParams!.get('roomDetails');
+    const roomDetailsString = searchParams!.get('chatRoom');
     let roomDetails = null;
     if (roomDetailsString) {
         roomDetails = JSON.parse(decodeURIComponent(roomDetailsString));
     }
-    // const { _id, userId, companyId } = roomDetails;
-    let roomId = "_id";
+    const user = useAppSelector(state => state.users.user)
+    // console.log("ROOM Dets by SearchParams : ", roomDetails);
+
+    const { _id, userId, companyId } = roomDetails;
+    let roomId = _id;
 
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -91,19 +97,25 @@ function Page() {
         if (!message.trim()) return;
 
         const timestamp = new Date().toISOString();
+        console.log("Message :", message);
+        console.log("TimeStamp :", timestamp);
+        const response = await onSendMessage(userId, companyId, { message, timestamp })
 
+        if (response.success) {
+            console.log("MEsss Age Res : ", response);
 
-        let response = await axios.post(`${"CHAT_SERVICE_URL"}/postMessage`, {
-            sender: "userId",
-            receiver: "companyId",
-            message,
-            timestamp
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            withCredentials: true
-        });
+        }
+        // const response = await axios.post(`${"CHAT_SERVICE_URL"}/postMessage`, {
+        //     sender: userId,
+        //     receiver: companyId,
+        //     message,
+        //     timestamp
+        // }, {
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     withCredentials: true
+        // });
 
 
         // socket.emit('sendMessage', { roomId: _id, message, sender: userId, timestamp });

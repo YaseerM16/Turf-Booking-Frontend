@@ -14,6 +14,7 @@ export interface Booking {
     paymentDate: string;
     paymentTransactionId: string;
     _id: string; // Assuming each booking has an ID
+    companyId: string; // Assuming each booking has an ID
     turfId: TurfDetails; // A reference to the associated turf object
     selectedSlots: SlotDetails[]; // Array of selected slots (could be strings or another type depending on your structure)
     bookingDate: string | Date; // Booking date (string or Date object)
