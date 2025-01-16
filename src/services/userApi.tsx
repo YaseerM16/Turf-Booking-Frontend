@@ -28,7 +28,7 @@ export const signupApi = async (signupData: SignupData) => {
 export const googleSignupApi = async (signupData: unknown) => {
     try {
         const response = await axiosInstance.post(`${BACKEND_USER_URL}/auth/google-sign-up`, signupData);
-        return response;
+        return response.data;
     } catch (error: unknown) {
         console.log(error, "from user signUp api Call <-:")
         if (error instanceof AxiosError) {
@@ -44,8 +44,11 @@ export const googleSignupApi = async (signupData: unknown) => {
 export const loginApi = async (loginData: LoginData) => {
     try {
         const response = await axiosInstance.post(`${BACKEND_USER_URL}/auth/login`, loginData);
+        console.log("Respos nsdr by LoginApi ", response);
+
         return response.data;
     } catch (error: unknown) {
+        console.log("ERRpor by LoginApi ", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
@@ -55,7 +58,7 @@ export const loginApi = async (loginData: LoginData) => {
 export const googleLoginApi = async (loginData: unknown) => {
     try {
         const response = await axiosInstance.post(`${BACKEND_USER_URL}/auth/google-login`, loginData);
-        return response;
+        return response.data
     } catch (error: unknown) {
         console.log(error, "from user signUp api Call <-:")
         if (error instanceof AxiosError) {
@@ -70,9 +73,13 @@ export const googleLoginApi = async (loginData: unknown) => {
 
 export const updateProfileDetsApi = async (userId: string, updatedUser: User) => {
     try {
-        const response = await axiosInstance.patch(`${BACKEND_USER_URL}/profile/update-details/${userId}`, JSON.stringify(updatedUser));
-        return response;
+        const response = await axiosInstance.patch(`${BACKEND_USER_URL}/profile/update-details/${userId}`, updatedUser);
+        console.log("RTeponde by UpdateDetails ::: ", response);
+
+        return response.data;
     } catch (error: unknown) {
+        console.log("ERORer by tre updarte Pro Dets :", error);
+
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
@@ -82,8 +89,11 @@ export const updateProfileDetsApi = async (userId: string, updatedUser: User) =>
 export const uploadProfileImageApi = async (userId: string, formData: FormData) => {
     try {
         const response = await axiosInstance.patch(`${BACKEND_USER_URL}/profile/upload-image/${userId}`, formData);
-        return response;
+        console.log("Res in profileImgApi uploadd :: ", response);
+        return response.data;
     } catch (error: unknown) {
+        console.log("ERror in profileImgApi uploadd :: ", error);
+
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
@@ -170,7 +180,7 @@ export const getVerificationMail = async (userId: string) => {
 };
 
 
-///////////// Wallet /////////
+///////////// Wallet ///////////////
 
 export const getWalletApi = async (userId: string) => {
     try {

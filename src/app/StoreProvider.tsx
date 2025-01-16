@@ -17,8 +17,6 @@ export default function StoreProvider({
         const userJson = localStorage.getItem("auth");
         const companyJson = localStorage.getItem("companyAuth")
 
-
-
         if (userJson) {
             const user: User = JSON.parse(userJson);
             // console.log("UserJOSN : ", user);

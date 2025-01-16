@@ -48,11 +48,12 @@ const TurfList: React.FC = () => {
             // const { data } = await axiosInstance.get(
             //     `/api/v1/user/get-turfs?${query}`
             // );
-            const data = await getTurfsApi(query)
-            // console.log("res Data :", data);
+            const response = await getTurfsApi(query)
+            // console.log("res response :", response);
 
 
-            if (data?.success) {
+            if (response?.success) {
+                const { data } = response
                 setTurfs(data.turfs)
                 setTotalTurfs(Math.ceil(data.totalTurfs / turfsPerPage));
             }

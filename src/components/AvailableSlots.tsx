@@ -175,8 +175,9 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
 
         try {
             setLoading(true);
-            const data = await getSlotsByDayApi(turfId, day, date)
-            if (data?.success) {
+            const response = await getSlotsByDayApi(turfId, day, date)
+            if (response?.success) {
+                const { data } = response
                 // setDate(data.slots[0]?.date || "");
                 setDate(date)
                 // memoizedSlots[day] = data.slots;

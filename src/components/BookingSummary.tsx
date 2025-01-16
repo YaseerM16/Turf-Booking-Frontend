@@ -63,9 +63,10 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 paymentTransactionId: txnid,
             };
 
-            const data = await bookSlotsByWalletApi(userDet?._id as string, bookingDets);
+            const response = await bookSlotsByWalletApi(userDet?._id as string, bookingDets);
 
-            if (data.success) {
+            if (response.success) {
+                const { data } = response
                 Swal.fire({
                     icon: 'success',
                     title: 'Booking Confirmed!',
@@ -84,7 +85,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 Swal.fire({
                     icon: 'error',
                     title: 'Booking Failed!',
-                    text: `Failed to book your slot. Reason: ${data.message || 'Unknown error.'}`,
+                    text: `Failed to book your slot. Reason: ${'Unknown error.'}`,
                     confirmButtonText: 'Try Again',
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -107,9 +108,10 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
 
     const handlePayWithWallet = async () => {
         try {
-            const data = await getWalletBalanceApi(userDet?._id as string, grandTotal)
-            console.log("DAta By the WalletBalance :", data);
-            if (data.success) {
+            const response = await getWalletBalanceApi(userDet?._id as string, grandTotal)
+            // console.log("DAta By the WalletBalance :", response);
+            if (response.success) {
+                const { data } = response
                 if (data.walletBalance.isSufficient) {
                     setWalletPay(true)
                 } else {
