@@ -1,28 +1,22 @@
-'use client'
-import { onSendMessage } from '@/services/userApi';
+"use client";
+import { onGetMessages } from '@/services/userApi';
 import { useAppSelector } from '@/store/hooks';
-// import { CHAT_SERVICE_URL } from '@/utils/constants';
-import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
+import Swal from 'sweetalert2';
+import io, { Socket } from "socket.io-client";
 
-// import io from "socket.io-client";
 
-// const socket = io("https://jobclub.live", {
-//     path: "/socket.io", // Matches the server's path
-//     transports: ["websocket", "polling"], // Ensure compatibility
-//     withCredentials: true, // Matches the server's CORS settings
-// });
 interface Message {
-    sender: string;
-    receiver: string;
-    message: string;
+    senderId: string;
+    receiverId: string;
+    content: string;
     roomId: string;
     timestamp: string;
 }
 
 
-function Page() {
+function ChatRoom() {
     const searchParams = useSearchParams();
     const roomDetailsString = searchParams!.get('chatRoom');
     let roomDetails = null;
@@ -33,12 +27,14 @@ function Page() {
     // console.log("ROOM Dets by SearchParams : ", roomDetails);
 
     const { _id, userId, companyId } = roomDetails;
-    let roomId = _id;
+    const roomId = _id;
 
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
 
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const socketRef = useRef<Socket | null>(null); // Use useRef to persist the socket instance
+
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -46,90 +42,144 @@ function Page() {
         }
     }, [messages]);
 
+
     useEffect(() => {
-        // socket.emit("joinRoom", roomId);
+        if (!roomId && socketRef.current) {
+            socketRef.current.disconnect(); // Disconnect the socket if roomId is not provided
+        }
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.off("receiveMessage"); // Remove the listener on cleanup
+            }
+        };
+    }, [roomId]);
+
+
+    const getAllUserMessages = useCallback(async () => {
+        try {
+            const response = await onGetMessages(roomId)
+            if (response.success) {
+                const { data } = response
+                console.log("MESsages Got Successfulee :!!", data);
+                console.log("MEssages :", data.messages);
+                setMessages((prevMessages) => {
+                    if (prevMessages.length === 0) {
+                        return data.messages.map((msg: { createdAt: string }) => ({
+                            ...msg,
+                            timestamp: msg.createdAt || new Date().toISOString()
+                        }));
+                    }
+                    return prevMessages;
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end', // Position of the toast
+                icon: 'error', // Icon type: 'success', 'error', 'warning', 'info', 'question'
+                title: 'Something went wrong!', // Title of the toast
+                text: (error as Error).message || 'Please try again later.', // Additional message
+                showConfirmButton: false, // Removes the confirm button
+                timer: 2000, // Toast duration in milliseconds
+                timerProgressBar: true, // Shows a progress bar
+            });
+        }
+    }, [roomId])
+
+    useEffect(() => {
+        console.log("SOCKET Initial");
+
+        // Initialize the socket connection and store it in the ref
+        socketRef.current = io("http://localhost:5000");
+
+        // Join the specified room
+        socketRef.current.emit("joinRoom", roomId);
 
         const handleReceiveMessage = (msg: Message) => {
+            console.log("THSI receive is called in front :", msg);
+
             const messageWithTimestamp = {
                 ...msg,
-                timestamp: msg.timestamp || new Date().toISOString()
+                timestamp: msg.timestamp || new Date().toISOString(),
             };
 
-            setMessages(prevMessages => {
-                if (!prevMessages.some((message) => message.message === messageWithTimestamp.message && message.sender === messageWithTimestamp.sender)) {
+            setMessages((prevMessages) => {
+                if (
+                    !prevMessages.some(
+                        (message) =>
+                            message.content === messageWithTimestamp.content &&
+                            message.senderId === messageWithTimestamp.senderId
+                    )
+                ) {
                     return [...prevMessages, messageWithTimestamp];
                 }
                 return prevMessages;
             });
         };
 
-        // socket.on("receiveMessage", handleReceiveMessage);
+        // Listen for the "receiveMessage" event
+        socketRef.current.on("receiveMessage", handleReceiveMessage);
 
-        async function getAllUserMessages() {
-            // const response = await axios.get(`${CHAT_SERVICE_URL}/getMessages`, {
-            //     params: { companyId, roomId },
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     withCredentials: true
-            // })
-            const response: any = []
-            // setMessages((prevMessages) => {
-            //     if (prevMessages.length === 0) {
-            //         return response.data.getMessages.map((msg: { timestamp: any }) => ({
-            //             ...msg,
-            //             timestamp: msg.timestamp || new Date().toISOString()
-            //         }));
-            //     }
-            //     return prevMessages;
-            // });
-        }
+        // Fetch all user messages when the component mounts
         getAllUserMessages();
 
-        // return () => {
-        //     socket.off("receiveMessage", handleReceiveMessage);
-        // };
-    }, [roomId]);
+        // Cleanup function to remove the socket listener and disconnect the socket
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.off("receiveMessage", handleReceiveMessage);
+                socketRef.current.disconnect();
+            }
+        };
+    }, [roomId, getAllUserMessages]);
 
 
+    // const response = await onSendMessage(userId, companyId, { message, timestamp, roomId })
+
+    // if (response.success) {
+    //     const { data } = response
+    //     console.log("MEsss Age Res : ", data);
+    //     setMessages(prevMessages => [
+    //         ...prevMessages,
+    //         data.message
+    //     ]);
+    // }
+    // console.log("THe SendMesg EMITTTSSS");
 
     const handleSendMessage = async () => {
-        if (!message.trim()) return;
+        try {
+            if (!message.trim()) return; // Prevent sending empty messages
 
-        const timestamp = new Date().toISOString();
-        console.log("Message :", message);
-        console.log("TimeStamp :", timestamp);
-        const response = await onSendMessage(userId, companyId, { message, timestamp })
+            if (!socketRef.current) {
+                socketRef.current = io("http://localhost:5000");
+            }
 
-        if (response.success) {
-            console.log("MEsss Age Res : ", response);
+            const timestamp = new Date().toISOString(); // Generate current timestamp
 
+            socketRef.current.emit('sendMessage', {
+                roomId,
+                content: message,
+                senderId: userId,
+                sender: "user",
+                receiverId: companyId,
+                timestamp
+            });
+
+            setMessage('');
+
+        } catch (error) {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'error',
+                title: 'Something went wrong!',
+                text: (error as Error).message || 'Please try again later.',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true,
+            });
         }
-        // const response = await axios.post(`${"CHAT_SERVICE_URL"}/postMessage`, {
-        //     sender: userId,
-        //     receiver: companyId,
-        //     message,
-        //     timestamp
-        // }, {
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     withCredentials: true
-        // });
-
-
-        // socket.emit('sendMessage', { roomId: _id, message, sender: userId, timestamp });
-
-
-        // setMessages(prevMessages => [
-        //     ...prevMessages,
-        //     { sender: userId, receiver: companyId, message, roomId: _id, timestamp }
-        // ]);
-
-        setMessage('');
     };
-
-
 
 
     return (
@@ -142,16 +192,16 @@ function Page() {
                 </div>
 
                 {/* Chat Messages Section */}
-                <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-white">
+                <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-white no-scrollbar">
                     {messages.map((msg, index) => (
                         <div
                             key={index}
-                            className={`flex ${msg.sender === "userId" ? "justify-end" : "justify-start"
+                            className={`flex ${msg.senderId === user?._id ? "justify-end" : "justify-start"
                                 }`}
                         >
                             <div
-                                className={`p-4 text-sm ${msg.sender === "userId"
-                                    ? "bg-green-600 text-white"
+                                className={`p-4 text-sm ${msg.senderId === user?._id
+                                    ? "bg-green-800 text-white"
                                     : "bg-gray-300 text-gray-800"
                                     } rounded-lg shadow-lg`}
                                 style={{
@@ -160,8 +210,8 @@ function Page() {
                                     borderRadius: "15px",
                                 }}
                             >
-                                <p className="leading-relaxed">{msg.message}</p>
-                                <p className="text-xs text-gray-400 mt-2 text-right">
+                                <p className="leading-relaxed">{msg.content}</p>
+                                <p className="text-xs text-white mt-2 text-right">
                                     {msg.timestamp
                                         ? new Date(msg.timestamp).toLocaleTimeString([], {
                                             hour: "2-digit",
@@ -202,4 +252,10 @@ function Page() {
     );
 }
 
-export default Page;
+export default function Page() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <ChatRoom />
+        </Suspense>
+    );
+}

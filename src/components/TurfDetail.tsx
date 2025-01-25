@@ -20,15 +20,53 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
     const company = useAppSelector(state => state.companies.company)
     const [showSlot, setShowSlot] = useState<boolean>(false)
     const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
+    const [reviews, setReviews] = useState<Review[]>([
+        { username: "John Doe", rating: 4, comment: "Great experience!" },
+        { username: "Jane Smith", rating: 5, comment: "Absolutely loved it!" },
+    ]);
+
     console.log("MapVisible :", isMapVisible);
+    const [hoverRating, setHoverRating] = useState<number>(0); // State to track hover
+    console.log("HOverRating :", hoverRating);
 
-    // Fetch data from localStorage after the component is mounted
 
+    const [showForm, setShowForm] = useState(false); // For toggling the form modal
+    const [formData, setFormData] = useState({ username: "", rating: 0, comment: "" });
+    const [errors, setErrors] = useState({ username: false, rating: false, comment: false });
 
-    const reviews: Review[] = [
-        { username: "John Doe", rating: 4, comment: "Great turf, well maintained!" },
-        { username: "Jane Smith", rating: 5, comment: "Loved the facilities here!" },
-    ]
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setErrors({ ...errors, [e.target.name]: false }); // Clear error on input change
+    };
+
+    // Handle star rating selection
+    const handleRating = (rating: number) => {
+        setFormData((prev) => ({ ...prev, rating: rating }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        const { username, rating, comment } = formData;
+        const newErrors = {
+            username: !username.trim(),
+            rating: !rating || Number(rating) < 1 || Number(rating) > 5,
+            comment: !comment.trim(),
+        };
+
+        setErrors(newErrors);
+
+        // If there are no errors, add the review
+        if (!Object.values(newErrors).some((error) => error)) {
+            setReviews((prevReviews) => [
+                ...prevReviews,
+                { username, rating: Number(rating), comment },
+            ]);
+
+            // Clear the form
+            setFormData({ username: "", rating: 0, comment: "" });
+        }
+    };
     // console.log("TURF Details Page");
 
     const toggleMapState = () => {
@@ -171,21 +209,125 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
 
                     {/* Reviews Section */}
                     <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
+                        {/* Reviews Section */}
                         <h2 className="text-xl font-bold text-green-700">Reviews</h2>
                         <div className="space-y-4 mt-4">
                             {reviews.map((review, idx) => (
                                 <div key={idx} className="bg-gray-100 p-4 rounded-md shadow-md">
-                                    <p className="text-green-600 font-medium">
-                                        {review.username}
-                                    </p>
+                                    <p className="text-green-600 font-medium">{review.username}</p>
                                     <p className="text-yellow-500">
-                                        Rating: {"⭐".repeat(review.rating)}
+                                        {"⭐".repeat(review.rating)} {/* Display stars */}
                                     </p>
                                     <p className="text-gray-600">{review.comment}</p>
                                 </div>
                             ))}
                         </div>
+
+                        {/* Give Review Button */}
+                        <button
+                            onClick={() => setShowForm(true)}
+                            className="mt-6 bg-green-700 text-white px-4 py-2 rounded shadow hover:bg-green-800"
+                        >
+                            Give Review
+                        </button>
+
+                        {/* Review Form Modal */}
+                        {showForm && (
+                            <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+                                <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+                                    <h3 className="text-lg font-bold text-green-700">Submit Your Review</h3>
+                                    <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
+                                        {/* Username Input */}
+                                        <div>
+                                            <label className="block text-gray-700 font-medium" htmlFor="username">
+                                                Name:
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="username"
+                                                name="username"
+                                                value={formData.username}
+                                                onChange={handleChange}
+                                                className={`w-full p-2 border rounded ${errors.username ? "border-red-500" : "border-gray-300"
+                                                    }`}
+                                                placeholder="Enter your name"
+                                            />
+                                            {errors.username && (
+                                                <p className="text-red-500 text-sm mt-1">Name is required.</p>
+                                            )}
+                                        </div>
+
+                                        {/* Star Rating Input */}
+                                        <div>
+                                            <label className="block text-gray-700 font-medium" htmlFor="rating">
+                                                Rating:
+                                            </label>
+                                            <div className="flex items-center space-x-2">
+                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                    <span
+                                                        key={star}
+                                                        className={`cursor-pointer text-2xl ${star <= hoverRating
+                                                            ? "text-yellow-500"
+                                                            : "text-gray-300"
+                                                            }`}
+                                                        onClick={() => handleRating(star)} // Click to select the star
+                                                        onMouseEnter={() => setHoverRating(star)} // Hover to highlight stars
+                                                        onMouseLeave={() => setHoverRating(0)} // Reset hover when leaving
+                                                    >
+                                                        ⭐
+                                                    </span>
+                                                ))}
+                                            </div>
+
+                                            {errors.rating && (
+                                                <p className="text-red-500 text-sm mt-1">
+                                                    Rating must be between 1 and 5.
+                                                </p>
+                                            )}
+                                        </div>
+
+
+                                        {/* Comment Input */}
+                                        <div>
+                                            <label className="block text-gray-700 font-medium" htmlFor="comment">
+                                                Comment:
+                                            </label>
+                                            <textarea
+                                                id="comment"
+                                                name="comment"
+                                                value={formData.comment}
+                                                onChange={handleChange}
+                                                className={`w-full p-2 border rounded ${errors.comment ? "border-red-500" : "border-gray-300"
+                                                    }`}
+                                                placeholder="Write your review here..."
+                                            />
+                                            {errors.comment && (
+                                                <p className="text-red-500 text-sm mt-1">Comment is required.</p>
+                                            )}
+                                        </div>
+
+                                        {/* Submit and Cancel Buttons */}
+                                        <div className="flex justify-between">
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowForm(false)}
+                                                className="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="bg-green-700 text-white px-4 py-2 rounded shadow hover:bg-green-800"
+                                            >
+                                                Submit Review
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
                     </div>
+
 
                 </div>
             </div>

@@ -20,7 +20,7 @@ const MyWallet: React.FC = () => {
     const [currentBalance, setCurrentBalance] = useState<number | null>(null)
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [walletLength, setWalletLength] = useState<number | null>(null)
-    const [paginatedTransactions, setPaginatedTransactions] = useState<any[]>([]);
+    const [paginatedTransactions, setPaginatedTransactions] = useState<WalletTransaction[]>([]);
 
     const user = useAppSelector((state) => state.users.user);
     const transactionPerPage = 6

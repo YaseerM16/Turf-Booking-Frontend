@@ -40,7 +40,7 @@ const GuestNavbar: React.FC = () => {
                         { icon: <FiHome size={20} />, label: "Home", route: "/" },
                         { icon: <FiGrid size={20} />, label: "Turfs", route: "/turfs" },
                     ].map((item, index) => (
-                        <li key={index} className="relative group" onClick={() => router.replace(item.route)}>
+                        <li key={index} className="relative group" onClick={() => router.push(item.route)}>
                             <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
                                 {item.icon}
                                 <span>{item.label}</span>

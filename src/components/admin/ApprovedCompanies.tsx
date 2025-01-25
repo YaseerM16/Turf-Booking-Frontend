@@ -190,9 +190,9 @@ const ApprovedCompanies: React.FC = () => {
                                                     className="text-green-700 cursor-pointer inline-block"
                                                     onClick={() => handleLocationClick(company)}
                                                 /> */}
-                                                <td className="border px-4 py-3 text-center">
+                                                <div className="border px-4 py-3 text-center">
                                                     <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} toggleview={toggleMapState} />
-                                                </td>
+                                                </div>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
                                                 <span

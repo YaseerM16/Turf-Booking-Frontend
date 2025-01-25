@@ -1,4 +1,4 @@
-import { BACKEND_USER_URL, FRONTEND_DOMAIN } from "@/utils/constants";
+import { BACKEND_USER_URL } from "@/utils/constants";
 import axios, { AxiosError } from "axios";
 import { SignupData } from "@/components/user-auth/Register"
 import { LoginData } from "@/components/user-auth/LoginForm"
@@ -237,6 +237,30 @@ export const onSendMessage = async (userId: string, companyId: string, data: obj
         return response.data
     } catch (error) {
         console.log("ERRor while SendMessageAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const onGetMessages = async (roomId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-messages/${roomId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const getChats = async (userId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-chats/${userId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
