@@ -5,8 +5,8 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import { useEffect } from "react";
 
-
 export default function Home() {
+
   useEffect(() => {
     const token = Cookies.get("token");
 

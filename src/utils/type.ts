@@ -136,3 +136,58 @@ export type WalletTransaction = {
     balance: number;
 };
 
+export type ChatRoom = {
+    companyId: {
+        companyname: string;
+        companyemail: string;
+        phone: number | string;
+        profilePicture: string;
+        _id: string;
+    };
+    createdAt: string; // ISO date string
+    isReadCc: number;
+    isReadUc: number;
+    lastMessage: string | null;
+    updatedAt: string; // ISO date string
+    userId: {
+        email: string;
+        name: string;
+        phone: number;
+        profilePicture: string;
+        _id: string;
+    };
+    __v: number;
+    _id: string;
+};
+
+
+export type Message = {
+    content: string;
+    createdAt: string;
+    isRead: boolean;
+    receiverId: string;
+    roomId: string;
+    senderId: string;
+    updatedAt: string;
+    __v: number;
+    _id: string;
+};
+
+
+type NotificationUser = {
+    name: string;
+    email: string;
+    phone: string;
+    profilePicture: string;
+};
+
+type NotificationRoom = {
+    roomId: string;
+    companyName: string;
+    unreadCount: number;
+    lastMessage: string | null;
+    updatedAt: string;
+    user: NotificationUser;
+};
+
+export type Notifications = Record<string, NotificationRoom>;

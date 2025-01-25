@@ -6,13 +6,13 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useRouter } from "next/navigation";
 import Spinner from "../Spinner";
-import { axiosInstance } from "@/utils/constants";
 import Image from "next/image";
 import { useAppDispatch } from "@/store/hooks";
 import { setCompany } from "@/store/slices/CompanySlice";
-import { APIError } from "@/utils/type";
+import { companyLoginApi } from "@/services/companyApi";
 
-type Inputs = {
+
+export type LoginData = {
     email: string;
     password: string;
 };
@@ -25,33 +25,37 @@ const CompanyLoginForm: React.FC = () => {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<Inputs>();
+    } = useForm<LoginData>();
 
-    const onSubmit: SubmitHandler<Inputs> = async (formData: Inputs) => {
+    const onSubmit: SubmitHandler<LoginData> = async (formData: LoginData) => {
         try {
             setLoading(true);
-            const { data } = await axiosInstance.post(
-                "/api/v1/company/auth/login",
-                formData
-            );
+            // const { data } = await axiosInstance.post(
+            //     "/api/v1/company/auth/login",
+            //     formData
+            // );
+            const response = await companyLoginApi(formData)
+            if (response.success) {
+                const { data } = response
+                if (data?.loggedIn) {
+                    localStorage.setItem("companyAuth", JSON.stringify(data.company));
+                    dispatch(setCompany(data.company));
+                    setLoading(false);
+                    toast.success("Logged In successfully!", {
+                        onClose: () => router.replace("/company/dashboard")
+                    });
 
-            if (data?.loggedIn) {
-                localStorage.setItem("companyAuth", JSON.stringify(data.company));
-                dispatch(setCompany(data.company));
-                setLoading(false);
-                toast.success("Logged In successfully!", {
-                    onClose: () => router.replace("/company/dashboard")
-                });
-
-            } else {
-                toast.error(data?.message || "Login failed. Please try again.");
-                setLoading(false);
+                } else {
+                    toast.error(data?.message || "Login failed. Please try again.");
+                    setLoading(false);
+                }
             }
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                const apiError = err as APIError
-                toast.error(apiError?.response?.data?.error || "Something went wrong!");
-            }
+            toast.error((err as Error).message || "Something went wrong!");
+            // if (err instanceof Error) {
+            //     const apiError = err as APIError
+            //     toast.error(apiError?.response?.data?.error || "Something went wrong!");
+            // }
             setLoading(false);
         }
     };
