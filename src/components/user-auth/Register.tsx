@@ -31,9 +31,10 @@ const Register: React.FC = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
-        watch
-    } = useForm<SignupData>();
+        setValue,
+        formState: { errors, isValid },
+        watch,
+    } = useForm<SignupData>({ mode: "onChange" });
     const [passwordStrength, setPasswordStrength] = useState<string>("");
     const password = watch('password', '');
     const checkPasswordStrength = (password: string) => {
@@ -55,6 +56,7 @@ const Register: React.FC = () => {
     const onSubmit: SubmitHandler<SignupData> = async (formData: SignupData) => {
         try {
             setLoading(true);
+
             const data = await signupApi(formData)
             console.log("SignUpAPI result:", data); // Debugging line
             if (data?.success) {
@@ -156,6 +158,10 @@ const Register: React.FC = () => {
                                         value: 4,
                                         message: "Name must be at least 4 characters long.",
                                     },
+                                    pattern: {
+                                        value: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+                                        message: "Name cannot have leading/trailing spaces or multiple spaces between words",
+                                    },
                                 })}  // Register with validation (required)
                             />
                             {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
@@ -168,9 +174,16 @@ const Register: React.FC = () => {
                                 {...register('email', {
                                     required: 'Email is required',  // Required validation
                                     pattern: {
-                                        value: /\S+@\S+\.\S+/,
+                                        value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
                                         message: 'Email is invalid',  // Email format validation
                                     },
+                                    validate: {
+                                        trim: (value) => {
+                                            const trimmedValue = value.trim();
+                                            setValue('email', trimmedValue); // Set the trimmed value
+                                            return trimmedValue.length > 0 || 'Email cannot be empty after trimming';
+                                        }
+                                    }
                                 })}
                             />
                             {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
@@ -235,8 +248,11 @@ const Register: React.FC = () => {
                         {loading ? (
                             <Spinner />
                         ) : (
-                            <button type="submit"
-                                className="w-full bg-green-700 text-white py-3 rounded-md hover:bg-green-800">
+                            <button
+                                type="submit"
+                                disabled={!isValid} // Disable if form is invalid
+                                className={`w-full py-3 rounded-md ${!isValid ? 'bg-gray-500' : 'bg-green-700 hover:bg-green-800 text-white'}`}
+                            >
                                 SignUp
                             </button>
                         )}

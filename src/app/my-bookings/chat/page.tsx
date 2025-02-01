@@ -5,15 +5,17 @@ import { useSearchParams } from 'next/navigation';
 import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import Swal from 'sweetalert2';
 import io, { Socket } from "socket.io-client";
+import { Message } from '@/utils/type';
+import Image from 'next/image';
 
 
-interface Message {
-    senderId: string;
-    receiverId: string;
-    content: string;
-    roomId: string;
-    timestamp: string;
-}
+// interface Message {
+//     senderId: string;
+//     receiverId: string;
+//     content: string;
+//     roomId: string;
+//     timestamp: string;
+// }
 
 
 function ChatRoom() {
@@ -65,7 +67,7 @@ function ChatRoom() {
                 console.log("MEssages :", data.messages);
                 setMessages((prevMessages) => {
                     if (prevMessages.length === 0) {
-                        return data.messages.map((msg: { createdAt: string }) => ({
+                        return data.messages.messages.map((msg: { createdAt: string }) => ({
                             ...msg,
                             timestamp: msg.createdAt || new Date().toISOString()
                         }));
@@ -101,7 +103,7 @@ function ChatRoom() {
 
             const messageWithTimestamp = {
                 ...msg,
-                timestamp: msg.timestamp || new Date().toISOString(),
+                timestamp: msg.createdAt || new Date().toISOString(),
             };
 
             setMessages((prevMessages) => {
@@ -193,27 +195,53 @@ function ChatRoom() {
 
                 {/* Chat Messages Section */}
                 <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6 bg-white no-scrollbar">
-                    {messages.map((msg, index) => (
+                    {messages.map((msg) => (
                         <div
-                            key={index}
-                            className={`flex ${msg.senderId === user?._id ? "justify-end" : "justify-start"
-                                }`}
+                            key={msg._id}
+                            className={`group flex ${msg.senderId === user?._id ? "justify-end" : "justify-start"
+                                } mb-4 mx-6`}
                         >
                             <div
-                                className={`p-4 text-sm ${msg.senderId === user?._id
+                                className={`relative p-4 text-sm ${msg.senderId === user?._id
                                     ? "bg-green-800 text-white"
                                     : "bg-gray-300 text-gray-800"
-                                    } rounded-lg shadow-lg`}
-                                style={{
-                                    maxWidth: "70%",
-                                    wordWrap: "break-word",
-                                    borderRadius: "15px",
-                                }}
+                                    } rounded-xl shadow-lg max-w-[75%] break-words group-hover:opacity-100`}
+                            // onClick={() => handleDeleteClick(msg._id)}
                             >
-                                <p className="leading-relaxed">{msg.content}</p>
-                                <p className="text-xs text-white mt-2 text-right">
-                                    {msg.timestamp
-                                        ? new Date(msg.timestamp).toLocaleTimeString([], {
+                                {/* Handle deleted messages */}
+                                {msg.deletedForSender && user?._id === msg.senderId ? (
+                                    <p className="italic opacity-70">Deleted by you</p>
+                                ) : msg.deletedForSender && user?._id !== msg.senderId ? (
+                                    <p className="italic opacity-70">Deleted by Compnany</p>
+                                ) : msg.deletedForReceiver && user?._id === msg.receiverId ? (
+                                    <p className="italic opacity-70">Deleted by you</p>
+                                ) : msg.deletedForReceiver && user?._id !== msg.receiverId ? (
+                                    <p className="leading-relaxed cursor-pointer">{msg.content}</p>
+                                )
+                                    : msg.isImage ? (
+                                        <Image
+                                            src={msg.content}
+                                            alt="Message Image"
+                                            width={220}
+                                            height={220}
+                                            objectFit="contain"
+                                            className="rounded-lg mb-2 cursor-pointer"
+                                        // onClick={(e) => {
+                                        //     e.stopPropagation();
+                                        //     handleImageClick(msg.content)
+                                        // }}
+                                        />
+                                    ) : (
+                                        <p className="leading-relaxed cursor-pointer">{msg.content}</p>
+                                    )}
+
+                                {/* Message Time */}
+                                <p
+                                    className={`text-xs mt-1 text-right ${msg.senderId === user?._id ? "text-white" : "text-gray-500"
+                                        }`}
+                                >
+                                    {msg.createdAt
+                                        ? new Date(msg.createdAt).toLocaleTimeString([], {
                                             hour: "2-digit",
                                             minute: "2-digit",
                                         })

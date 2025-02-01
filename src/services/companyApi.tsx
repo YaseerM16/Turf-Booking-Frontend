@@ -101,4 +101,43 @@ export const onSendMessage = async (companyId: string, userId: string, data: obj
             throw new Error(error?.response?.data.message)
         }
     }
+
 };
+
+////// notificaitions //////
+
+export const getNotifications = async (companyId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-notifications/${companyId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const updateNotifications = async (data: object) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/update-notifications`, data)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while upDAte NOtification ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const deleteNotification = async (roomId: string, companyId: string) => {
+    try {
+        const response = await axiosInstance.delete(`${BACKEND_COMPANY_URL}/delete-notification/${roomId}/${companyId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
