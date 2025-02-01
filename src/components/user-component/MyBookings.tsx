@@ -98,7 +98,7 @@ const MyBooking: React.FC = () => {
                                     booking?.map((b, index) => (
                                         <div
                                             key={index}
-                                            className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+                                            className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-[1.02] transition-transform duration-300 ease-in-out"
                                         >
                                             {/* Header Section */}
                                             <div className="relative text-yellow-400 rounded-t-lg overflow-hidden">
@@ -111,20 +111,22 @@ const MyBooking: React.FC = () => {
                                                 ></div>
 
                                                 {/* Gradient Overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                                                <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
 
                                                 {/* Content on Top */}
                                                 <div className="relative p-6">
-                                                    <h4 className="ml-2 bg-green-800 px-3 py-1 rounded-full text-white text-sm font-semibold">{b?.turfId?.turfName}</h4>
-                                                    <div className="flex items-center mb-2">
-                                                        <span className="font-medium text-sm text-gray-200">No. of Slots Booked:</span>
-                                                        <span className="ml-2 bg-green-800 px-3 py-1 rounded-full text-white text-sm font-semibold">
+                                                    <h4 className="ml-2 bg-green-700 px-4 py-2 rounded-full text-white text-sm font-semibold shadow-md">
+                                                        {b?.turfId?.turfName}
+                                                    </h4>
+                                                    <div className="flex items-center mt-4">
+                                                        <span className="font-medium text-sm text-gray-300">No. of Slots Booked:</span>
+                                                        <span className="ml-2 bg-green-600 px-4 py-1 rounded-full text-white text-sm font-semibold shadow-sm">
                                                             {b.selectedSlots.length}
                                                         </span>
                                                     </div>
-                                                    <div className="flex items-center">
-                                                        <span className="font-medium text-sm text-gray-200">Date:</span>
-                                                        <span className="ml-2 bg-green-800 px-3 py-1 rounded-full text-white text-sm font-semibold">
+                                                    <div className="flex items-center mt-2">
+                                                        <span className="font-medium text-sm text-gray-300">Date:</span>
+                                                        <span className="ml-2 bg-green-600 px-4 py-1 rounded-full text-white text-sm font-semibold shadow-sm">
                                                             {new Date(b?.bookingDate).toLocaleDateString()}
                                                         </span>
                                                     </div>
@@ -135,7 +137,7 @@ const MyBooking: React.FC = () => {
                                             <div className="p-6">
                                                 {/* Address Section */}
                                                 <div className="mb-6">
-                                                    <h5 className="font-semibold text-gray-800 mb-2">Address:</h5>
+                                                    <h5 className="font-semibold text-gray-800 text-lg mb-3">Address:</h5>
                                                     <div className="flex items-start bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
                                                         <svg
                                                             xmlns="http://www.w3.org/2000/svg"
@@ -161,14 +163,15 @@ const MyBooking: React.FC = () => {
                                                 {/* Button Section */}
                                                 <div className="mt-6 text-center">
                                                     <button
-                                                        onClick={() => setSelectedBooking(b)} // Set the selected booking
-                                                        className="bg-green-700 text-white py-2 px-6 rounded-lg hover:bg-green-800 shadow-md transition-all duration-300"
+                                                        onClick={() => setSelectedBooking(b)}
+                                                        className="bg-gradient-to-r from-green-600 to-green-800 text-white py-3 px-8 rounded-lg hover:shadow-lg hover:scale-105 transition-transform duration-300"
                                                     >
                                                         View Details
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
+
                                     ))
                                 )}
                             </div>

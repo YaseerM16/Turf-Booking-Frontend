@@ -162,6 +162,7 @@ export type ChatRoom = {
 
 
 export type Message = {
+    timestamp: string;
     content: string;
     createdAt: string;
     isRead: boolean;
@@ -169,6 +170,9 @@ export type Message = {
     roomId: string;
     senderId: string;
     updatedAt: string;
+    isImage: boolean;
+    deletedForSender: boolean,
+    deletedForReceiver: boolean,
     __v: number;
     _id: string;
 };

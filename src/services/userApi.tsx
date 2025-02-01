@@ -266,3 +266,65 @@ export const getChats = async (userId: string) => {
         }
     }
 }
+
+export const messageDeleteForEveryone = async (messageId: string) => {
+    try {
+        const response = await axiosInstance.patch(`${BACKEND_USER_URL}/delete-for-everyone/${messageId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const messageDeleteForMe = async (messageId: string) => {
+    try {
+        const response = await axiosInstance.patch(`${BACKEND_USER_URL}/delete-for-me/${messageId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+////// notificaitions //////
+
+export const getNotifications = async (userId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-notifications/${userId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const updateNotifications = async (data: object) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/update-notifications`, data)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while upDAte NOtification ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const deleteNotification = async (roomId: string, userId: string) => {
+    try {
+        const response = await axiosInstance.delete(`${BACKEND_USER_URL}/delete-notification/${roomId}/${userId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
