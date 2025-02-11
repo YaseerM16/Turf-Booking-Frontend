@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ToastContainer, toast } from "react-toastify";
-import { axiosInstance } from "@/utils/constants";
 import { useAppDispatch } from "@/store/hooks";
 import { setCompany } from "@/store/slices/CompanySlice";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
+import { companyVerifyMail } from "@/services/companyApi";
 
 
 interface QueryParams {
@@ -28,6 +28,7 @@ const CompanyVerifyMail: React.FC = () => {
         const queryObject = Object.fromEntries(searchParams.entries()); // Get query parameters
         setQueryObj(queryObject); // Set query parameters state
     }, []);
+    console.log("QeuryObj in companyVerifyComp : ", queryObj);
 
 
     const handleVerifyEmail = async () => {
@@ -44,29 +45,32 @@ const CompanyVerifyMail: React.FC = () => {
                 setLoading(false);
                 return;
             }
-            const { data } = await axiosInstance.get("/api/v1/company/auth/verifymail", { params: { type, token, email }, });
-            console.log("Data 1");
+            // const { data } = await axiosInstance.get("/api/v1/company/auth/verifymail", { params: { type, token, email }, });
+            const response = await companyVerifyMail(type, token, email)
+            if (response?.success) {
+                const { data } = response
+                console.log("Resonse of VerifyEmail for COmpnay : ", response, "::", data);
+                if (data?.success && data?.forgotMail) {
+                    setLoading(false);
+                    toast.success("Email verified successfully!", {
+                        onClose: () => router.replace(`/change-password?email=${email}`),
+                    });
+                }
+                else if (data?.success) {
+                    console.log("result from company register :", data);
 
-            if (data?.success && data?.forgotMail) {
-                setLoading(false);
-                toast.success("Email verified successfully!", {
-                    onClose: () => router.replace(`/change-password?email=${email}`),
-                });
-            }
-            else if (data?.success) {
-                console.log("result from company register :", data);
+                    localStorage.setItem("company", JSON.stringify(data.company));
+                    dispatch(setCompany(data.company));
+                    setLoading(false);
 
-                localStorage.setItem("company", JSON.stringify(data.company));
-                dispatch(setCompany(data.company));
-                setLoading(false);
-
-                toast.success("Email verified successfully!", {
-                    onClose: () => router.replace("/company/dashboard"),
-                });
-            } else {
-                setVerificationFailed(true); // Show resend button on failure
-                toast.error(data?.message || "Verification failed.");
-                setLoading(false);
+                    toast.success("Email verified successfully!", {
+                        onClose: () => router.replace("/company/dashboard"),
+                    });
+                } else {
+                    setVerificationFailed(true); // Show resend button on failure
+                    toast.error(data?.message || "Verification failed.");
+                    setLoading(false);
+                }
             }
         } catch (error) {
             console.error("VerifyEmailAPI error:", error);

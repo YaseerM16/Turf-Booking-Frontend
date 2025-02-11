@@ -6,7 +6,7 @@ export function companyMiddleware(req: NextRequest) {
 
     // Define public and protected routes
     const companyPublic = ["/company/login", "/company/register"];
-    const companyProtected = ["/company/dashboard", "/company/register-turf", "/company/turf-management", "/company/slot-management"];
+    const companyProtected = ["/company/dashboard", "/company/profile", "/company/messages", "/company/register-turf", "/company/turf-management", "/company/slot-management"];
 
     // Check if the request is for a protected route
     if (companyProtected.some((route) => currentPath.startsWith(route))) {

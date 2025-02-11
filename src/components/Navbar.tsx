@@ -20,41 +20,7 @@ import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
 import io, { Socket } from "socket.io-client";
 import { getNotifications, updateNotifications, deleteNotification } from "@/services/userApi";
-
-type NotificationCompany = {
-    companyname: string;
-    companyEmail: string;
-    phone: string;
-    profilePicture: string;
-};
-
-type Notification = {
-    roomId: string;
-    companyId: string;
-    companyname: string;
-
-    unreadUserCount: number; // Unread messages for the user
-    unreadCompanyCount: number; // Unread messages for the company
-
-    userLastMessage: string | null; // Last message from the user
-    companyLastMessage: string | null; // Last message from the company
-
-    updatedAt: string;
-
-    user: {
-        name: string;
-        email: string;
-        phone: string;
-        profilePicture: string;
-    };
-
-    company: {
-        companyname: string;
-        companyEmail: string;
-        phone: string;
-        profilePicture: string;
-    };
-};
+import { Company, Notification } from "@/utils/type"
 
 
 
@@ -85,7 +51,8 @@ const Navbar: React.FC = () => {
             }
         };
 
-        fetchNotifications();
+        if (user?._id) fetchNotifications();
+
         // const savedNotifications = localStorage.getItem("notifications");
         // if (savedNotifications) {
         //     setNotifications(JSON.parse(savedNotifications));
@@ -249,7 +216,7 @@ const Navbar: React.FC = () => {
     // "?slots=${encodeURIComponent(JSON.stringify(BookedData?.selectedSlots))}"
     // };
 
-    const deleteNotificationFunc = async (roomId: string, companyDet: NotificationCompany) => {
+    const deleteNotificationFunc = async (roomId: string, companyDet: Company) => {
         try {
             const response = await deleteNotification(roomId, user?._id as string)
             if (response.success) {

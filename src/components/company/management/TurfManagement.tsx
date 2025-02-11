@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Sidebar from "../CompanySidebar";
-import { axiosInstance } from "@/utils/constants";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import Header from "../CompanyHeader";
@@ -12,13 +11,16 @@ import Swal from "sweetalert2";
 import "react-toastify/dist/ReactToastify.css";
 import { TurfDetails } from "@/utils/type";
 import Spinner from "@/components/Spinner";
+import { blockTurf, getTurfs, unbBlockTurf } from "@/services/TurfApis";
 
 
 const TurfManagement: React.FC = () => {
     const router = useRouter()
     const [loading, setLoading] = useState(false);
     const [turfs, setTurfs] = useState<TurfDetails[]>([]);
-    const [spinLoading, setSpinLoading] = useState<boolean>(false)
+    // const [spinLoading, setSpinLoading] = useState<boolean>(false)
+    const [loadingBlock, setLoadingBlock] = useState<Record<string, boolean>>({});
+
     const company = useAppSelector((state) => state.companies);
 
     async function fetchTurfs(companyId: string) {
@@ -26,16 +28,20 @@ const TurfManagement: React.FC = () => {
             console.log("Comapny ID : ", companyId);
 
             setLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/company/get-turfs?companyId=${companyId}`
-            );
+            const response = await getTurfs(companyId)
+            console.log("RESpony by getTurfs :", response);
 
-            if (data?.success) {
+            if (response.success) {
+                const { data } = response
+                console.log("Turf DAta : ", data);
+
                 setTurfs(data.turfs);
             }
-
-        } catch (error) {
-            console.log("Error fetching Turfs [] data:", error);
+        } catch (err: unknown) {
+            console.log("Error fetching Turfs [] data:", err);
+            if (err instanceof Error) {
+                toast.error((err as Error).message || "Something went wrong!");
+            }
         } finally {
             setLoading(false)
         }
@@ -65,16 +71,13 @@ const TurfManagement: React.FC = () => {
                 timerProgressBar: true,
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    setSpinLoading(true);
-                    const { data } = await axiosInstance.patch(
-                        `/api/v1/company/block-turf?turfId=${turfId}`
-                    );
+                    setLoadingBlock((prev) => ({ ...prev, [turfId]: true }));
 
+                    const response = await blockTurf(turfId)
+                    console.log("RESpon of BlockTurf :", response);
 
-                    if (data?.success) {
-                        setSpinLoading(false)
-                        // setSelectedSlot(null)
-                        // fetchSlotsByDay(turf?._id, day)
+                    if (response.success) {
+                        setLoadingBlock((prev) => ({ ...prev, [turfId]: false }));
                         fetchTurfs(company.company?._id as string)
                         Swal.fire({
                             position: "top-end",
@@ -84,7 +87,6 @@ const TurfManagement: React.FC = () => {
                             timer: 2000,
                             toast: true,
                         });
-                        console.log("Response Data :- ", data);
                     }
 
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -99,10 +101,22 @@ const TurfManagement: React.FC = () => {
                 }
             });
 
-        } catch (error) {
-            console.error("Error fetching user data:", error);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.log("Error While Block the Turf :", error);
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: "Error!",
+                    text: error?.message || "Something went wrong. Please try again.",
+                    showConfirmButton: true,
+                    confirmButtonText: "OK",
+                    timer: 3000,
+                    toast: true,
+                });
+            }
         } finally {
-            setSpinLoading(false)
+            setLoadingBlock((prev) => ({ ...prev, [turfId]: false }));
         }
     };
 
@@ -121,24 +135,22 @@ const TurfManagement: React.FC = () => {
                 timerProgressBar: true,
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    setSpinLoading(true);
-                    const { data } = await axiosInstance.patch(
-                        `/api/v1/company/Un-block-turf?turfId=${turfId}`
-                    );
+                    setLoadingBlock((prev) => ({ ...prev, [turfId]: true }));
 
+                    const response = await unbBlockTurf(turfId)
+                    console.log("REspon by unBlOIck turf :", response);
 
-                    if (data?.success) {
-                        setSpinLoading(false)
-                        fetchTurfs(company.company?._id as string)
+                    if (response.success) {
+                        setLoadingBlock((prev) => ({ ...prev, [turfId]: false }));
+                        // fetchTurfs(company.company?._id as string)
                         Swal.fire({
                             position: "top-end",
                             icon: "success",
-                            title: "Turf Blocked successfully ✅",
+                            title: "Turf Un-Blocked successfully ✅",
                             showConfirmButton: false,
                             timer: 2000,
                             toast: true,
                         });
-                        // console.log("Response Data :- ", data);
                     }
 
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -154,9 +166,21 @@ const TurfManagement: React.FC = () => {
             });
 
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            if (error instanceof Error) {
+                console.log("Error While Un-Block the Turf :", error);
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: "Error!",
+                    text: error?.message || "Something went wrong. Please try again.",
+                    showConfirmButton: true,
+                    confirmButtonText: "OK",
+                    timer: 3000,
+                    toast: true,
+                });
+            }
         } finally {
-            setSpinLoading(false)
+            setLoadingBlock((prev) => ({ ...prev, [turfId]: false }));
         }
     };
 
@@ -239,7 +263,7 @@ const TurfManagement: React.FC = () => {
                                                     >
                                                         View Turf
                                                     </button>
-                                                    {spinLoading ? <Spinner /> :
+                                                    {loadingBlock[turf._id] ? <Spinner /> :
                                                         <>
                                                             {/* Block/Unblock Button */}
                                                             {turf.isBlocked ? (

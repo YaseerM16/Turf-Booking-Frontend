@@ -1,6 +1,9 @@
 import Swal from "sweetalert2";
-import { axiosInstance } from "./constants";
+// import { axiosInstance } from "./constants";
 import { toast } from "react-toastify";
+import { axiosInstance } from "@/services/companyApi";
+import { makeSlotAvailableUrl, makeSlotUnAvailableUrl } from "@/services/SlotApis";
+
 
 export const handleSlotAvailability = async (
     action: "available" | "unavailable",
@@ -15,8 +18,8 @@ export const handleSlotAvailability = async (
         const actionText = action === "available" ? "Mark as Available" : "Mark as Unavailable";
         const apiUrl =
             action === "available"
-                ? `/api/v1/company/make-slot-available?slotId=${slotId}&turfId=${turfId}`
-                : `/api/v1/company/make-slot-unavailable?slotId=${slotId}&turfId=${turfId}`;
+                ? makeSlotAvailableUrl(slotId, turfId as string)
+                : makeSlotUnAvailableUrl(slotId, turfId as string)
 
         Swal.fire({
             title: `Are you sure?`,
@@ -33,16 +36,19 @@ export const handleSlotAvailability = async (
             if (result.isConfirmed) {
                 setSpinLoading(true);
                 const { data } = await axiosInstance.get(apiUrl);
+                // console.log("Whole response :", response);
 
                 if (data?.success) {
+                    // const { data } = data
+                    const { updatedSlot } = data.data.updatedSlot
                     setSpinLoading(false);
                     setSelectedSlot(null);
-                    fetchSlotsByDay(turfId as string, day, "reload");
+                    // console.log("Response Data BY the AvailabilityChange ::- ", updatedSlot?.date);
+                    fetchSlotsByDay(turfId as string, day, updatedSlot?.date);
                     toast.success(
                         `Slot ${action === "available" ? "Marked as Available" : "Marked as Unavailable"} successfully ✅`,
                         { onClick: () => setSpinLoading(false) }
                     );
-                    console.log("Response Data :- ", data);
                 }
             } else if (result.dismiss === Swal.DismissReason.cancel) {
                 Swal.fire({

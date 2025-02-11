@@ -5,48 +5,14 @@ import { usePathname, useRouter } from 'next/navigation'; // Import useRouter fr
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { toast, ToastContainer } from 'react-toastify';
 import { logout, setCompany } from '@/store/slices/CompanySlice';
-import { axiosInstance } from '@/utils/constants';
 import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner";
 import { io, Socket } from "socket.io-client";
 import Image from 'next/image';
 import { FiBell } from 'react-icons/fi';
-import { deleteNotification, getNotifications, updateNotifications } from '@/services/companyApi';
+import { companyLogOut, deleteNotification, getNotifications, updateNotifications } from '@/services/companyApi';
+import { Notification, User } from "@/utils/type"
 
-type NotificationUser = {
-    name: string;
-    email: string;
-    phone: string;
-    profilePicture: string;
-};
-
-type Notification = {
-    roomId: string;
-    companyId: string;
-    companyname: string;
-
-    unreadUserCount: number; // Unread messages for the user
-    unreadCompanyCount: number; // Unread messages for the company
-
-    userLastMessage: string | null; // Last message from the user
-    companyLastMessage: string | null; // Last message from the company
-
-    updatedAt: string;
-
-    user: {
-        name: string;
-        email: string;
-        phone: string;
-        profilePicture: string;
-    };
-
-    company: {
-        companyname: string;
-        companyEmail: string;
-        phone: string;
-        profilePicture: string;
-    };
-};
 
 const Sidebar: React.FC = () => {
     const pathname = usePathname();// Get router instance
@@ -194,7 +160,7 @@ const Sidebar: React.FC = () => {
         };
     }, [company?._id]); // Add `user._id` to the dependency array
 
-    const deleteNotificationFunc = async (roomId: string, userDet: NotificationUser) => {
+    const deleteNotificationFunc = async (roomId: string, userDet: User) => {
         try {
             const response = await deleteNotification(roomId, company?._id as string)
             if (response.success) {
@@ -213,14 +179,18 @@ const Sidebar: React.FC = () => {
     const handleLogout = async () => {
         setLoading(true);
         try {
-            const { data } = await axiosInstance.get("/api/v1/company/logout");
-            if (data.loggedOut) {
-                dispatch(logout());
-                localStorage.removeItem("companyAuth");
-                setLoading(false);
-                toast.error("You're Logged Out!", {
-                    onClose: () => router.replace("/company/login"),
-                });
+            // const { data } = await axiosInstance.get("/api/v1/company/logout");
+            const response = await companyLogOut()
+            if (response?.success) {
+                const { data } = response
+                if (data.loggedOut) {
+                    dispatch(logout());
+                    localStorage.removeItem("companyAuth");
+                    setLoading(false);
+                    toast.error("You're Logged Out!", {
+                        onClose: () => router.replace("/company/login"),
+                    });
+                }
             }
         } catch (error) {
             console.error("Error updating profile:", error);

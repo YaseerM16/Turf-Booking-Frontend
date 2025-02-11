@@ -1,12 +1,12 @@
 "use client";
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout, setCompany } from '@/store/slices/CompanySlice';
-import { axiosInstance } from '@/utils/constants';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Spinner from '../Spinner';
 import Image from 'next/image';
+import { companyLogOut } from '@/services/companyApi';
 
 const Header: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -24,14 +24,18 @@ const Header: React.FC = () => {
     const handleLogout = async () => {
         setLoading(true);
         try {
-            const { data } = await axiosInstance.get("/api/v1/company/logout");
-            if (data.loggedOut) {
-                dispatch(logout());
-                localStorage.removeItem("companyAuth");
-                setLoading(false);
-                toast.error("You're Logged Out!", {
-                    onClose: () => router.replace("/company/login"),
-                });
+            // const { data } = await axiosInstance.get("/api/v1/company/logout");
+            const response = await companyLogOut()
+            if (response?.success) {
+                const { data } = response
+                if (data.loggedOut) {
+                    dispatch(logout());
+                    localStorage.removeItem("companyAuth");
+                    setLoading(false);
+                    toast.error("You're Logged Out!", {
+                        onClose: () => router.replace("/company/login"),
+                    });
+                }
             }
         } catch (error) {
             console.error("Error updating profile:", error);

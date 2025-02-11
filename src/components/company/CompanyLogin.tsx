@@ -51,11 +51,10 @@ const CompanyLoginForm: React.FC = () => {
                 }
             }
         } catch (err: unknown) {
-            toast.error((err as Error).message || "Something went wrong!");
-            // if (err instanceof Error) {
-            //     const apiError = err as APIError
-            //     toast.error(apiError?.response?.data?.error || "Something went wrong!");
-            // }
+            if (err instanceof Error) {
+                toast.error((err as Error).message || "Something went wrong!");
+            }
+        } finally {
             setLoading(false);
         }
     };

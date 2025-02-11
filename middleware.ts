@@ -111,5 +111,7 @@ export const config = {
         "/company/register-turf",
         "/company/turf-management",
         "/company/slot-management",
+        "/company/profile",
+        "/company/messages",
     ],
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { axiosInstance, daysOrder } from "@/utils/constants";
+import { daysOrder } from "@/utils/constants";
 import { TurfData, SlotDetails } from "@/utils/type";
 import SlotDetailsComponent from "./SlotDetailsComponent";
 import { RRule, RRuleSet } from 'rrule';
@@ -14,6 +14,7 @@ import { mapDayIndexToRRuleDay } from "@/utils/dateUtils";
 import { handleSlotAvailability } from "@/utils/companyUtilities";
 import "react-toastify/dist/ReactToastify.css";
 import "react-calendar/dist/Calendar.css";
+import { getSlotsByDay } from "@/services/SlotApis";
 
 export interface WorkingSlots {
     fromTime: string;
@@ -103,7 +104,7 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
                         const day = date.toLocaleString('en-US', { weekday: 'long' });
                         return date < startOfToday || !(workingDaysArray || []).includes(day);
                     }}
-                    value={selectedDay ? new Date(selectedDay) : null} // Highlight selected day
+                    // value={selectedDay ? new Date(selectedDay) : null} // Highlight selected day
                     minDate={startOfMonth} // Allow navigation only from the start of the current month
                     maxDate={endOfRange} // Restrict navigation to the `toDate` from `generatedSlots`
                     view="month" // Keep the calendar in month view
@@ -121,12 +122,12 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
             // console.log("turfID :", turfId);
             // console.log("day & date :", day, date)
             setLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/company/get-slots-by-day?turfId=${turfId}&day=${day}&date=${date}`
-            );
-            // console.log("DATA REspone of fetSlotByday :", data);
+            const response = await getSlotsByDay(turfId, day, date)
+            // console.log("REspone got raw of fetSlotByday :", response);
 
-            if (data?.success) {
+            if (response?.success) {
+                // console.log("Res got successfylly of fetSlotByday :", response);
+                const { data } = response
                 setDate(data.slots[0]?.date || "");
                 // memoizedSlots[day] = data.slots;
                 setSelectedDay(day);

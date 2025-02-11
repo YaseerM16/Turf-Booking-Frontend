@@ -276,7 +276,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
         if (queries?.roomId) {
             fetchChatMessages(queries.roomId, queries.company)
         }
-    }, [user?._id, fetchChats, fetchChatMessages]);
+    }, [user?._id, fetchChats, fetchChatMessages, searchParams]);
 
     useEffect(() => {
 

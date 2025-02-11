@@ -178,20 +178,20 @@ export type Message = {
 };
 
 
-type NotificationUser = {
-    name: string;
-    email: string;
-    phone: string;
-    profilePicture: string;
-};
-
-type NotificationRoom = {
+export type Notification = {
     roomId: string;
-    companyName: string;
-    unreadCount: number;
-    lastMessage: string | null;
-    updatedAt: string;
-    user: NotificationUser;
-};
+    companyId: string;
+    companyname: string;
 
-export type Notifications = Record<string, NotificationRoom>;
+    unreadUserCount: number; // Unread messages for the user
+    unreadCompanyCount: number; // Unread messages for the company
+
+    userLastMessage: string | null; // Last message from the user
+    companyLastMessage: string | null; // Last message from the company
+
+    updatedAt: string;
+
+    user: User
+
+    company: Company
+};
