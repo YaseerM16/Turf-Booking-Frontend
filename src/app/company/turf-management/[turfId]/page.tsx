@@ -6,6 +6,8 @@ import { axiosInstance } from '@/utils/constants';
 import TurfDetailsForm from '@/components/company/management/turf-management/TurfDetailsForm';
 import FireLoading from '@/components/FireLoading';
 import { TurfData } from '@/utils/type';
+import Sidebar from '@/components/company/CompanySidebar';
+import Header from '@/components/company/CompanyHeader';
 
 
 export default function TurfDetails() {
@@ -39,7 +41,15 @@ export default function TurfDetails() {
 
     return (
         <div>
-            {loading ? <FireLoading renders={'Fetching Turf Details...'} /> : <TurfDetailsForm turf={turf} />}
+            <div className="flex h-screen">
+                <Sidebar />
+
+                <div className="flex-1 flex flex-col">
+                    <Header />
+                    {loading ? <FireLoading renders={'Fetching Turf Details...'} /> : <TurfDetailsForm turf={turf} />}
+                </div>
+            </div>
+
         </div>
     );
 }

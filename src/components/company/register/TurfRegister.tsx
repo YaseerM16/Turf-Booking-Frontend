@@ -3,13 +3,15 @@ import React, { useState } from "react";
 import TurfRegisterForm from "./TurfRegisterForm";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { axiosInstance, FormSubmitted } from "@/utils/constants";
+import { FormSubmitted } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 import FireLoading from "@/components/FireLoading";
 import { useAppSelector } from "@/store/hooks";
 import Header from "../CompanyHeader";
 import Sidebar from "../CompanySidebar";
 import { APIError } from "@/utils/type";
+import { registerTurf } from "@/services/TurfApis";
+
 
 
 const TurfRegister: React.FC = () => {
@@ -55,15 +57,11 @@ const TurfRegister: React.FC = () => {
 
             setLoading(true);
 
-            const { data } = await axiosInstance.post("/api/v1/company/register-turf", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            const response = await registerTurf(formData)
 
-            console.log("Response Data:", data);
-
-            if (data?.success) {
+            if (response?.success) {
+                const { data } = response
+                console.log("Response Data:", data);
                 setLoading(false);
                 toast.success("Turf Registered successfully!");
                 setTimeout(() => router.replace("/company/turf-management"), 1500);

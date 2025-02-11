@@ -1,6 +1,5 @@
 "use client";
 import React, { useCallback, useEffect, useState } from "react";
-import { axiosInstance } from "@/utils/constants";
 import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import FireLoading from "@/components/FireLoading";
@@ -8,6 +7,8 @@ import Sidebar from "../../CompanySidebar";
 import Header from "../../CompanyHeader";
 import { TurfDetails } from "@/utils/type"
 import Image from "next/image";
+import { getTurfs } from "@/services/TurfApis";
+
 
 const SlotTurfList: React.FC = () => {
     const router = useRouter()
@@ -20,11 +21,9 @@ const SlotTurfList: React.FC = () => {
     const fetchTurfs = useCallback(async () => {
         try {
             setLoading(true);
-            const { data } = await axiosInstance.get(
-                `/api/v1/company/get-turfs?companyId=${company?._id}`
-            );
-
-            if (data?.success) {
+            const response = await getTurfs(company?._id as string)
+            if (response?.success) {
+                const { data } = response
                 setTurfs(data.turfs);
                 setLoading(false)
             }

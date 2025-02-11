@@ -8,15 +8,29 @@ export const axiosInstance = axios.create({
     withCredentials: true,
 });
 
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+        // console.error("API Error:", error.response?.data || error.message);
+
+        if (error.response?.status === 403) {
+            window.location.href = "/company/login";
+        }
+
+        return Promise.reject(error);
+    })
+
+
 
 /////////////   Auth   //////////////
 
 export const companyRegisterApi = async (registerData: RegisterData) => {
     try {
         const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/auth/register`, registerData);
+        console.log("RESpone of companyRegisterApi in api:", response);
         return response.data;
     } catch (error: unknown) {
-        // console.log("Error in CmpRegApi :", error);
+        console.log("Error in CmpRegApi error:", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
@@ -35,28 +49,106 @@ export const companyLoginApi = async (loginData: LoginData) => {
     }
 };
 
-
-
-//////////////////// SLOT /////////////////////
-
-export const getDetailsOfDayApi = async (turfId: string, day: string) => {
+export const companyLogOut = async () => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-details-by-day/${turfId}/${day}`);
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/logout`);
         return response.data;
     } catch (error: unknown) {
-        // console.log("Error in CmpRegApi :", error);
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+// get("/api/v1/company/auth/verifymail", { params: { type, token, email }, })
+export const companyVerifyMail = async (type: string, token: string, email: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/auth/verifymail`, { params: { type, token, email } });
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
     }
 };
 
-export const editWorkingDayDetails = async (turfId: string, updates: object) => {
+
+
+
+////    Profile    ////
+
+export const eidtProfileDets = async (companyId: string, updates: object) => {
     try {
-        const response = await axiosInstance.patch(`${BACKEND_COMPANY_URL}/edit-day-details/${turfId}`, updates);
+        const response = await axiosInstance.patch(`${BACKEND_COMPANY_URL}/profile/update-details/${companyId}`, updates);
         return response.data;
     } catch (error: unknown) {
-        console.log("Edit WordJay Error !:! :", error);
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+// `/api/v1/company/profile/upload-image/${company.company?._id}`,
+
+export const uploadProfileImg = async (companyId: string, formData: FormData) => {
+    try {
+        const response = await axiosInstance.patch(`${BACKEND_COMPANY_URL}/profile/upload-image/${companyId}`, formData);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+
+
+//////////////   DASHSBoadrd   //////////////
+
+export const companyDashboardData = async (companyId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-dashboard-data/${companyId}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const getMonthlyRevenue = async (companyId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-monthly-revenue/${companyId}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const getRevenueByRange = async (companyId: string, fromDate: Date, toDate: Date) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-revenue-by-range/${companyId}?fromDate=${fromDate}&toDate=${toDate}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const getRevenuesOfTurf = async (companyId: string, turfId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-turf-overallRevenue/${companyId}/${turfId}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }

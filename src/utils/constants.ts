@@ -1,5 +1,6 @@
 import axios from "axios";
-
+// import { NextArrow, PrevArrow } from "./Arrows";
+// import { NextArrow, PrevArrow } from "@/components/Arrows"; // ✅ Adjust the import path if needed
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
     withCredentials: true,
@@ -133,3 +134,6 @@ export interface BookingDetails {
         selectedSlots: SlotDetails[];
     };
 }
+
+
+

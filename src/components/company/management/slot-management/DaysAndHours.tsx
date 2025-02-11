@@ -1,6 +1,7 @@
 import Spinner from "@/components/Spinner";
-import { editWorkingDayDetails, getDetailsOfDayApi } from "@/services/companyApi";
-import { axiosInstance, daysOrder } from "@/utils/constants";
+import { addWorkingDays, editWorkingDayDetails, getDetailsOfDayApi } from "@/services/SlotApis";
+// import { editWorkingDayDetails, getDetailsOfDayApi } from "@/services/companyApi";
+import { daysOrder } from "@/utils/constants";
 import { TurfData } from "@/utils/type";
 import { useState } from "react";
 import { FaPlus, FaTimes } from "react-icons/fa";
@@ -116,14 +117,11 @@ const WorkingDaysManagement: React.FC<{ turf: TurfData, workingDaysArr: string[]
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     setSpinLoading(true);
-                    const { data } = await axiosInstance.patch(
-                        `/api/v1/company/${turfId}/add-working-days`, payload
-                    );
 
-                    console.log("Comone DATA :", data);
+                    const response = await addWorkingDays(turfId as string, payload)
 
-
-                    if (data?.success) {
+                    if (response?.success) {
+                        const { data } = response
                         console.log("DAta inside IF STATE :", data);
 
                         setSpinLoading(false)

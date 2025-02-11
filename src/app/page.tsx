@@ -56,7 +56,7 @@ export default function Home() {
             {["Koval Arena", "Nut Meg", "Koval Arena", "Nut Meg"].map((turf, index) => (
               <div key={index} className="shadow-lg rounded-lg overflow-hidden bg-white">
                 <Image
-                  src={`/turfs/turf-${index + 1}.jpg`}
+                  src={`/logo.jpeg`}
                   alt={turf}
                   width={500} // Replace with actual width
                   height={200} // Replace with actual height

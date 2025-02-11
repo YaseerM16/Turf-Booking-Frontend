@@ -62,9 +62,11 @@ const CompanyRegistration: React.FC = () => {
             //     "/api/v1/company/auth/register",
             //     formDataWithLocation
             // );
-            const data = await companyRegisterApi(formDataWithLocation)
+            const response = await companyRegisterApi(formDataWithLocation)
             // Debugging line
-            if (data?.success) {
+            if (response?.success) {
+                // console.log("log ins");
+
                 setLoading(false)
                 Swal.fire({
                     icon: "success",
