@@ -38,7 +38,7 @@ const Sidebar: React.FC = () => {
 
         const fetchNotifications = async () => {
             try {
-                const response = await getNotifications(company?._id as string)
+                const response = await getNotifications(company?._id as string, "company")
                 if (response.success) {
                     const { data } = response
                     console.log("REsPonsE of DB notifY :: ", data.notifications);
@@ -110,7 +110,7 @@ const Sidebar: React.FC = () => {
 
             const saveNotifications = async () => {
                 try {
-                    const response = await updateNotifications(newNotification)
+                    const response = await updateNotifications(newNotification, "company")
                     if (response.success) {
                         const { data } = response
                         console.log("DATA BY SaveNotified :: ", data);
@@ -162,7 +162,7 @@ const Sidebar: React.FC = () => {
 
     const deleteNotificationFunc = async (roomId: string, userDet: User) => {
         try {
-            const response = await deleteNotification(roomId, company?._id as string)
+            const response = await deleteNotification(roomId, company?._id as string, "company")
             if (response.success) {
                 console.log("RESponse by DelNotify :: ", response);
                 router.push(`/company/messages?roomId=${encodeURIComponent(JSON.stringify(roomId))}&user=${encodeURIComponent(JSON.stringify(userDet))}`);

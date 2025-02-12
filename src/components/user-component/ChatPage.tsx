@@ -155,7 +155,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                 setLoadMsgs(false)
                 const { data } = response
                 // console.log("Updated Chat :", data.messages.chat)
-                const isNotifiyDeleted = await deleteNotification(roomId, user?._id as string)
+                const isNotifiyDeleted = await deleteNotification(roomId, user?._id as string, "user")
                 if (isNotifiyDeleted.success) {
                     console.log("RESponse by DelNotify :: ", response);
                     setMessages(data.messages.messages)
@@ -397,7 +397,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
 
             const saveNotifications = async () => {
                 try {
-                    const response = await updateNotifications(newNotification)
+                    const response = await updateNotifications(newNotification, "user")
                     if (response.success) {
                         const { data } = response
                         console.log("DATA BY SaveNotified :: ", data);

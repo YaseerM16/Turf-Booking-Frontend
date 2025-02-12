@@ -19,7 +19,7 @@ import Spinner from "./Spinner";
 import Image from "next/image";
 import "react-toastify/dist/ReactToastify.css";
 import io, { Socket } from "socket.io-client";
-import { getNotifications, updateNotifications, deleteNotification } from "@/services/userApi";
+import { updateNotifications, deleteNotification, getNotifications } from "@/services/userApi";
 import { Company, Notification } from "@/utils/type"
 
 
@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
         // Load notifications from localStorage when the component mounts
         const fetchNotifications = async () => {
             try {
-                const response = await getNotifications(user?._id as string)
+                const response = await getNotifications(user?._id as string, "user")
                 if (response.success) {
                     const { data } = response
                     console.log("REsPonsE of DB notifY :: ", data.notifications);
@@ -107,7 +107,7 @@ const Navbar: React.FC = () => {
 
             const saveNotifications = async () => {
                 try {
-                    const response = await updateNotifications(newNotification)
+                    const response = await updateNotifications(newNotification, "user")
                     if (response.success) {
                         const { data } = response
                         console.log("DATA BY SaveNotified :: ", data);
@@ -218,7 +218,7 @@ const Navbar: React.FC = () => {
 
     const deleteNotificationFunc = async (roomId: string, companyDet: Company) => {
         try {
-            const response = await deleteNotification(roomId, user?._id as string)
+            const response = await deleteNotification(roomId, user?._id as string, "user")
             if (response.success) {
                 console.log("RESponse by DelNotify :: ", response);
                 router.push(`/messages?roomId=${encodeURIComponent(JSON.stringify(roomId))}&company=${encodeURIComponent(JSON.stringify(companyDet))}`);

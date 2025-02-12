@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 // import { NextArrow, PrevArrow } from "./Arrows";
 // import { NextArrow, PrevArrow } from "@/components/Arrows"; // ✅ Adjust the import path if needed
 export const axiosInstance = axios.create({
@@ -6,10 +6,24 @@ export const axiosInstance = axios.create({
     withCredentials: true,
 });
 
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+        console.error("API Error:", error.response?.data || error.message);
+
+        if (error.response?.status === 401) {
+            window.location.href = "/login";
+        }
+
+        return Promise.reject(error);
+    })
+
 
 export const SERVER_USER_URL = `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/v1/user`
 export const SERVER_COMPANY_URL = `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/v1/company`
 export const SERVER_ADMIN_URL = `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/v1/admin`
+export const SERVER_NOTIFICATION_URL = `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/v1/notification`
+
 
 export const APIKEY = process.env.NEXT_PUBLIC_APIKEY
 export const AUTH_DOMAIN = process.env.NEXT_PUBLIC_AUTH_DOMAIN
@@ -55,6 +69,7 @@ export const PayU = {
 export const FRONTEND_DOMAIN = "http://localhost:3000";
 export const BACKEND_USER_URL = "/api/v1/user"
 export const BACKEND_COMPANY_URL = "/api/v1/company"
+export const BACKEND_NOTIFICATION_URL = "/api/v1/notification"
 
 export type BookedData = {
     amount?: number; // Amount, default is 0
