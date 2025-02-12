@@ -305,9 +305,9 @@ export const messageDeleteForMe = async (messageId: string) => {
 
 ////// notificaitions //////
 
-export const getNotifications = async (userId: string) => {
+export const getNotifications = async (id: string, type: string) => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-notifications/${userId}`)
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-notifications/${id}?type=${type}`)
         return response.data
     } catch (error) {
         console.log("ERRor while GetMessagesAPi ::: ", error);
@@ -317,9 +317,9 @@ export const getNotifications = async (userId: string) => {
     }
 }
 
-export const updateNotifications = async (data: object) => {
+export const updateNotifications = async (data: object, type: string) => {
     try {
-        const response = await axiosInstance.post(`${BACKEND_USER_URL}/update-notifications`, data)
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/update-notifications?type=${type}`, data)
         return response.data
     } catch (error) {
         console.log("ERRor while upDAte NOtification ::: ", error);
@@ -329,9 +329,9 @@ export const updateNotifications = async (data: object) => {
     }
 }
 
-export const deleteNotification = async (roomId: string, userId: string) => {
+export const deleteNotification = async (roomId: string, userId: string, type: string) => {
     try {
-        const response = await axiosInstance.delete(`${BACKEND_USER_URL}/delete-notification/${roomId}/${userId}`)
+        const response = await axiosInstance.delete(`${BACKEND_USER_URL}/delete-notification/${roomId}/${userId}/?type=${type}`)
         return response.data
     } catch (error) {
         console.log("ERRor while GetMessagesAPi ::: ", error);

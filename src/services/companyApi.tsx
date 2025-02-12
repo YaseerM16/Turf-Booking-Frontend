@@ -198,9 +198,9 @@ export const onSendMessage = async (companyId: string, userId: string, data: obj
 
 ////// notificaitions //////
 
-export const getNotifications = async (companyId: string) => {
+export const getNotifications = async (id: string, type: string) => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-notifications/${companyId}`)
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-notifications/${id}?type=${type}`)
         return response.data
     } catch (error) {
         console.log("ERRor while GetMessagesAPi ::: ", error);
@@ -210,9 +210,9 @@ export const getNotifications = async (companyId: string) => {
     }
 }
 
-export const updateNotifications = async (data: object) => {
+export const updateNotifications = async (data: object, type: string) => {
     try {
-        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/update-notifications`, data)
+        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/update-notifications?type=${type}`, data)
         return response.data
     } catch (error) {
         console.log("ERRor while upDAte NOtification ::: ", error);
@@ -222,9 +222,9 @@ export const updateNotifications = async (data: object) => {
     }
 }
 
-export const deleteNotification = async (roomId: string, companyId: string) => {
+export const deleteNotification = async (roomId: string, companyId: string, type: string) => {
     try {
-        const response = await axiosInstance.delete(`${BACKEND_COMPANY_URL}/delete-notification/${roomId}/${companyId}`)
+        const response = await axiosInstance.delete(`${BACKEND_COMPANY_URL}/delete-notification/${roomId}/${companyId}/?type=${type}`)
         return response.data
     } catch (error) {
         console.log("ERRor while GetMessagesAPi ::: ", error);

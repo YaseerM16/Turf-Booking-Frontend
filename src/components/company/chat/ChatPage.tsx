@@ -82,23 +82,6 @@ const CompanyChatPage: React.FC = () => {
         }
     };
 
-
-    const queries = (() => {
-        const roomId = searchParams?.get("roomId");
-        const user = searchParams?.get("user");
-        if (!roomId) return null;
-        if (!user) return null;
-
-        try {
-            const decodedDets = decodeURIComponent(roomId);
-            const userDets = decodeURIComponent(user)
-            return { roomId: JSON.parse(decodedDets) as string, user: JSON.parse(userDets) }
-        } catch (error) {
-            console.error("Failed to parse roomId :", error);
-            return null;
-        }
-    })();
-
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -141,7 +124,7 @@ const CompanyChatPage: React.FC = () => {
             if (response.success) {
                 setLoadMsgs(false)
                 const { data } = response
-                const isNotifiyDeleted = await deleteNotification(roomId, company?._id as string)
+                const isNotifiyDeleted = await deleteNotification(roomId, company?._id as string, "company")
                 if (isNotifiyDeleted.success) {
                     console.log("UpdateDD CHat :", data.messages.chat);
                     setMessages(data.messages.messages)
@@ -176,10 +159,25 @@ const CompanyChatPage: React.FC = () => {
         if (company?._id) {
             fetchChats();
         }
+        const queries = (() => {
+            const roomId = searchParams?.get("roomId");
+            const user = searchParams?.get("user");
+            if (!roomId) return null;
+            if (!user) return null;
+
+            try {
+                const decodedDets = decodeURIComponent(roomId);
+                const userDets = decodeURIComponent(user)
+                return { roomId: JSON.parse(decodedDets) as string, user: JSON.parse(userDets) }
+            } catch (error) {
+                console.error("Failed to parse roomId :", error);
+                return null;
+            }
+        })();
         if (queries?.roomId) {
             fetchChatMessages(queries.roomId, queries.user)
         }
-    }, [company?._id, fetchChats, fetchChatMessages, queries?.roomId, queries?.user]);
+    }, [company?._id, fetchChats, fetchChatMessages, searchParams]);
 
     useEffect(() => {
         // console.log("SOCKET Initial");
@@ -298,7 +296,7 @@ const CompanyChatPage: React.FC = () => {
 
             const saveNotifications = async () => {
                 try {
-                    const response = await updateNotifications(newNotification)
+                    const response = await updateNotifications(newNotification, "company")
                     if (response.success) {
                         const { data } = response
                         console.log("DATA BY SaveNotified :: ", data);
