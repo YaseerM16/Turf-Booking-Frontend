@@ -133,7 +133,7 @@ export const getMonthlyRevenue = async (companyId: string) => {
 
 export const getRevenueByRange = async (companyId: string, fromDate: Date, toDate: Date) => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-revenue-by-range/${companyId}?fromDate=${fromDate}&toDate=${toDate}`);
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-revenue-by-range/${companyId}/?fromDate=${fromDate}&toDate=${toDate}`);
         return response.data;
     } catch (error: unknown) {
         console.log("Error in CmpLogApi :", error);
