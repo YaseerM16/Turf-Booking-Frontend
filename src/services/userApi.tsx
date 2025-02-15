@@ -340,3 +340,19 @@ export const deleteNotification = async (roomId: string, userId: string, type: s
         }
     }
 }
+
+
+
+//// SUBcription ////
+
+export const getSubcriptionPlans = async (page: number, limit: number) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-subscription-plans?page=${page}&limit=${limit}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in addSubcripitonApi error:", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};

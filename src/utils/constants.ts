@@ -69,6 +69,7 @@ export const PayU = {
 export const FRONTEND_DOMAIN = "http://localhost:3000";
 export const BACKEND_USER_URL = "/api/v1/user"
 export const BACKEND_COMPANY_URL = "/api/v1/company"
+export const BACKEND_ADMIN_URL = "/api/v1/admin"
 export const BACKEND_NOTIFICATION_URL = "/api/v1/notification"
 
 export type BookedData = {

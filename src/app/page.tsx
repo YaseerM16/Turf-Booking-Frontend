@@ -3,9 +3,17 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getSubcriptionPlans } from "@/services/userApi";
+import Swal from "sweetalert2";
+import { SubscriptionPlan, SubscriptionPlans } from "@/components/SubscriptionSwiper";
 
 export default function Home() {
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPlans, setTotalPlans] = useState<number | null>(10);
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+
+  const plansPerPage = 6
 
   useEffect(() => {
     const token = Cookies.get("token");
@@ -14,6 +22,39 @@ export default function Home() {
       localStorage.removeItem("auth");
     }
   }, []); // This runs only on the client side
+  const fetchPlans = async () => {
+
+    try {
+      const response = await getSubcriptionPlans(currentPage, plansPerPage)
+      if (response.success) {
+        const { data } = response
+        console.log("THsi are all the PLANs toTAL :", data.plans.totalPlans);
+        setPlans(data.plans.plans);
+        setTotalPlans(prev => (prev !== Math.ceil(data.plans.totalPlans / plansPerPage) ? Math.ceil(data.plans.totalPlans / plansPerPage) : prev));
+      }
+    } catch (err: unknown) {
+      console.log("THIs is the FetchPlans err :", err);
+      if (err instanceof Error) {
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: "Error!",
+          text: err?.message || "Something went wrong. Please try again.",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+          timer: 3000,
+          toast: true,
+        });
+      }
+    }
+  };
+  useEffect(() => {
+    fetchPlans();
+  }, [currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
@@ -75,6 +116,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <SubscriptionPlans plans={plans} />
+
 
       {/* Footer */}
       {/* import Link from "next/link"; */}

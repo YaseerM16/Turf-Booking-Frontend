@@ -113,7 +113,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
             if (response.success) {
                 const { data } = response
                 if (data.walletBalance.isSufficient) {
-                    setWalletPay(true)
+                    setWalletPay(prev => !prev)
                 } else {
                     Swal.fire({
                         icon: 'error',
