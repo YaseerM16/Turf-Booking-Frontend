@@ -195,3 +195,13 @@ export type Notification = {
 
     company: Company
 };
+
+
+export interface SubscriptionPlan {
+    _id: string;
+    name: string;
+    duration: string;
+    discount?: number;
+    price: number;
+    description?: string;
+}

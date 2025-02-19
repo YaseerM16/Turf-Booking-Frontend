@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import Sidebar from "../SideBar";
 import { addSubcriptionPlan, deleteSubcriptionPlan, getSubcriptionPlans, updateSubcriptionPlan } from "@/services/adminApi";
 import Swal from "sweetalert2";
@@ -42,7 +41,7 @@ const Subscription = () => {
     console.log("TotalPlan state :", totalPlans);
 
 
-    const fetchPlans = async () => {
+    const fetchPlans = useCallback(async () => {
         try {
             const response = await getSubcriptionPlans(currentPage, plansPerPage)
             if (response.success) {
@@ -66,10 +65,10 @@ const Subscription = () => {
                 });
             }
         }
-    };
+    }, [currentPage])
     useEffect(() => {
         fetchPlans();
-    }, [currentPage]);
+    }, [fetchPlans]);
 
     const handleAddSubscription = useCallback(async (plan: SubscriptionFormData) => {
         try {

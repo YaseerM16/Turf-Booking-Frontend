@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -8,32 +10,25 @@ import { Dialog } from "@headlessui/react";
 import { FaWallet } from "react-icons/fa";
 import { SiPyup } from "react-icons/si";
 import Swal from "sweetalert2";
-import { getWalletBalanceApi } from "@/services/userApi";
-import { User } from "@/utils/type";
+import { getWalletBalanceApi, subscribeByWalletPay } from "@/services/userApi";
+import { SubscriptionPlan } from "@/utils/type";
 import { useAppSelector } from "@/store/hooks";
-import { useRouter } from "next/navigation";
 
-export interface SubscriptionPlan {
-    _id: string;
-    name: string;
-    duration: string;
-    discount?: number;
-    price: number;
-    description?: string;
-}
+
+
 
 export const SubscriptionPlans = ({ plans }: { plans: SubscriptionPlan[] }) => {
     const userDet = useAppSelector(state => state.users.user)
-    const router = useRouter()
+    // const router = useRouter()
 
     const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
     const [selectedPayment, setSelectedPayment] = useState("");
     const [walletPay, setWalletPay] = useState<boolean>(false)
-    const userLogged: User | null = JSON.parse(localStorage.getItem("auth") as string)
+    // const userLogged: User | null = JSON.parse(localStorage.getItem("auth") as string)
 
     const handleProceedToBooking = (plan: SubscriptionPlan) => {
-        if (userLogged) {
-            if (userLogged?.isVerified) {
+        if (userDet) {
+            if (userDet?.isVerified) {
                 // setShowSummary(true); // Show the summary
                 setSelectedPlan(plan)
 
@@ -105,10 +100,15 @@ export const SubscriptionPlans = ({ plans }: { plans: SubscriptionPlan[] }) => {
     }
     const handleWalletPayment = async () => {
         try {
-            const response: any = { sucess: true }
+
+            console.log("Thisi the hnadleWallyet poypo ", selectedPayment, selectedPlan, userDet?._id);
+            if (!selectedPlan) {
+                return console.log("selectePlan is not getting befor the api ..!");
+            }
+            const response = await subscribeByWalletPay(userDet?._id as string, selectedPlan)
 
             if (response.success) {
-                const { data } = response
+                // const { data } = response
                 Swal.fire({
                     icon: 'success',
                     title: 'Booking Confirmed!',
@@ -116,8 +116,9 @@ export const SubscriptionPlans = ({ plans }: { plans: SubscriptionPlan[] }) => {
                     confirmButtonText: 'OK',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        router.replace(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`)
-                        console.log("Booking successful!", data.isBookingCompleted)
+                        alert("Subscribed to the plan ")
+                        // router.replace(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`)
+                        // console.log("Booking successful!", data.isBookingCompleted)
                         // Add any additional actions after confirmation, like redirecting or updating UI
                         // redirect(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`);
 

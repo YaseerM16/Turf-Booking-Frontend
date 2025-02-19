@@ -66,8 +66,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const CompanyDashboard: React.FC = () => {
     const company = useAppSelector((state) => state.companies.company);
     const [searchQuery, setSearchQuery] = useState<string>("");
-    const [loadingDash, setLoadingDash] = useState<boolean>(false);
-    const [loadingTurfs, setLoadingTurfs] = useState<boolean>(false);
+    // const [loadingDash, setLoadingDash] = useState<boolean>(false);
+    // const [loadingTurfs, setLoadingTurfs] = useState<boolean>(false);
     // console.log("loadin trfs :", loadingDash);
     // console.log("loadin trfs :", loadingTurfs);
 
@@ -89,12 +89,10 @@ const CompanyDashboard: React.FC = () => {
     const [monthlyRevenue, setMonthlyRevenue] = useState<{ month: string, revenue: number }[]>([])
     const [rangeRenvenue, setRangeRevenue] = useState<{ date: string, revenue: number }[]>([])
     const [filter, setFilter] = useState<string>("7days");
-    const [turfFilter, setTurfFilter] = useState<string>("7days");
+    // const [turfFilter, setTurfFilter] = useState<string>("7days");
     const [fromDate, setFromDate] = useState<Date | null>(null);
     const [toDate, setToDate] = useState<Date | null>(null);
-    // console.log("FromDAte :", fromDate);
-    // console.log("RoDate :", toDate);
-    // console.log("Turfs :", turfs);
+    // setTurfFilter("7days")
     const [selectedTurf, setSelectedTurf] = useState<null | TurfDetails>(null);
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -106,7 +104,7 @@ const CompanyDashboard: React.FC = () => {
 
     const fetchTurfRevenue = useCallback(async (companyId: string, turfId: string) => {
         try {
-            setLoadingDash(true);
+            // setLoadingDash(true);
             const response = await getRevenuesOfTurf(companyId, turfId);
             if (response?.success) {
                 const { data } = response
@@ -124,7 +122,7 @@ const CompanyDashboard: React.FC = () => {
                 // console.log("found TUrf :", turfs);
                 const turf = turfs.find(turf => turf._id == turfId)
                 setSelectedTurf(turf || null);
-                setLoadingDash(false)
+                // setLoadingDash(false)
             }
         } catch (err: unknown) {
             console.log("Error while Got the COmpanyDashBoard :", err);
@@ -141,7 +139,7 @@ const CompanyDashboard: React.FC = () => {
                 });
             }
         } finally {
-            setLoadingDash(false)
+            // setLoadingDash(false)
         }
     }, [turfs])
 
@@ -150,7 +148,7 @@ const CompanyDashboard: React.FC = () => {
 
     const getDashboardData = useCallback(async (companyId: string) => {
         try {
-            setLoadingDash(true);
+            // setLoadingDash(true);
             const response = await companyDashboardData(companyId);
             if (response?.success) {
                 const { data } = response
@@ -162,7 +160,7 @@ const CompanyDashboard: React.FC = () => {
                     totalRevenue: dashboardData.totalRevenue || 0,
                     upcomingBookings: dashboardData.upcomingBookings || 0,
                 });
-                setLoadingDash(false)
+                // setLoadingDash(false)
             }
         } catch (err: unknown) {
             console.log("Error while Got the COmpanyDashBoard :", err);
@@ -179,20 +177,20 @@ const CompanyDashboard: React.FC = () => {
                 });
             }
         } finally {
-            setLoadingDash(false)
+            // setLoadingDash(false)
         }
     }, [])
 
     const getMonthlyData = useCallback(async (companyId: string) => {
         try {
-            setLoadingDash(true);
+            // setLoadingDash(true);
             const response = await getMonthlyRevenue(companyId);
             if (response?.success) {
                 const { data } = response
                 const { monthlyRevenue } = data
                 setMonthlyRevenue(monthlyRevenue)
                 setFilter("month");
-                setLoadingDash(false)
+                // setLoadingDash(false)
             }
         } catch (err: unknown) {
             console.log("Error while Got the COmpanyDashBoard :", err);
@@ -209,7 +207,7 @@ const CompanyDashboard: React.FC = () => {
                 });
             }
         } finally {
-            setLoadingDash(false)
+            // setLoadingDash(false)
         }
     }, [])
 
@@ -217,13 +215,13 @@ const CompanyDashboard: React.FC = () => {
         try {
             console.log("Comapny ID : ", companyId);
 
-            setLoadingTurfs(true);
+            // setLoadingTurfs(true);
             const response = await getTurfs(companyId)
 
             if (response.success) {
                 const { data } = response
                 setTurfs(data.turfs);
-                setLoadingTurfs(false)
+                // setLoadingTurfs(false)
             }
         } catch (err: unknown) {
             console.log("Error fetching Turfs [] data:", err);
@@ -240,7 +238,7 @@ const CompanyDashboard: React.FC = () => {
                 });
             }
         } finally {
-            setLoadingTurfs(false)
+            // setLoadingTurfs(false)
         }
     }, [])
 
@@ -253,7 +251,7 @@ const CompanyDashboard: React.FC = () => {
                 return
             }
 
-            setLoadingTurfs(true);
+            // setLoadingTurfs(true);
             const response = await getRevenueByRange(companyId, fromDate, toDate)
 
             if (response?.success) {
@@ -279,7 +277,7 @@ const CompanyDashboard: React.FC = () => {
                 });
             }
         } finally {
-            setLoadingTurfs(false)
+            // setLoadingTurfs(false)
         }
     }, [fromDate, toDate])
 
@@ -304,16 +302,17 @@ const CompanyDashboard: React.FC = () => {
     };
 
     const turfFilteredRevenue = () => {
-        if (turfFilter === "7days") {
-            return turfData.last7DaysRevenue;
-        }
-        if (turfFilter === "month") {
-            return monthlyRevenue;  // Use monthlyRevenue here
-        }
-        if (turfFilter === "range") {
-            return rangeRenvenue;  // Use monthlyRevenue here
-        }
-        return dashboardData.last7DaysRevenue;
+        return turfData.last7DaysRevenue;
+        // if (turfFilter === "7days") {
+        //     return turfData.last7DaysRevenue;
+        // }
+        // if (turfFilter === "month") {
+        //     return monthlyRevenue;  // Use monthlyRevenue here
+        // }
+        // if (turfFilter === "range") {
+        //     return rangeRenvenue;  // Use monthlyRevenue here
+        // }
+        // return dashboardData.last7DaysRevenue;
     };
 
     // Format labels dynamically based on the selected filter

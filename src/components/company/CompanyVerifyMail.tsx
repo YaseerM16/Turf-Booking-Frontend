@@ -47,13 +47,15 @@ const CompanyVerifyMail: React.FC = () => {
             }
             // const { data } = await axiosInstance.get("/api/v1/company/auth/verifymail", { params: { type, token, email }, });
             const response = await companyVerifyMail(type, token, email)
+            console.log("response of companyverifymail :: ", response);
+
             if (response?.success) {
                 const { data } = response
                 console.log("Resonse of VerifyEmail for COmpnay : ", response, "::", data);
                 if (data?.success && data?.forgotMail) {
                     setLoading(false);
                     toast.success("Email verified successfully!", {
-                        onClose: () => router.replace(`/change-password?email=${email}`),
+                        onClose: () => router.replace(`/company/change-password?email=${email}`),
                     });
                 }
                 else if (data?.success) {

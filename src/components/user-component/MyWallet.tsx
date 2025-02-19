@@ -34,6 +34,12 @@ const MyWallet: React.FC = () => {
                 const { data } = response
                 const wallet: { wallet: Wallet } = data
                 const walletTransactions = wallet.wallet.walletTransaction || [];
+                console.log("Wakklet transaccc :", walletTransactions);
+                walletTransactions.sort((a, b) => {
+                    const dateA = new Date(a.transactionDate);
+                    const dateB = new Date(b.transactionDate);
+                    return (dateB.getTime() - dateA.getTime()); // Use getTime() to compare Date objects
+                });
                 setTransactions(walletTransactions); // Set full transaction list
                 setCurrentBalance(wallet.wallet.walletBalance);
 
@@ -53,7 +59,7 @@ const MyWallet: React.FC = () => {
             setLoading(false);
         }
     }, [currentPage, transactionPerPage]);
-    console.log("Pginationesd fWeaers : ", paginatedTransactions);
+    // console.log("Pginationesd fWeaers : ", paginatedTransactions);
 
 
     const handlePageChange = (page: number) => {

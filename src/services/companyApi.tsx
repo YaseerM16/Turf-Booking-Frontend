@@ -2,12 +2,12 @@ import { BACKEND_COMPANY_URL } from "@/utils/constants";
 import axios, { AxiosError } from "axios";
 import { RegisterData } from "@/components/company/register/CompanyRegister"
 import { LoginData } from "@/components/company/CompanyLogin";
+import { Inputs } from "@/components/company/ForgotPassword";
 
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
     withCredentials: true,
 });
-
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
@@ -49,6 +49,18 @@ export const companyLoginApi = async (loginData: LoginData) => {
     }
 };
 
+export const companyForgotpasswordApi = async (data: Inputs) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/auth/forgot-password`, data);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpForgotPass :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
 export const companyLogOut = async () => {
     try {
         const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/logout`);
@@ -64,6 +76,18 @@ export const companyLogOut = async () => {
 export const companyVerifyMail = async (type: string, token: string, email: string) => {
     try {
         const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/auth/verifymail`, { params: { type, token, email } });
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpLogApi :", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const companyUpdatePassword = async (data: object) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/auth/update-password`, data);
         return response.data;
     } catch (error: unknown) {
         console.log("Error in CmpLogApi :", error);
@@ -228,6 +252,33 @@ export const deleteNotification = async (roomId: string, companyId: string, type
         return response.data
     } catch (error) {
         console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+
+/////Sales Report////
+
+export const getLastMonthRevenues = async (companyId: string, page: number, limit: number) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-lastmonth-revenue/${companyId}/?page=${page}&limit=${limit}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while GetMessagesAPi ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const getRevenuesByInterval = async (companyId: string, fromDate: Date, toDate: Date) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-revenues-by-interval/${companyId}/?fromDate=${fromDate}&toDate=${toDate}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while get revenues by range in sales report ::: ", error);
         if (error instanceof AxiosError) {
             throw new Error(error?.response?.data.message)
         }
