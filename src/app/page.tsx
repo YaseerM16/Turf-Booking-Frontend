@@ -3,14 +3,14 @@ import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getSubcriptionPlans } from "@/services/userApi";
 import Swal from "sweetalert2";
-import { SubscriptionPlan, SubscriptionPlans } from "@/components/SubscriptionSwiper";
+import { SubscriptionPlans } from "@/components/SubscriptionSwiper";
+import { SubscriptionPlan } from "@/utils/type";
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPlans, setTotalPlans] = useState<number | null>(10);
+  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
   const plansPerPage = 6
@@ -22,15 +22,15 @@ export default function Home() {
       localStorage.removeItem("auth");
     }
   }, []); // This runs only on the client side
-  const fetchPlans = async () => {
+  const fetchPlans = useCallback(async () => {
 
     try {
-      const response = await getSubcriptionPlans(currentPage, plansPerPage)
+      const response = await getSubcriptionPlans(1, plansPerPage)
       if (response.success) {
         const { data } = response
         console.log("THsi are all the PLANs toTAL :", data.plans.totalPlans);
         setPlans(data.plans.plans);
-        setTotalPlans(prev => (prev !== Math.ceil(data.plans.totalPlans / plansPerPage) ? Math.ceil(data.plans.totalPlans / plansPerPage) : prev));
+        // setTotalPlans(prev => (prev !== Math.ceil(data.plans.totalPlans / plansPerPage) ? Math.ceil(data.plans.totalPlans / plansPerPage) : prev));
       }
     } catch (err: unknown) {
       console.log("THIs is the FetchPlans err :", err);
@@ -47,14 +47,14 @@ export default function Home() {
         });
       }
     }
-  };
+  }, [])
   useEffect(() => {
     fetchPlans();
-  }, [currentPage]);
+  }, [fetchPlans]);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  // const handlePageChange = (page: number) => {
+  //   setCurrentPage(page);
+  // };
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />

@@ -1,59 +1,47 @@
 "use client";
-
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../Spinner";
 import Image from "next/image";
-import { useAppDispatch } from "@/store/hooks";
-import { setCompany } from "@/store/slices/CompanySlice";
-import { companyLoginApi } from "@/services/companyApi";
-import Link from "next/link";
+import { AxiosError } from "axios";
+import { companyForgotpasswordApi } from "@/services/companyApi";
 
 
-export type LoginData = {
+export type Inputs = {
     email: string;
-    password: string;
 };
 
-const CompanyLoginForm: React.FC = () => {
-    const router = useRouter();
-    const dispatch = useAppDispatch();
+const ForgotPassword: React.FC = () => {
     const [loading, setLoading] = useState(false);
+    const router = useRouter()
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<LoginData>();
+    } = useForm<Inputs>();
 
-    const onSubmit: SubmitHandler<LoginData> = async (formData: LoginData) => {
+    const onSubmit: SubmitHandler<Inputs> = async (formData: Inputs) => {
         try {
             setLoading(true);
-            // const { data } = await axiosInstance.post(
-            //     "/api/v1/company/auth/login",
-            //     formData
-            // );
-            const response = await companyLoginApi(formData)
-            if (response.success) {
-                const { data } = response
-                if (data?.loggedIn) {
-                    localStorage.setItem("companyAuth", JSON.stringify(data.company));
-                    dispatch(setCompany(data.company));
-                    setLoading(false);
-                    toast.success("Logged In successfully!", {
-                        onClose: () => router.replace("/company/dashboard")
-                    });
 
-                } else {
-                    toast.error(data?.message || "Login failed. Please try again.");
-                    setLoading(false);
-                }
+            // console.log("respone data : ", data);
+            const response = await companyForgotpasswordApi(formData)
+            if (response.success) {
+                setLoading(false);
+                toast.success("Verification email sent successfully!", {
+                    onClose: () => router.replace(`/checkmail?type=forgotpassword`),
+                });
             }
         } catch (err: unknown) {
-            if (err instanceof Error) {
-                toast.error((err as Error).message || "Something went wrong!");
+            if (err instanceof AxiosError) {
+                console.error("ForgotPasswordAPI error:", err);
+                const errorMessage =
+                    err.response?.data?.message || // Message from the server
+                    "An unexpected error occurred. Please try again.";
+                toast.error(errorMessage);
             }
         } finally {
             setLoading(false);
@@ -63,7 +51,7 @@ const CompanyLoginForm: React.FC = () => {
     return (<>
         <ToastContainer
             position="top-center"
-            autoClose={3000}
+            autoClose={5000}
             hideProgressBar={false}
             newestOnTop={false}
             closeOnClick
@@ -74,7 +62,7 @@ const CompanyLoginForm: React.FC = () => {
         />
         <div className="flex h-screen">
             {/* Left Section */}
-            <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
+            <div className="w-1/2 bg-yellow-50 flex flex-col justify-center items-center">
                 <div className="text-center pt-8">
                     <Image
                         src="/logo.jpeg"
@@ -85,18 +73,23 @@ const CompanyLoginForm: React.FC = () => {
                         priority // Optional: Ensures the image is preloaded for better performance
                     />
                     <h2 className="text-xl font-medium text-gray-800">
-                        Welcome Back to <span className="text-green-600">TURF</span>
+                        Trouble Logging In? <span className="text-green-600">We Got You</span>
                     </h2>
                 </div>
 
                 <div className="mt-8 w-3/4">
-                    <h3 className="text-2xl font-semibold text-gray-900 mb-4">Company Log In</h3>
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+                        Forgot Password tihis for Compo
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                        Enter your email to receive a password reset link.
+                    </p>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-4">
                             <input
                                 type="email"
                                 placeholder="Email"
-                                className="w-full p-3 rounded-md border border-gray-300 focus:outline-green-500"
+                                className="w-full p-3 rounded-md border border-gray-300 focus:outline-yellow-500"
                                 {...register("email", {
                                     required: "Email is required",
                                     pattern: {
@@ -106,30 +99,10 @@ const CompanyLoginForm: React.FC = () => {
                                 })}
                             />
                             {errors.email && (
-                                <p className="text-red-500 text-sm">{errors.email.message}</p>
+                                <p className="text-red-500 text-sm">
+                                    {errors.email.message}
+                                </p>
                             )}
-                        </div>
-
-                        <div className="mb-4">
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className="w-full p-3 rounded-md border border-gray-300 focus:outline-green-500"
-                                {...register("password", {
-                                    required: "Password is required",
-                                })}
-                            />
-                            {errors.password && (
-                                <p className="text-red-500 text-sm">{errors.password.message}</p>
-                            )}
-                        </div>
-                        <div className="text-right pb-3">
-                            <Link
-                                href="/company/forgotpassword"
-                                className="text-sm text-green-600 hover:underline"
-                            >
-                                Forgot Password?
-                            </Link>
                         </div>
 
                         {loading ? (
@@ -139,10 +112,15 @@ const CompanyLoginForm: React.FC = () => {
                                 type="submit"
                                 className="w-full bg-green-700 text-white py-3 rounded-md hover:bg-green-800"
                             >
-                                Log In
+                                Send Reset Link
                             </button>
                         )}
                     </form>
+                    <div className="mt-4 text-gray-600 text-sm">
+                        <a href="/login" className="underline">
+                            Back to Log In
+                        </a>
+                    </div>
                 </div>
 
                 <footer className="mt-8 text-gray-600 text-sm flex items-center justify-between">
@@ -176,4 +154,4 @@ const CompanyLoginForm: React.FC = () => {
     </>);
 };
 
-export default CompanyLoginForm;
+export default ForgotPassword;

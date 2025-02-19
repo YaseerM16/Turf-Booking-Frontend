@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { SlotDetails } from "@/utils/type";
 import { FaWallet } from "react-icons/fa";
 import { SiPyup } from "react-icons/si";
@@ -8,10 +8,11 @@ import { BsCurrencyRupee } from "react-icons/bs";
 import PayUComponent from "./PayUComponent ";
 import { useAppSelector } from "@/store/hooks";
 import { BookedData } from "@/utils/constants";
-import { bookSlotsByWalletApi, getWalletBalanceApi } from "@/services/userApi";
+import { bookSlotsByWalletApi, checkForSubscription, getWalletBalanceApi } from "@/services/userApi";
 import Swal from "sweetalert2";
 import { generateTxnId } from "@/utils/generateTxnld";
 import { useRouter } from "next/navigation";
+import Spinner from "./Spinner";
 
 
 interface BookingSummaryProps {
@@ -28,12 +29,21 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     companyId
 }) => {
     // console.log("PRICE inside SUMMary ", price);
-    let grandTotal = 0;
-    for (const slot of selectedSlots) {
-        grandTotal += slot.price!;
-    }
+    // let grandTotal = 0;
+    // for (const slot of selectedSlots) {
+    //     grandTotal += slot.price!;
+    // }
 
-    console.log("GRande : ", grandTotal);
+    // console.log("GRande : ", grandTotal);
+    // const [grandTotal, setGrandTotal] = useState(0);
+
+    // useEffect(() => {
+    //     const total = selectedSlots.reduce((sum, slot) => sum + (slot.price ?? 0), 0);
+    //     setGrandTotal(total);
+    // }, [selectedSlots]); // Updates total whenever selectedSlots change
+    // useEffect(() => {
+    //     setGrandTotal((prevTotal) => prevTotal - discountAmount);
+    // }, [discountAmount]);
 
 
     const [selectedPayment, setSelectedPayment] = useState("");
@@ -43,9 +53,15 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     const [showPayU, setShowPayU] = useState<boolean>(false)
     const [bookingDets, setBookingDets] = useState<BookedData | null>(null)
     const [walletPay, setWalletPay] = useState<boolean>(false)
+    const [discountAmount, setDiscountAmount] = useState<number>(0);
+    const [subTotal, setSubTotal] = useState<number>(0);
+    const [grandTotal, setGrandTotal] = useState(0);
+    const [checkSubscribe, setCheckSubscribe] = useState<boolean>(false)
     const txnidRef = useRef(generateTxnId(8)); // txnid is created once
     const txnid = txnidRef.current;
     const router = useRouter()
+    // const [discountAmount, setDiscountAmount] = useState(0);
+    // const [checkSubscribe, setCheckSubscribe] = useState(false);
     // let BookingDets: any
     // console.log("bookingDets in BokingSumary :", bookingDets);
 
@@ -167,18 +183,50 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         }
     }
 
+    const checkforSubscription = useCallback(async (total: number) => {
+        try {
+            setCheckSubscribe(true);
+            const response = await checkForSubscription(userDet?._id as string);
+            if (response.success) {
+                setCheckSubscribe(false);
+                const { data } = response;
+                if (data.plan) {
+                    console.log("The Existing Plan:", data.plan.discount);
+                    const discount = (total * data.plan.discount) / 100;  // Use passed total
+                    console.log("Calculated discountAmount:", discount);
+                    setDiscountAmount(discount);
+                    setGrandTotal(total - discount)
+
+                } else {
+                    console.log("There is no Subscription ::(( !");
+                }
+            }
+        } catch (error) {
+            console.log("Error while checkForSubscription:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An error occurred while checking your subscription. Please try again later.",
+                confirmButtonText: "OK",
+            });
+        }
+    }, [userDet?._id])
 
     useEffect(() => {
         console.log("Inside useEffect() ::>");
 
+        // 🔹 Calculate total first
+        const total = selectedSlots.reduce((sum, slot) => sum + (slot.price ?? 0), 0);
+        // setGrandTotal(total);
+        setSubTotal(total)
+
         console.log("SelectedSlots :", selectedSlots);
-        console.log("Amount Tot :", grandTotal);
-        console.log("ProdINfo turfID :", turfId);
+        console.log("Calculated Grand Total:", total);
+        console.log("ProdInfo turfID :", turfId);
 
-
-        if (userDet) {
+        if (userDet?._id) {
             setBookingDets({
-                amount: grandTotal,
+                amount: total,  // 🔹 Use total instead of grandTotal
                 productinfo: turfId,
                 firstname: userDet.name,
                 email: userDet.email,
@@ -187,22 +235,16 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 turfId,
                 userDet,
                 selectedSlots: selectedSlots,
-            })
-            // BookingDets = {
-            //     amount: grandTotal,
-            //     productinfo: turfId,
-            //     firstname: userDet.name,
-            //     email: userDet.email,
-            //     userId: userDet._id,
-            //     companyId,
-            //     turfId,
-            //     userDet,
-            //     selectedSlots: selectedSlots,
-            // }
-        }
-    }, [companyId, grandTotal, selectedSlots, turfId, userDet])
+            });
 
-    console.log("SElecte SLOTs: ", selectedSlots);
+            checkforSubscription(total);  // 🔹 Pass the calculated total
+        }
+    }, [companyId, selectedSlots, turfId, userDet, checkForSubscription]);
+
+
+    // console.log("SElecte SLOTs: ", selectedSlots);
+    console.log("THe discount and grandTotal :", discountAmount, grandTotal);
+
 
     return (
         <>
@@ -247,13 +289,33 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                         ))}
                     </div>
 
+                    {/* Discount Amount (Conditional Rendering) */}
+                    {subTotal > 0 && (
+                        <div className="bg-blue-600 flex justify-between items-center p-4 rounded-lg shadow-lg mb-4 w-1/3 mx-auto">
+                            <span className="text-white font-semibold">Sub Total:</span>
+                            <div className="flex items-center text-white font-bold text-lg">
+                                <BsCurrencyRupee className="mr-1" /> {subTotal.toFixed(2)}
+                            </div>
+                        </div>
+                    )}
+                    {/* Discount Amount (Conditional Rendering) */}
+                    {discountAmount > 0 && (
+                        <div className="bg-yellow-600 flex justify-between items-center p-4 rounded-lg shadow-lg mb-4 w-1/3 mx-auto">
+                            <span className="text-white font-semibold">Discount Applied:</span>
+                            <div className="flex items-center text-white font-bold text-lg">
+                                <BsCurrencyRupee className="mr-1" /> {discountAmount.toFixed(2)}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Grand Total */}
                     <div className="bg-green-800 flex justify-between items-center p-6 rounded-lg shadow-lg mb-6 w-1/3 mx-auto">
-                        <span className="text-white font-semibold">Grand Total:</span>
-                        <div className="flex items-center text-white font-bold text-xl">
-                            <BsCurrencyRupee className="mr-1" /> {grandTotal}
-                        </div>
+                        {checkSubscribe ? <Spinner /> : <>
+                            <span className="text-white font-semibold">Grand Total:</span>
+                            <div className="flex items-center text-white font-bold text-xl">
+                                <BsCurrencyRupee className="mr-1" /> {grandTotal}
+                            </div>
+                        </>}
                     </div>
 
                     {/* Payment Options */}

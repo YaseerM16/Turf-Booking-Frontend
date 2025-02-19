@@ -2,7 +2,7 @@ import { BACKEND_USER_URL } from "@/utils/constants";
 import axios, { AxiosError } from "axios";
 import { SignupData } from "@/components/user-auth/Register"
 import { LoginData } from "@/components/user-auth/LoginForm"
-import { User } from "@/utils/type";
+import { SubscriptionPlan, User } from "@/utils/type";
 
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
@@ -111,6 +111,45 @@ export const uploadProfileImageApi = async (userId: string, formData: FormData) 
         }
     }
 };
+
+
+
+//////////////// SUBSCRIPTION  //////////////////////
+
+export const subscribeByWalletPay = async (userId: string, plan: SubscriptionPlan) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/subscribe-to-plan/${userId}/?paymentMethod=wallet`, plan);
+        return response.data;
+    } catch (error: unknown) {
+        console.log(error, "from user signUp api Call <-:")
+        if (error instanceof AxiosError) {
+            if (error && error.response?.status === 403) {
+                throw new Error(error.response?.data?.message + " try Login")
+            } else if (error.response?.status === 409) {
+                throw new Error(error.response.data.message)
+            }
+        }
+    }
+};
+// "/check-for-subscription/:userId"
+
+export const checkForSubscription = async (userId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/check-for-subscription/${userId}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log(error, "from user signUp api Call <-:")
+        if (error instanceof AxiosError) {
+            if (error && error.response?.status === 403) {
+                throw new Error(error.response?.data?.message + " try Login")
+            } else if (error.response?.status === 409) {
+                throw new Error(error.response.data.message)
+            }
+        }
+    }
+};
+
+
 
 //////////////  Turf  ///////////////
 
