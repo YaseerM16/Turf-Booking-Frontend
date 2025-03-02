@@ -4,7 +4,6 @@ import Sidebar from "./SideBar";
 import { axiosInstance } from "@/utils/constants";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
-import Map from "./ComapanyLocationMap";
 import "react-toastify/dist/ReactToastify.css";
 import FireLoading from "../FireLoading";
 import { Company } from "@/utils/type"
@@ -20,8 +19,6 @@ const ApprovedCompanies: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null); // For the modal display
     const [filter, setFilter] = useState<string>("all");
-    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
-    console.log("Map is Visible :", isMapVisible);
 
     const companiesPerPage = 10;
 
@@ -63,9 +60,6 @@ const ApprovedCompanies: React.FC = () => {
     const closeModal = () => {
         setSelectedCompany(null);
     };
-    const toggleMapState = () => {
-        setIsMapVisible(prev => !prev)
-    }
 
     const handleToggleBlock = async (email: string, companyId: string) => {
         try {
@@ -191,7 +185,7 @@ const ApprovedCompanies: React.FC = () => {
                                                     onClick={() => handleLocationClick(company)}
                                                 /> */}
                                                 <div className="border px-4 py-3 text-center">
-                                                    <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} toggleview={toggleMapState} />
+                                                    <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} />
                                                 </div>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
@@ -265,7 +259,6 @@ const ApprovedCompanies: React.FC = () => {
                                 <p>Phone: {selectedCompany.phone}</p>
                             </div>
                         </div>
-                        <Map location={selectedCompany.location} profilePicture={"/logo.jpeg"} companyName={selectedCompany.companyname} />
                     </div>
                 </div>
             )}

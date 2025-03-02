@@ -28,7 +28,9 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     turfId,
     companyId
 }) => {
-    // console.log("PRICE inside SUMMary ", price);
+    // console.log("CmpIIDD inside SUMMary ", turfId);
+    // console.log("TurfIIDD inside SUMMary ", companyId);
+    // console.log("SeleSlot inside SUMMary ", selectedSlots);
     // let grandTotal = 0;
     // for (const slot of selectedSlots) {
     //     grandTotal += slot.price!;
@@ -44,7 +46,6 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
     // useEffect(() => {
     //     setGrandTotal((prevTotal) => prevTotal - discountAmount);
     // }, [discountAmount]);
-
 
     const [selectedPayment, setSelectedPayment] = useState("");
 
@@ -183,7 +184,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         }
     }
 
-    const checkforSubscription = useCallback(async (total: number) => {
+    const checkforSubscriptionFunc = useCallback(async (total: number) => {
         try {
             setCheckSubscribe(true);
             const response = await checkForSubscription(userDet?._id as string);
@@ -237,9 +238,9 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 selectedSlots: selectedSlots,
             });
 
-            checkforSubscription(total);  // 🔹 Pass the calculated total
+            checkforSubscriptionFunc(total);  // 🔹 Pass the calculated total
         }
-    }, [companyId, selectedSlots, turfId, userDet, checkForSubscription]);
+    }, [companyId, selectedSlots, turfId, userDet, checkforSubscriptionFunc]);
 
 
     // console.log("SElecte SLOTs: ", selectedSlots);
@@ -301,9 +302,9 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                     {/* Discount Amount (Conditional Rendering) */}
                     {discountAmount > 0 && (
                         <div className="bg-yellow-600 flex justify-between items-center p-4 rounded-lg shadow-lg mb-4 w-1/3 mx-auto">
-                            <span className="text-white font-semibold">Discount Applied:</span>
+                            <span className="text-white font-semibold">Subscription Discount Applied:</span>
                             <div className="flex items-center text-white font-bold text-lg">
-                                <BsCurrencyRupee className="mr-1" /> {discountAmount.toFixed(2)}
+                                -   <BsCurrencyRupee className="mr-1" /> {discountAmount.toFixed(2)}
                             </div>
                         </div>
                     )}

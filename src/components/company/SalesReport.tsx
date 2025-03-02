@@ -132,8 +132,8 @@ const SalesReport: React.FC = () => {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     <Header />
-                    <div className="bg-gray-100 flex-1 p-6 overflow-y-auto">
-                        <div className="bg-white p-6 rounded-lg shadow-md">
+                    <div className="bg-gray-100 flex-1 overflow-y-auto">
+                        <div className="bg-white p-3 rounded-lg shadow-md">
                             <div className="flex justify-between items-center mb-4">
                                 <h1 className="text-3xl font-semibold text-gray-800">Sales Report</h1>
                                 <button
@@ -143,23 +143,9 @@ const SalesReport: React.FC = () => {
                                     Download PDF
                                 </button>
                             </div>
-                            <p className="text-gray-600 text-lg mb-4">Here is the list of your revenue details</p>
+                            <p className="text-gray-600 text-lg mb-4">Here is the list of your last 30 days revenue details</p>
                             {/* Filter Section */}
                             <div className="flex flex-col items-center gap-4 mb-8">
-                                {/* <div className="flex gap-4">
-                                                                    <button
-                                                                        className={`px-4 py-2 rounded-md ${filter === "7days" ? "bg-green-500 text-white" : "bg-gray-300"}`}
-                                                                        onClick={() => setFilter("7days")}
-                                                                    >
-                                                                        Last 7 Days
-                                                                    </button>
-                                                                    <button
-                                                                        className={`px-4 py-2 rounded-md ${filter === "month" ? "bg-green-500 text-white" : "bg-gray-300"}`}
-                                                                        // onClick={() => getMonthlyData(company._id)}
-                                                                    >
-                                                                        Monthly
-                                                                    </button>
-                                                                </div> */}
                                 <div className="flex items-center gap-2">
                                     <DatePicker selected={fromDate} onChange={(date) => setFromDate(date)} placeholderText="From Date" className="px-4 py-2 border rounded-md" />
                                     <DatePicker selected={toDate} onChange={(date) => setToDate(date)} placeholderText="To Date" className="px-4 py-2 border rounded-md" />

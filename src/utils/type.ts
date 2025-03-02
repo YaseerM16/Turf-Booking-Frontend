@@ -18,6 +18,7 @@ export type User = {
     role: string;
     isActive: boolean;
     isVerified: boolean;
+    subscriptionPlan?: SubscriptionPlan | null;
 };
 
 export type Company = {
@@ -45,7 +46,7 @@ export type TurfDetails = {
         fromDate: string,
         toDate: string
     };
-    companyId: string;
+    companyId: unknown;
     createdAt: string;
     description: string;
     facilities: string[]; // Array of strings
@@ -198,6 +199,7 @@ export type Notification = {
 
 
 export interface SubscriptionPlan {
+    features: string;
     _id: string;
     name: string;
     duration: string;
@@ -205,3 +207,16 @@ export interface SubscriptionPlan {
     price: number;
     description?: string;
 }
+
+export type Subscription = {
+    _id: string;
+    userId: string;
+    planId: SubscriptionPlan;
+    status: "active" | "inactive" | "cancelled"; // Assuming possible statuses
+    startDate: Date;
+    endDate: Date;
+    paymentId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    __v: number;
+};

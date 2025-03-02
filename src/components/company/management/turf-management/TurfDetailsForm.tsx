@@ -34,8 +34,8 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const { handleSubmit, register, setError, clearErrors, reset, watch, setValue, formState: { errors } } = useForm<TurfDetails>({
         defaultValues: {
             turfName: turf?.turf?.turfName,
-            facilities: turf?.turf?.facilities,
-            supportedGames: turf?.turf?.supportedGames,
+            facilities: turf?.turf?.facilities || [],
+            supportedGames: turf?.turf?.supportedGames || [],
             images: [],
             turfType: turf?.turf?.turfType,
             turfSize: turf?.turf?.turfSize,
@@ -47,10 +47,7 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
     const [loading, setLoading] = useState<boolean>(false)
     const [editLoading, setEditLoading] = useState<boolean>(false)
     const [existingImages, setExistingImages] = useState<string[]>(turf?.turf?.images || []);
-    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
     const [expandedImage, setExpandedImage] = useState<string | null>(null);
-    console.log("is map visible :", isMapVisible);
-
 
     const handleEdit = () => {
         setIsEditable(!isEditable);
@@ -58,10 +55,6 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
 
     const supportedGames = watch("supportedGames")
     const facilities = watch("facilities")
-
-    const toggleMapState = () => {
-        setIsMapVisible(prev => !prev)
-    }
 
     const handleNewImages = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -389,7 +382,6 @@ const TurfDetailsForm: React.FC<TurfDetailsProps> = ({ turf }) => {
                                             companyname: company?.companyname || "Default Company Name", // Provide a default fallback
                                             phone: company?.phone || "N/A", // Provide a default fallback
                                         }}
-                                        toggleview={toggleMapState}
                                     />
 
                                 </div>

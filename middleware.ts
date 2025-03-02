@@ -79,9 +79,9 @@
 
 
 import { NextRequest, NextResponse } from "next/server";
-import { userMiddleware } from "./middleware/userMiddleware";
-import { companyMiddleware } from "./middleware/companyMiddleware";
-import { adminMiddleware } from "./middleware/adminMiddleware";
+import { userMiddleware, userPublicRoutes, userProtectedRoutes } from "./middleware/userMiddleware";
+import { companyMiddleware, companyPublicRoutes, companyProtectedRoutes } from "./middleware/companyMiddleware";
+import { adminMiddleware, adminProtectedRoutes, adminPublicRoutes } from "./middleware/adminMiddleware";
 
 export function middleware(req: NextRequest) {
     const currentPath = req.nextUrl.pathname;
@@ -101,17 +101,28 @@ export function middleware(req: NextRequest) {
 
 export const config = {
     matcher: [
-        "/profile",
-        "/my-bookings",
-        "/admin/dashboard",
-        "/admin/user-management",
-        "/admin/registered-companies",
-        "/admin/approved-companies",
-        "/company/dashboard",
-        "/company/register-turf",
-        "/company/turf-management",
-        "/company/slot-management",
-        "/company/profile",
-        "/company/messages",
+        ...userPublicRoutes.concat(
+            userProtectedRoutes,
+            companyPublicRoutes,
+            companyProtectedRoutes,
+            adminPublicRoutes,
+            adminProtectedRoutes
+        ),
     ],
 };
+
+
+// const allRoutes = [
+//     ...userPublicRoutes.concat(
+//         userProtectedRoutes,
+//         companyPublicRoutes,
+//         companyProtectedRoutes,
+//         adminPublicRoutes,
+//         adminProtectedRoutes
+//     ),
+// ];
+
+// export const config = {
+//     matcher: allRoutes,
+// };
+

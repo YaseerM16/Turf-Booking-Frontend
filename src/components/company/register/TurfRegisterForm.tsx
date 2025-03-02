@@ -30,6 +30,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
         setError,
         clearErrors,
         watch,
+        reset,
         formState: { errors }
     } = useForm<FormSubmitted>({
         defaultValues: {
@@ -63,6 +64,19 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
             urls.forEach((url) => URL.revokeObjectURL(url));
         };
     }, [watch, watchImages]);
+
+    useEffect(() => {
+        // Load stored form data on mount
+        const savedData = localStorage.getItem("turfFormData");
+        if (savedData) {
+            reset(JSON.parse(savedData)); // Prefill form with stored values
+        }
+
+        // Cleanup function to remove stored data on unmount
+        return () => {
+            localStorage.removeItem("turfFormData");
+        };
+    }, [reset]);
 
 
 
@@ -134,6 +148,10 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
     const handleFormSubmit = async (data: FormSubmitted) => {
         try {
 
+            const { location, ...safeData } = data;
+
+            localStorage.setItem("turfFormData", JSON.stringify(safeData));
+
             if (!data.images || data.images.length === 0) {
                 setError("images", { type: "manual", message: "Please upload at least one turf image" });
                 return;
@@ -186,6 +204,7 @@ const TurfRegisterForm: React.FC<TurfRegisterFormProps> = ({ onSubmit }) => {
             }
         } catch (error) {
             console.error("Error while submitting the form:", error);
+
         }
     };
 

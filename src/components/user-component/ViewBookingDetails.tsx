@@ -16,19 +16,13 @@ interface ViewBookingDetailsProps {
 }
 
 const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClose, userId }) => {
-    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
     const [bookingDet, setBookingDet] = useState(booking);
     const router = useRouter()
     const [loadingSlots, setLoadingSlots] = useState<Record<string, boolean>>({});
     const [loading, setLoading] = useState<boolean>(false)
-    console.log("Map is visible :", isMapVisible);
-    console.log("BookinGG CompnyID: ", booking.companyId);
+    // console.log("BookinGG CompnyID: ", booking.companyId);
 
     const company = useAppSelector(state => state.companies.company)
-
-    const toggleMapState = () => {
-        setIsMapVisible(prev => !prev)
-    }
 
     const cancelSlot = async (slotId: string, bookingId: string) => {
         try {
@@ -118,7 +112,6 @@ const ViewBookingDetails: React.FC<ViewBookingDetailsProps> = ({ booking, onClos
                                     companyname: company?.companyname || "Turf company",
                                     phone: company?.phone || "N/A",
                                 }}
-                                toggleview={toggleMapState}
                             />
                         </div>
                     </div>

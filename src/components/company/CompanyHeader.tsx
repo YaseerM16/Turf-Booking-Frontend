@@ -37,9 +37,10 @@ const Header: React.FC = () => {
                     });
                 }
             }
-        } catch (error) {
-            console.error("Error updating profile:", error);
-            toast.error("Failed to Logout.");
+        } catch (error: unknown) {
+            toast.error((error as Error).message || "Failed to Logout.");
+        } finally {
+            setLoading(false)
         }
     };
 

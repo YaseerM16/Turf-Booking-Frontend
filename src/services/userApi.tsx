@@ -3,6 +3,7 @@ import axios, { AxiosError } from "axios";
 import { SignupData } from "@/components/user-auth/Register"
 import { LoginData } from "@/components/user-auth/LoginForm"
 import { SubscriptionPlan, User } from "@/utils/type";
+import { PaymentData } from "@/utils/PayUApiCalls";
 
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
@@ -12,7 +13,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-        console.error("API Error:", error.response?.data || error.message);
+        console.log("API Error:", error.response?.data || error.message);
 
         if (error.response?.status === 401) {
             window.location.href = "/login";
@@ -82,6 +83,22 @@ export const googleLoginApi = async (loginData: unknown) => {
         }
     }
 };
+// "/get-top-turfs"
+export const getTopTurfs = async () => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-top-turfs`);
+        return response.data
+    } catch (error: unknown) {
+        console.log("from TOP turfs api Call <-:", error)
+        if (error instanceof AxiosError) {
+            if (error && error.response?.status === 403) {
+                throw new Error(error.response?.data?.message + " try Signup")
+            } else if (error.response?.status === 409) {
+                throw new Error(error.response.data.message)
+            }
+        }
+    }
+};
 
 export const updateProfileDetsApi = async (userId: string, updatedUser: User) => {
     try {
@@ -113,6 +130,16 @@ export const uploadProfileImageApi = async (userId: string, formData: FormData) 
 };
 
 
+export const getPreSignedURL = async (files: object[]) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/get-preSignedUrl`, files);
+        return response.data;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
 
 //////////////// SUBSCRIPTION  //////////////////////
 
@@ -121,12 +148,55 @@ export const subscribeByWalletPay = async (userId: string, plan: SubscriptionPla
         const response = await axiosInstance.post(`${BACKEND_USER_URL}/subscribe-to-plan/${userId}/?paymentMethod=wallet`, plan);
         return response.data;
     } catch (error: unknown) {
+        // console.log(error, "from user subscribe By wallet api Call <-:")
+        if (error instanceof AxiosError) {
+            if (error && error.response?.status === 403) {
+                throw new Error(error.response?.data?.message + " try Login")
+            } else if (error.response?.status === 409) {
+                throw new Error(error.response.data.message)
+            } else {
+                throw new Error(error?.response?.data.message)
+            }
+        }
+    }
+};
+
+// "/subscription/payment/hash"
+export const getSubscriptPaymentHash = async (data: PaymentData) => {
+    // console.log('routikii');
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/subscription/payment/hash`, JSON.stringify(data), {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        // console.log({ response }, 'ooooooooooooooooooooooo');
+        return response.data;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            throw new Error(error.response?.data?.message || "Something went wrong. while getting payment hash ");
+        }
+    }
+}
+
+export const subscribeByPayU = async (userId: string, plan: SubscriptionPlan, accessToken: string) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/subscribe-to-plan/${userId}/?paymentMethod=payu`, plan, {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${accessToken}`, // Send the token in the Authorization header
+            },
+        });
+        return response.data;
+    } catch (error: unknown) {
         console.log(error, "from user signUp api Call <-:")
         if (error instanceof AxiosError) {
             if (error && error.response?.status === 403) {
                 throw new Error(error.response?.data?.message + " try Login")
             } else if (error.response?.status === 409) {
                 throw new Error(error.response.data.message)
+            } else {
+                throw new Error(error?.response?.data.message)
             }
         }
     }
@@ -144,6 +214,8 @@ export const checkForSubscription = async (userId: string) => {
                 throw new Error(error.response?.data?.message + " try Login")
             } else if (error.response?.status === 409) {
                 throw new Error(error.response.data.message)
+            } else {
+                throw new Error(error?.response?.data.message)
             }
         }
     }
@@ -384,9 +456,9 @@ export const deleteNotification = async (roomId: string, userId: string, type: s
 
 //// SUBcription ////
 
-export const getSubcriptionPlans = async (page: number, limit: number) => {
+export const getSubcriptionPlans = async () => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-subscription-plans?page=${page}&limit=${limit}`);
+        const response = await axiosInstance.get(`${BACKEND_USER_URL}/get-subscription-plans`);
         return response.data;
     } catch (error: unknown) {
         console.log("Error in addSubcripitonApi error:", error);

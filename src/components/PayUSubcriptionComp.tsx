@@ -1,49 +1,50 @@
 'use client'
 
 import { useEffect, useRef, useState } from "react";
-import { BookedData, FRONTEND_DOMAIN, PayU } from "@/utils/constants"
+import { FRONTEND_DOMAIN, PayU } from "@/utils/constants"
 import { generateTxnId } from "@/utils/generateTxnld";
 import { toast } from "react-toastify";
-import PayUApiCalls, { PaymentData } from "@/utils/PayUApiCalls";
+import { PaymentData } from "@/utils/PayUApiCalls";
 import Cookies from "js-cookie";
 import 'react-toastify/dist/ReactToastify.css';
+import { SubscriptionPlan } from "@/utils/type";
+import { useAppSelector } from "@/store/hooks";
+import { getSubscriptPaymentHash } from "@/services/userApi";
+import Swal from "sweetalert2";
 
 
 type Props = {
-    BookedData: BookedData | null;
+    BookedData: SubscriptionPlan | null;
 };
 const accessToken = Cookies.get("token")
 
 const PayUComponent = ({ BookedData }: Props) => {
     // console.log("BookedData prop :", BookedData);
-
+    const user = useAppSelector(state => state.users.user)
     const [hash, setHash] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null); // State to track error
     // const userDet = JSON.parse(localStorage.getItem("auth") as string);
     const txnidRef = useRef(generateTxnId(8)); // txnid is created once
     const txnid = txnidRef.current;
 
-    console.log("BookedData in PayUComp & token :", BookedData?.selectedSlots, accessToken);
+    // console.log("BookedData.selectedSlots: in PayUComp :", BookedData);
 
-    const amount = BookedData?.amount || 0;
-    const productinfo = BookedData?.productinfo || "";
-    const udf1 = BookedData?.userId || "";
-    const { name = "", email = "", phone = "" } = BookedData?.userDet || {};
-    const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData?.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
+    const amount = BookedData?.price || 0;
+    const productinfo = BookedData?._id || "";
+    const udf1 = user?._id || "";
+    const { name = "", email = "", phone = "" } = user || {};
+    const surl = `${FRONTEND_DOMAIN}/api/subscriptionSuccessful?subscription=${encodeURIComponent(JSON.stringify(BookedData))}&token=${encodeURIComponent(accessToken!)}`;
     const furl = `${FRONTEND_DOMAIN}/api/paymentFailure`;
-    const udf2 = BookedData?.companyId || "nil";
-    const udf3 = BookedData?.companyId || "nil";
-    const udf4 = BookedData?.turfId || "nil";
-    const udf5 = BookedData?.category || "nil";
-    const udf6 = BookedData?.eventType || "nil";
-    const udf7 = BookedData?.EndingDate || "nil";
+    const udf2 = BookedData?._id || "nil";
+    const udf3 = BookedData?.name || "nil";
+    const udf4 = BookedData?.price || "nil";
+    const udf5 = BookedData?.duration || "nil";
+    const udf6 = BookedData?.discount || "nil";
+    const udf7 = BookedData?.features || "nil";
 
     const key = PayU.merchantKey;
 
     // console.log("BoookedDATA :", BookedData);
-    console.log("CmpnyID in udf :", udf2);
-    console.log("CmpnyID in udf :", udf3);
-    console.log("CmpnyId in BokDat :", BookedData?.companyId);
 
 
     const requestSentRef = useRef(false);
@@ -64,23 +65,39 @@ const PayUComponent = ({ BookedData }: Props) => {
             udf7,
         };
 
-        // console.log("Retrieved DATA :", data);
+        console.log("Retrieved DATA :", data);
 
 
         const makePaymentRequest = async () => {
             try {
                 // console.log("Sending Payment Request:", data);
-                const res = await PayUApiCalls.paymentReq(data);
-                // console.log("Respos :", res);
-                setHash(res.hash);
-                requestSentRef.current = true;
+                // const res = await PayUApiCalls.paymentReq(data);
+                const response = await getSubscriptPaymentHash(data);
+                if (response.success) {
+                    const { data } = response
+                    console.log("Respos :", data);
+                    setHash(data.hash);
+                    requestSentRef.current = true;
 
-                // toast.success("Payment hash generated successfully!");
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.error("Payment Error: " + error.message);
-                    toast.error(error.message);
                 }
+
+                toast.success("Payment hash generated successfully!");
+            } catch (error: unknown) {
+                // if (error instanceof Error) {
+                //     console.error("Payment Error: " + error.message);
+                //     toast.error(error.message);
+                // }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Subscription Failed!',
+                    text: `${(error as Error).message}` || "Something went wrong while generating link",
+                    confirmButtonText: 'Try Again',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        console.log("User acknowledged the failure.");
+                        // Handle retry logic or additional actions here
+                    }
+                });
                 // setError("Failed to generate payment hash. Please try again.");
             }
         };

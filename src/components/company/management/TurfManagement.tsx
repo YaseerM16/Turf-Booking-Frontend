@@ -74,11 +74,18 @@ const TurfManagement: React.FC = () => {
                     setLoadingBlock((prev) => ({ ...prev, [turfId]: true }));
 
                     const response = await blockTurf(turfId)
-                    console.log("RESpon of BlockTurf :", response);
+                    // console.log("RESpon of BlockTurf :", response);
 
                     if (response.success) {
+                        const { data } = response
+                        const updatedTurf = data.isBlocked.data
+                        setTurfs((prevTurfs) =>
+                            prevTurfs.map((turf) =>
+                                turf._id === updatedTurf._id ? { ...turf, isBlocked: updatedTurf.isBlocked } : turf
+                            )
+                        );
                         setLoadingBlock((prev) => ({ ...prev, [turfId]: false }));
-                        fetchTurfs(company.company?._id as string)
+                        // fetchTurfs(company.company?._id as string)
                         Swal.fire({
                             position: "top-end",
                             icon: "success",
@@ -138,11 +145,17 @@ const TurfManagement: React.FC = () => {
                     setLoadingBlock((prev) => ({ ...prev, [turfId]: true }));
 
                     const response = await unbBlockTurf(turfId)
-                    console.log("REspon by unBlOIck turf :", response);
 
                     if (response.success) {
                         setLoadingBlock((prev) => ({ ...prev, [turfId]: false }));
-                        // fetchTurfs(company.company?._id as string)
+                        const { data } = response
+                        const updatedTurf = data.isBlocked.data
+
+                        setTurfs((prevTurfs) =>
+                            prevTurfs.map((turf) =>
+                                turf._id === updatedTurf._id ? { ...turf, isBlocked: updatedTurf.isBlocked } : turf
+                            )
+                        );
                         Swal.fire({
                             position: "top-end",
                             icon: "success",
@@ -218,7 +231,7 @@ const TurfManagement: React.FC = () => {
                             <div className="w-full flex justify-start mt-6">
                                 <button
                                     className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium text-lg flex items-center space-x-2"
-                                    onClick={() => router.replace("/company/register-turf")}
+                                    onClick={() => router.push("/company/register-turf")}
                                 >
                                     <AiOutlinePlus className="text-2xl" />
                                     <span>Add Turf</span>
@@ -259,7 +272,7 @@ const TurfManagement: React.FC = () => {
                                                     {/* View Button */}
                                                     <button
                                                         className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md font-medium flex items-center"
-                                                        onClick={() => router.replace(`/company/turf-management/${turf._id}`)}
+                                                        onClick={() => router.push(`/company/turf-management/${turf._id}`)}
                                                     >
                                                         View Turf
                                                     </button>

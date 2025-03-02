@@ -1,13 +1,12 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { axiosInstance } from "@/utils/constants";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "./SideBar";
 import Swal from 'sweetalert2';
 import Pagination from "../Pagination";
 import FireLoading from "../FireLoading";
 import { User } from "@/utils/type";
+import { toggleUserBlock } from "@/services/adminApi";
 
 
 const UserManagement: React.FC = () => {
@@ -71,15 +70,27 @@ const UserManagement: React.FC = () => {
                 timerProgressBar: true,
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    const { data } = await axiosInstance.get(
-                        `/api/v1/admin/user-toggle-block?email=${email}&userId=${userId}`
-                    );
+                    const response = await toggleUserBlock(email, userId)
+                    if (response?.success) {
+                        const { data } = response;
+                        console.log("there's a response of UserBlockToggle :", data.user._id);
 
-                    if (data?.success) {
-                        toast.success("User Block Status Toggled successfully ✅", { onClose: () => fetchUsers(currentPage, searchQuery, filter) })
-                        console.log("Response Data :- ", data);
+                        setUsers((prevUsers) =>
+                            prevUsers.map((user) =>
+                                user._id === data.user._id ? { ...user, ...data.user } : user
+                            )
+                        );
+                        Swal.fire({
+                            icon: 'success',
+                            title: "Success",
+                            text: "User Block Status Toggled successfully ✅",
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000, // 2 seconds
+                            timerProgressBar: true,
+                        });
                     }
-
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                     Swal.fire({
                         toast: true,
@@ -91,8 +102,6 @@ const UserManagement: React.FC = () => {
                     });
                 }
             });
-
-
         } catch (error) {
             console.error("Error fetching user data:", error);
         }
@@ -104,17 +113,6 @@ const UserManagement: React.FC = () => {
 
     return (
         <>
-            <ToastContainer
-                position="top-center"
-                autoClose={1000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
 
             <div className="flex min-h-screen">
                 <Sidebar />

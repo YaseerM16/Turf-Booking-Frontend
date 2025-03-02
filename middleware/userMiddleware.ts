@@ -1,36 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 
+
+// Define public and protected routes
+export const userPublicRoutes = ["/login", "/signup", "/verifymail", "/checkmail", "/forgotpassword"];
+export const userProtectedRoutes = ["/profile", "/my-bookings"];
+
 export function userMiddleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
     const currentPath = req.nextUrl.pathname;
 
-    // Define public and protected routes
-    const publicRoutes = ["/login", "/signup", "/verifymail", "/checkmail", "/forgotpassword"];
-    const protectedRoutes = ["/profile", "/my-bookings"];
+    let isUserAuthenticated = false;
 
-    // Check if the request is for a protected route
-    if (protectedRoutes.some((route) => currentPath.startsWith(route))) {
-        // If no token is present, redirect to the login page
-        if (!token) {
-            return NextResponse.redirect(new URL("/login", req.url));
-        }
-
-        // Decode token and verify user role
+    // ✅ Decode token and verify user role **only if token exists**
+    if (token) {
         try {
             const decodedToken = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
-            const userRole = decodedToken?.userRole;
-
-            // Redirect if the token does not have the 'user' role
-            if (userRole !== "user") {
-                return NextResponse.redirect(new URL("/login", req.url));
-            }
+            isUserAuthenticated = decodedToken?.userRole === "user";
         } catch (err) {
             console.error("Error decoding token:", err);
-            // Redirect to login if the token is invalid
+            // ❌ If token exists but is invalid, **treat the user as NOT authenticated**
+            isUserAuthenticated = false;
+        }
+    }
+
+    // ✅ If the user **is authenticated** and tries to access a **public route**, redirect to `/profile`
+    if (isUserAuthenticated && userPublicRoutes.includes(currentPath)) {
+        return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // ✅ If the user is on a **protected route**
+    if (userProtectedRoutes.includes(currentPath)) {
+        // ❌ If **not authenticated**, redirect to login
+        if (!isUserAuthenticated) {
             return NextResponse.redirect(new URL("/login", req.url));
         }
     }
 
-    // Allow access for public routes and all other requests
     return NextResponse.next();
 }
+
