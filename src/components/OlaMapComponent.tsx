@@ -12,7 +12,6 @@ import '../../public/olamaps/dist/style.css'
 interface MapComponentProps {
     location?: { latitude: number, longitude: number }
     company: { images: string[], companyname: string, phone: number | string };
-    toggleview: () => void;
 }
 
 interface RouteDetails {
@@ -20,7 +19,7 @@ interface RouteDetails {
     distance: number;  // Assuming distance is a number (e.g., 10)
 }
 // curl--location--request POST "https://api.olamaps.io/routing/v1/directions?origin=18.76029027465273,73.3814242364375&destination=18.73354223011708,73.44587966939002&api_key=${your_api_key}" --header "X-Request-Id: XXX"
-const MapComponent: React.FC<MapComponentProps> = ({ location, company, toggleview }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ location, company }) => {
     // console.log("Location GiveN :: ", location);
 
     const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -236,7 +235,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
                     type="button"
                     onClick={() => {
                         setMapView(true)
-                        toggleview()
+                        // toggleview()
                     }
                     }
                     style={{
@@ -369,7 +368,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ location, company, togglevi
                                         onClick={() => {
                                             setMapView(false);
                                             setRouteDets(null);
-                                            toggleview();
+                                            // toggleview();
                                         }}
                                     >
                                         Close

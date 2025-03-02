@@ -4,57 +4,140 @@ import Image from "next/image";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { useCallback, useEffect, useState } from "react";
-import { getSubcriptionPlans } from "@/services/userApi";
+import { getSubcriptionPlans, getTopTurfs, getTurfsApi } from "@/services/userApi";
 import Swal from "sweetalert2";
 import { SubscriptionPlans } from "@/components/SubscriptionSwiper";
-import { SubscriptionPlan } from "@/utils/type";
+import { SubscriptionPlan, TurfDetails } from "@/utils/type";
+import FireLoading from "@/components/FireLoading";
+import HomeMapComponent from "@/components/HomeTurfsMap";
+import { useRouter } from "next/navigation";
+
+interface Turf {
+  turfId: string;
+  totalEarnings: number;
+  turfName: string;
+  price: number;
+  images: string[];
+  turfSize: string;
+  turfType: string;
+  workingSlots: {
+    fromTime: string;
+    toTime: string;
+    workingDays: { day: string; fromTime: string; toTime: string; price: number }[];
+  };
+}
+
 
 export default function Home() {
-  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-
-  const plansPerPage = 6
+  const [loadPlans, setLoadPlans] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [turfs, setTurfs] = useState<TurfDetails[] | null>([])
+  const [topTurfs, setTopTurfs] = useState<Turf[] | null>([])
+  const router = useRouter()
 
   useEffect(() => {
     const token = Cookies.get("token");
-
     if (!token) {
       localStorage.removeItem("auth");
     }
   }, []); // This runs only on the client side
-  const fetchPlans = useCallback(async () => {
 
+  const fetchPlans = useCallback(async () => {
     try {
-      const response = await getSubcriptionPlans(1, plansPerPage)
+      setLoadPlans(true)
+      const response = await getSubcriptionPlans()
       if (response.success) {
         const { data } = response
         console.log("THsi are all the PLANs toTAL :", data.plans.totalPlans);
         setPlans(data.plans.plans);
-        // setTotalPlans(prev => (prev !== Math.ceil(data.plans.totalPlans / plansPerPage) ? Math.ceil(data.plans.totalPlans / plansPerPage) : prev));
+        setLoadPlans(false)
       }
     } catch (err: unknown) {
       console.log("THIs is the FetchPlans err :", err);
-      if (err instanceof Error) {
-        Swal.fire({
-          position: "top-end",
-          icon: "error",
-          title: "Error!",
-          text: err?.message || "Something went wrong. Please try again.",
-          showConfirmButton: true,
-          confirmButtonText: "OK",
-          timer: 3000,
-          toast: true,
-        });
-      }
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text: (err as Error)?.message || "Something went wrong. Please try again.",
+        showConfirmButton: true,
+        confirmButtonText: "OK",
+        timer: 3000,
+        toast: true,
+      });
+    } finally {
+      setLoadPlans(false)
     }
-  }, [])
+  }, []);
+
+  const fetchTurfs = useCallback(async () => {
+    try {
+      // setLoading(true);
+
+      const response = await getTurfsApi(undefined)
+
+      if (response?.success) {
+        const { data } = response
+        setTurfs(prev => (JSON.stringify(prev) !== JSON.stringify(data.turfs) ? data.turfs : prev));
+        setLoading(false)
+      }
+
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text: (err as Error)?.message || "Something went wrong. Please try again.",
+        showConfirmButton: true,
+        confirmButtonText: "OK",
+        timer: 3000,
+        toast: true,
+      });
+    } finally {
+      // setLoading(false)
+    }
+  }, []);
+
+  // console.log("Turfs in HOme :", turfs);
+  const fetchTopTurfs = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const response = await getTopTurfs()
+
+      if (response?.success) {
+        const { data } = response
+        console.log("DATA From the TIOP Turf :", data);
+        setTopTurfs(data.turfs)
+        setLoading(false)
+      }
+
+    } catch (err) {
+      console.log("Error fetching user data:", err);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Error!",
+        text: (err as Error)?.message || "Something went wrong. Please try again.",
+        showConfirmButton: true,
+        confirmButtonText: "OK",
+        timer: 3000,
+        toast: true,
+      });
+    } finally {
+      setLoading(false)
+    }
+  }, []);
+
+  // console.log("Turfs in HOme :", turfs);
+
   useEffect(() => {
     fetchPlans();
-  }, [fetchPlans]);
+    fetchTurfs();
+    fetchTopTurfs();
+  }, [fetchPlans, fetchTurfs, fetchTopTurfs]);
 
-  // const handlePageChange = (page: number) => {
-  //   setCurrentPage(page);
-  // };
   return (
     <div className="min-h-screen bg-green-50">
       <Navbar />
@@ -89,35 +172,59 @@ export default function Home() {
         </div>
       </section>
 
+      <HomeMapComponent turfs={turfs || []} />
+
       {/* Featured Turfs Section */}
       <section className="py-12 bg-green-50">
-        <div className="max-w-6xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">Featured Turfs</h3>
-          <div className="grid grid-cols-4 gap-6">
-            {["Koval Arena", "Nut Meg", "Koval Arena", "Nut Meg"].map((turf, index) => (
-              <div key={index} className="shadow-lg rounded-lg overflow-hidden bg-white">
-                <Image
-                  src={`/logo.jpeg`}
-                  alt={turf}
-                  width={500} // Replace with actual width
-                  height={200} // Replace with actual height
-                  className="h-32 w-full object-cover"
-                />
-                <div className="p-4">
-                  <h4 className="font-semibold text-gray-800">{turf}</h4>
+        <div className="max-w-6xl mx-auto px-6">
+          <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">Featured Turfs</h3>
+          {loading ? <FireLoading renders="Featured Turfs" /> :
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {topTurfs?.map((turf) => (
+                <div
+                  key={turf.turfId}
+                  className="shadow-lg rounded-lg overflow-hidden bg-white hover:scale-105 transition-transform duration-300 ease-in-out"
+                  onClick={() => router.push(`/turfs/${turf.turfId}`)}
+                >
+                  <Image
+                    src={turf.images.length > 0 ? turf.images[0] : "/placeholder.jpg"}
+                    alt={turf.turfName}
+                    width={500}
+                    height={250}
+                    className="h-40 w-full object-cover"
+                  />
+                  <div className="p-4">
+                    <h4 className="font-semibold text-lg text-gray-900">{turf.turfName}</h4>
+                    <p className="text-gray-600 text-sm">{turf.turfSize} | {turf.turfType} Type</p>
+                    <div className="mt-3 text-green-600 font-semibold text-sm">
+                      ₹{turf.price.toLocaleString()} /hr
+                    </div>
+                    <div className="mt-2 text-gray-500 text-xs">
+                      Open: {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-6">
-            <Link href="/turfs" className="text-green-700 font-semibold hover:underline">
-              Search more...
+              ))}
+            </div>
+          }
+
+          <div className="text-center mt-8">
+            <Link href="/turfs" className="text-green-700 font-semibold hover:underline text-lg">
+              Discover More Turfs →
             </Link>
           </div>
         </div>
       </section>
 
-      <SubscriptionPlans plans={plans} />
+      <div className="py-5">
+        <h2 className="text-3xl font-bold text-center mb-6">Choose Your Plan</h2>
+        {loadPlans ?
+          <FireLoading renders="Fetching Subscriptions" />
+          :
+          <SubscriptionPlans plans={plans} />
+        }
+      </div>
+
 
 
       {/* Footer */}

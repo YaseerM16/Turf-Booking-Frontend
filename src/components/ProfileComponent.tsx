@@ -10,8 +10,8 @@ import Spinner from './Spinner';
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import Image from 'next/image';
-import { AxiosError } from 'axios';
-import { getVerificationMail, updateProfileDetsApi, uploadProfileImageApi } from '@/services/userApi';
+import axios, { AxiosError } from 'axios';
+import { getPreSignedURL, getVerificationMail, updateProfileDetsApi } from '@/services/userApi';
 
 const ProfileComponent: React.FC = () => {
     const user = useAppSelector(state => state.users.user)
@@ -92,8 +92,6 @@ const ProfileComponent: React.FC = () => {
     };
 
     const handleFileChangeAndUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        // console.log("THis si Callingoo :!!");
-
         const file = event.target.files?.[0];
         if (file) {
             const formData = new FormData();
@@ -101,28 +99,42 @@ const ProfileComponent: React.FC = () => {
 
             try {
                 setLoading(true)
-                const response = await uploadProfileImageApi(user?._id as string, formData)
-                console.log("REponser by IMageUPloda :", response);
+                const fileRequests = [{ fileName: file.name, fileType: file.type }]
+                const preSignedresponse = await getPreSignedURL(fileRequests)
+                const urls = preSignedresponse.data.urls;
+                await axios.put(urls[0].presignedUrl, file, {
+                    headers: { "Content-Type": file.type },
+                });
+                const encodedFileKey = encodeURIComponent(urls[0].fileKey);
+                const profilePicUrl = `https://turf-app-bucket.s3.ap-south-1.amazonaws.com/${encodedFileKey}`;
 
-                if (response.success) {
-                    const { data } = response
-                    console.log("Its Success :");
+                const uploadedProfile = { profilePicture: profilePicUrl }
 
-                    toast.success("Profile picture updated successfully!");
+                const { data } = await updateProfileDetsApi(user?._id as string, uploadedProfile as User);
+
+                if (data.success) {
+                    toast.success("Profile Picture uploaded successfully!");
                     localStorage.setItem("auth", JSON.stringify(data.user));
                     dispatch(setUser(data.user));
                     setLoading(false)
+                } else if (data.refreshTokenExpired) {
+                    setLoading(false)
+                    const response = await axiosInstance.get("/api/v1/user/logout");
+                    if (response.data.loggedOut) {
+                        dispatch(logout())
+                        localStorage.removeItem('auth');
+                        router.replace("/")
+                    }
                 }
-
-            } catch (error) {
-                console.error("Error updating profile image:", error);
-                toast.error("Failed to update profile image.")
+            } catch (error: unknown) {
+                toast.error((error as Error).message || "Failed to update profile image.")
+            } finally {
+                setLoading(false)
             }
         }
     };
 
     // console.log("USEr in Profile :", user);
-
 
     return (
         <>
@@ -137,13 +149,13 @@ const ProfileComponent: React.FC = () => {
                 draggable
                 pauseOnHover
             />
-            <div className="flex items-center justify-center bg-gradient-to-b from-green-200 to-yellow-100 p-10">
-                <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-5xl">
+            <div className="flex items-center justify-center bg-gradient-to-b from-green-200 to-yellow-100 p-5">
+                <div className="bg-white p-4 rounded-xl shadow-2xl w-full max-w-5xl">
                     <div className="text-center mb-10">
                         <h1 className="text-2xl font-extrabold text-green-700">Your Turf Booking Profile</h1>
                         <p className="text-sm text-gray-600">Manage your details and find the perfect turf for your next game.</p>
                     </div>
-                    <div className="bg-white p-6 rounded-lg shadow-xl flex flex-col lg:flex-row items-center space-y-8 lg:space-y-0 lg:space-x-10">
+                    <div className="bg-white p-3 rounded-lg shadow-xl flex flex-col lg:flex-row items-center space-y-4 lg:space-y-0 lg:space-x-10">
                         {/* Profile Image Section */}
                         <div className="lg:w-1/3 text-center relative group">
                             <div className="relative w-40 h-40 mx-auto rounded-full border-4 border-green-500 shadow-lg overflow-hidden">
@@ -251,6 +263,26 @@ const ProfileComponent: React.FC = () => {
                             </div>
                         </div>
                     </div>
+                    {/* Subscription Plan Section (conditionally rendered) */}
+                    {user?.subscriptionPlan && (
+                        <div className="mt-6 bg-green-50 p-4 rounded-lg shadow-md border border-green-300">
+                            <h2 className="text-lg font-semibold text-green-700 text-center mb-3">Subscribed Plan</h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {[
+                                    { label: "Plan Name", value: user.subscriptionPlan.name },
+                                    { label: "Duration", value: user.subscriptionPlan.duration },
+                                    { label: "Price", value: `$${user.subscriptionPlan.price}` },
+                                    { label: "Discount", value: `${user.subscriptionPlan.discount}%` },
+                                    { label: "Features", value: user.subscriptionPlan.features, span: true }
+                                ].map(({ label, value, span }, index) => (
+                                    <div key={index} className={`p-3 bg-white rounded-md shadow border border-gray-200 ${span ? "sm:col-span-2" : ""}`}>
+                                        <span className="text-xs font-semibold text-gray-600">{label}:</span>
+                                        <p className="text-sm text-green-700">{value}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                     {/* Edit Profile Button */}
                     <div className="mt-8 flex justify-center">
                         <button
@@ -266,7 +298,6 @@ const ProfileComponent: React.FC = () => {
                 </div>
             </div>
         </>
-
     )
 }
 

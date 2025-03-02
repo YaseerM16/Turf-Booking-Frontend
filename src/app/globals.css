@@ -42,3 +42,7 @@
     display: none;
     /* Chrome, Safari, and Opera */
 }
+
+.swal2-container {
+    z-index: 9999 !important;
+}

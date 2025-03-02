@@ -1,36 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Define public and protected routes
+export const companyPublicRoutes = ["/company/login", "/company/register"];
+export const companyProtectedRoutes = [
+    "/company/dashboard",
+    "/company/profile",
+    "/company/messages",
+    "/company/register-turf",
+    "/company/turf-management",
+    "/company/slot-management",
+    "/company/sales-report"
+];
+
 export function companyMiddleware(req: NextRequest) {
     const token = req.cookies.get("CompanyToken")?.value;
     const currentPath = req.nextUrl.pathname;
 
-    // Define public and protected routes
-    const companyPublic = ["/company/login", "/company/register"];
-    const companyProtected = ["/company/dashboard", "/company/profile", "/company/messages", "/company/register-turf", "/company/turf-management", "/company/slot-management"];
+    let isCompanyUser = false;
 
-    // Check if the request is for a protected route
-    if (companyProtected.some((route) => currentPath.startsWith(route))) {
-        // If no token is present, redirect to the company login page
-        if (!token) {
-            return NextResponse.redirect(new URL("/company/login", req.url));
-        }
-
-        // Decode token and verify company role
+    if (token) {
         try {
             const decodedToken = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
-            const userRole = decodedToken?.userRole;
-
-            // Redirect if the token does not have the 'company' role
-            if (userRole !== "company") {
-                return NextResponse.redirect(new URL("/company/login", req.url));
-            }
+            isCompanyUser = decodedToken?.userRole === "company";
         } catch (err) {
             console.error("Error decoding token:", err);
-            // Redirect to login if the token is invalid
             return NextResponse.redirect(new URL("/company/login", req.url));
         }
     }
 
-    // Allow access for public routes and all other requests
+    // ✅ Fix: Use exact match to prevent partial route mismatches
+    if (isCompanyUser && companyPublicRoutes.includes(currentPath)) {
+        return NextResponse.redirect(new URL("/company/dashboard", req.url));
+    }
+
+    if (companyProtectedRoutes.includes(currentPath) && !isCompanyUser) {
+        return NextResponse.redirect(new URL("/company/login", req.url));
+    }
+
     return NextResponse.next();
 }
+
+

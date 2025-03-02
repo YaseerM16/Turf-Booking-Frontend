@@ -23,6 +23,7 @@ interface TurfDetailsProps {
 }
 
 const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
+
     const [loading, setLoading] = useState<boolean>(false);
     const [selectedDay, setSelectedDay] = useState<string>("");
     const [date, setDate] = useState<string>("");
@@ -35,7 +36,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
         return turf?.workingSlots.workingDays?.map((dayDetails) => dayDetails?.day) || [];
     }, [turf?.workingSlots.workingDays]);
 
-    console.log("workingDaysArray :", workingDaysArray);
+    // console.log("workingDaysArray :", workingDaysArray);
 
 
     const userLogged: User | null = JSON.parse(localStorage.getItem("auth") as string)
@@ -162,6 +163,25 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
     // const memoizedSlots = useMemo(() => ({} as Record<string, any[]>), []);
     // console.log("Memoized Slots :::", memoizedSlots);
 
+    // Function to convert 24-hour time to 12-hour AM/PM format
+    function convertToAmPm(time: string) {
+        const [start, end] = time.split(" - ");
+        return `${formatTime(start)} - ${formatTime(end)}`;
+    }
+
+    function formatTime(time: string) {
+        const timeArray = time.split(":").map(Number);
+        let hour = timeArray[0]; // `let` because it gets reassigned
+        const minutes = timeArray[1]; // `const` because it doesn't change
+
+        const period = hour >= 12 ? "PM" : "AM";
+        hour = hour % 12 || 12; // Convert hour to 12-hour format
+
+        return `${hour}:${minutes.toString().padStart(2, "0")} ${period}`;
+
+
+    }
+
     const fetchSlotsByDay = async (turfId: string, day: string, date: string) => {
         // if (memoizedSlots[day]) {
         //     setSelectedDay(day);
@@ -178,15 +198,28 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
             const response = await getSlotsByDayApi(turfId, day, date)
             if (response?.success) {
                 const { data } = response
-                // setDate(data.slots[0]?.date || "");
-                setDate(date)
-                // memoizedSlots[day] = data.slots;
-                setSelectedDay(day);
-                setWorkingSlots(data.slots.slots);
-                console.log("SLOTSSSSLOTSS", data.slots.slots);
+                const currentHour = new Date().getHours(); // Get current hour in 24-hour format
 
+                // Filter slots based on the current hour
+                const filteredSlots = data.slots.slots.filter((slot: SlotDetails) => {
+                    const slotHour = parseInt(slot.slot.split(":")[0]); // Extract hour from slot time
+                    return slotHour >= currentHour; // Keep slots from the current hour onwards
+                });
+
+                // Convert to 12-hour AM/PM format
+                const formattedSlots = filteredSlots.map((slot: SlotDetails) => ({
+                    ...slot,
+                    slot: convertToAmPm(slot.slot),
+                }));
+
+                setDate(date);
+                setWorkingSlots(formattedSlots);
+                console.log("SLOTSSSSLOTSS", formattedSlots);
+                setSelectedDay(day);
                 setPrice(data.slots.price)
-                console.log("PRiceddd :", data.slots.price);
+                // setDate(data.slots[0]?.date || "");
+                // memoizedSlots[day] = data.slots;
+                // console.log("PRiceddd :", data.slots.price);
 
             }
         } catch (error) {
@@ -232,7 +265,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                 pauseOnHover
             />
             <div className="min-h-screen bg-gradient-to-br from-green-100 via-yellow-50 to-green-50">
-                {showSummary ? <BookingSummary selectedSlots={selectedSlots} onCancel={handleCancelPayment} turfId={turf?._id || ""} companyId={turf?.companyId || ""} /> :
+                {showSummary ? <BookingSummary selectedSlots={selectedSlots} onCancel={handleCancelPayment} turfId={turf?._id || ""} companyId={(turf?.companyId as string)} /> :
                     <>
                         <header className="bg-green-700 text-white sticky top-0 z-10 p-6 shadow-lg">
                             <h1 className="text-3xl font-bold text-center">Available Slots</h1>
@@ -298,7 +331,11 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                                                         }`}
                                                                 >
                                                                     {/* Slot Time */}
-                                                                    <p className="p-3 mt-5 text-center font-semibold text-lg">{slot.slot}</p>
+                                                                    {/* Slot Time */}
+                                                                    <p className="px-4 py-2 text-center font-extrabold text-xl text-green-900 rounded-lg w-fit mx-auto tracking-wider shadow-md">
+                                                                        {slot.slot}
+                                                                    </p>
+
 
                                                                     {/* Status Indicator */}
                                                                     <div
@@ -346,7 +383,7 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                                         className="relative flex flex-col items-center justify-between w-32 h-24 mx-2 my-2 rounded-md transition-all duration-300 bg-green-100 text-green-900 hover:shadow-lg hover:scale-105"
                                                         onClick={() => handleSlotRemove(slot)}
                                                     >
-                                                        <p className="p-3 mt-3 text-l font-bold text-center">{slot.slot}</p>
+                                                        <p className="p-3 text-l font-bold text-center">{slot.slot}</p>
                                                         <div className="absolute bottom-2 text-xs font-medium px-3 py-1 rounded-full bg-green-500 text-white">
                                                             {"Selected"}
                                                         </div>

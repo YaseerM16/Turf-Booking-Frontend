@@ -18,9 +18,6 @@ const RegisteredCompanies: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
-    console.log("Map is visible :", isMapVisible);
-
 
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null); // For the modal display
     const companiesPerPage = 10;
@@ -42,9 +39,6 @@ const RegisteredCompanies: React.FC = () => {
             setLoading(false);
         }
     };
-    const toggleMapState = () => {
-        setIsMapVisible(prev => !prev)
-    }
 
     useEffect(() => {
         fetchUsers(currentPage, searchQuery);
@@ -156,7 +150,7 @@ const RegisteredCompanies: React.FC = () => {
                                                 </button>
                                             </td>
                                             <td className="border px-4 py-3 text-center">
-                                                <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} toggleview={toggleMapState} />
+                                                <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} />
                                             </td>
                                         </tr>
                                     ))}

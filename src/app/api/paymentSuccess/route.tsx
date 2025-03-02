@@ -7,7 +7,7 @@ import { NextRequest } from "next/server";
 export async function POST(req: NextRequest) {
     // const contentType = req.headers.get("content-type") || "";
     const { searchParams } = req.nextUrl;
-    const slotsString = searchParams.get('slots');
+    const slotsString = searchParams.get("slots");
     const token = searchParams.get("token")
     const accessToken: string | null = decodeURIComponent(token || "");  // Decode and parse the JSON string
 
@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
             slots = null;
         }
     }
-    console.log("SEARCH Params -->> Toekn :", accessToken);
-    console.log("SEARCH Params -->> SSLOT :", slots);
+    // console.log("SEARCH Params -->> Toekn :", accessToken);
+    // console.log("SEARCH Params -->> SSLOT :", slots);
 
     const formData = await req.formData();
     const data: Partial<PaymentData> = {};
@@ -39,14 +39,14 @@ export async function POST(req: NextRequest) {
 
     try {
         const savedBooking = await PayUApiCalls.saveBooking(data as PaymentData, accessToken);
-        // console.log("Response form saveBooking!! :", savedBooking);
+        // console.log("Response form saveBooking  <<Before !! :", savedBooking);
 
         bookingDetails = savedBooking.isBooked
-        // console.log("RESULT from save :", savedBooking);
+        // console.log("RESULT from saveBooking <<After !! :", savedBooking);
 
     } catch (error: unknown) {
         if (error instanceof AxiosError) {
-            console.log("Error while SAVE-BOOKING", error);
+            console.log("Error while SAVE-BOOKING :", error);
         }
     }
     // console.log("BOOKINGDETS to SuccessPage :", bookingDetails);

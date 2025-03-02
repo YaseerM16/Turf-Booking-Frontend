@@ -15,7 +15,7 @@ interface ModalProps {
 
 const EditProfileModal: React.FC<ModalProps> = ({ isOpen, onClose, onSubmit, loading }) => {
     const user = useAppSelector((state) => state.users.user);
-    console.log("USer in Store in Modela :", user);
+    // console.log("USer in Store in Modela :", user);
 
     const {
         register,

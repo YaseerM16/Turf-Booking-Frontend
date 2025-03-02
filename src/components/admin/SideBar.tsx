@@ -57,11 +57,6 @@ const Sidebar: React.FC = () => {
                                 <Link href="/admin/dashboard">Dashboard</Link>
                             </li>
                             <li
-                                className={`${isActive('/admin/bookings')} px-4 py-2 rounded-md font-medium cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
-                            >
-                                <Link href="/admin/bookings">Bookings</Link>
-                            </li>
-                            <li
                                 className={`${isActive('/admin/user-management')} px-4 py-2 rounded-md font-medium cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                             >
                                 <Link href="/admin/user-management">User Management</Link>

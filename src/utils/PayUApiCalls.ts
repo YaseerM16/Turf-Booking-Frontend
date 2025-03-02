@@ -9,18 +9,17 @@ export interface PaymentData {
     name: string;
     email: string;
     phone: string;
-    udf1?: string;  // Optional fields, adjust if necessary
+    udf1?: string;
     udf2?: string;
     udf3?: string;
-    udf4?: string;
+    udf4?: string | number;
     udf5?: string;
-    udf6?: string;
+    udf6?: string | number;
     udf7?: string;
 
-    slots?: SlotDetails[]; // Or whatever type slots is
+    slots?: SlotDetails[];
 
 }
-
 const paymentService = {
     paymentReq: async function (data: PaymentData) {
         console.log('routikii');

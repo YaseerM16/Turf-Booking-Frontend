@@ -9,8 +9,8 @@ import FireLoading from "@/components/FireLoading";
 import { useAppSelector } from "@/store/hooks";
 import Header from "../CompanyHeader";
 import Sidebar from "../CompanySidebar";
-import { APIError } from "@/utils/type";
 import { registerTurf } from "@/services/TurfApis";
+import Swal from "sweetalert2";
 
 
 
@@ -68,9 +68,19 @@ const TurfRegister: React.FC = () => {
                 return { success: true }
             }
         } catch (err: unknown) {
-            console.error("Error While Register Company:", err);
-            const apiError = err as APIError;
-            toast.error(apiError?.response?.data?.error || "Something went wrong!");
+            // console.error("Error While Register Company:", err);
+            // const apiError = err as APIError;
+            // toast.error(apiError?.response?.data?.error || "Something went wrong!");
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: "Error!",
+                text: (err as Error)?.message || "Something went wrong. Please try again.",
+                showConfirmButton: true,
+                confirmButtonText: "OK",
+                timer: 3000,
+                toast: true,
+            });
         } finally {
             setLoading(false);
         }

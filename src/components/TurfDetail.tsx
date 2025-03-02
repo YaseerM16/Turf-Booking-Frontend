@@ -17,17 +17,16 @@ interface TurfDetailsProps {
 }
 
 const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
+
     const company = useAppSelector(state => state.companies.company)
     const [showSlot, setShowSlot] = useState<boolean>(false)
-    const [isMapVisible, setIsMapVisible] = useState(false); // State to control map modal visibility
     const [reviews, setReviews] = useState<Review[]>([
         { username: "John Doe", rating: 4, comment: "Great experience!" },
         { username: "Jane Smith", rating: 5, comment: "Absolutely loved it!" },
     ]);
 
-    console.log("MapVisible :", isMapVisible);
     const [hoverRating, setHoverRating] = useState<number>(0); // State to track hover
-    console.log("HOverRating :", hoverRating);
+    // console.log("HOverRating :", hoverRating);
 
 
     const [showForm, setShowForm] = useState(false); // For toggling the form modal
@@ -68,10 +67,6 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
         }
     };
     // console.log("TURF Details Page");
-
-    const toggleMapState = () => {
-        setIsMapVisible(prev => !prev)
-    }
 
     function toggleSlotView(): void {
         // throw new Error("Function not implemented.");
@@ -133,7 +128,6 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                                                     companyname: company?.companyname || "Turf company",
                                                     phone: company?.phone || "N/A",
                                                 }}
-                                                toggleview={toggleMapState}
                                             />
                                         </div>
                                     </div>

@@ -19,6 +19,24 @@ axiosInstance.interceptors.response.use(
     })
 
 
+//// User - Management ////
+
+// "/api/v1/admin/user-toggle-block?email=${email}&userId=${userId}"
+
+// - Block User
+export const toggleUserBlock = async (email: string, userId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_ADMIN_URL}/user-toggle-block/${userId}/${email}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpRegApi error:", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+
 
 //// Dashboard
 export const getDashboardData = async () => {
@@ -57,7 +75,31 @@ export const getRevenuesByRange = async (fromDate: Date, toDate: Date) => {
     }
 };
 
+///// SALES Report //////
 
+export const getLastMonthRevenues = async (page: number, limit: number) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_ADMIN_URL}/get-lastMonth-revenues?page=${page}&limit=${limit}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpRegApi error:", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
+export const getRevenuesByDateRange = async (fromDate: Date, toDate: Date, page: number, limit: number) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_ADMIN_URL}/get-revenues-by-date-range?fromDate=${fromDate}&toDate=${toDate}&page=${page}&limit=${limit}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpRegApi error:", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
 
 //// Subscription  //////////
 
@@ -109,3 +151,4 @@ export const deleteSubcriptionPlan = async (planId: string) => {
         }
     }
 };
+

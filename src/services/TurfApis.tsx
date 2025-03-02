@@ -6,7 +6,11 @@ import { AxiosError } from "axios";
 
 export const registerTurf = async (data: object) => {
     try {
-        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/register-turf`, data)
+        const response = await axiosInstance.post(`${BACKEND_COMPANY_URL}/register-turf`, data, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            }
+        })
         return response.data
     } catch (error) {
         console.log("ERRor while Get the turfs ::: ", error);
@@ -19,6 +23,18 @@ export const registerTurf = async (data: object) => {
 export const getTurfs = async (companyId: string) => {
     try {
         const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-turfs?companyId=${companyId}`)
+        return response.data
+    } catch (error) {
+        console.log("ERRor while Get the turfs ::: ", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+}
+
+export const getTurfDetails = async (companyId: string, turfId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-turf-details/${companyId}/${turfId}`)
         return response.data
     } catch (error) {
         console.log("ERRor while Get the turfs ::: ", error);

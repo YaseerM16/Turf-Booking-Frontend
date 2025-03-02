@@ -9,7 +9,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-        console.error("API Error:", error.response?.data || error.message);
+        console.log("API Error:", error.response?.data || error.message);
 
         if (error.response?.status === 401) {
             window.location.href = "/login";

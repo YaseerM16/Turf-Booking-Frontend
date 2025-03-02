@@ -3,12 +3,13 @@ import Header from "@/components/company/CompanyHeader";
 import Sidebar from "@/components/company/CompanySidebar";
 import TurfRegisterForm from "@/components/company/register/TurfRegisterForm";
 import FireLoading from "@/components/FireLoading";
+import { registerTurf } from "@/services/TurfApis";
 import { useAppSelector } from "@/store/hooks";
-import { axiosInstance, FormSubmitted } from "@/utils/constants";
-import { APIError } from "@/utils/type";
+import { FormSubmitted } from "@/utils/constants";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 
 
 export default function Register() {
@@ -51,15 +52,16 @@ export default function Register() {
 
             setLoading(true);
 
-            const { data } = await axiosInstance.post("/api/v1/company/register-turf", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
+            // const { data } = await axiosInstance.post("/api/v1/company/register-turf", formData, {
+            //     headers: {
+            //         "Content-Type": "multipart/form-data",
+            //     },
+            // });
+            const response = await registerTurf(formData)
 
-            console.log("Response Data:", data);
+            // console.log("Response Data:", data);
 
-            if (data?.success) {
+            if (response.success) {
                 setLoading(false);
                 toast.success("Turf Registered successfully!");
                 setTimeout(() => router.replace("/company/turf-management"), 1500);
@@ -68,9 +70,30 @@ export default function Register() {
 
             return { success: false }
         } catch (err: unknown) {
-            const apiError = err as APIError
-            console.error("Error While Register Company:", err);
-            toast.error(apiError.response?.data?.error || "Something went wrong!");
+            // const apiError = err as APIError
+            // console.error("Error While Register Company:", err);
+            // toast.error(apiError.response?.data?.error || "Something went wrong!");
+            Swal.fire({
+                position: "top-end",
+                icon: "error",
+                title: "Error!",
+                text: (err as Error)?.message || "Something went wrong. Please try again.",
+                showConfirmButton: true,
+                confirmButtonText: "OK",
+                timer: 3000,
+                toast: true,
+            });
+            Swal.fire({
+                icon: 'error',
+                title: 'resigter Failed!',
+                text: `${(err as Error).message}` || "Something went wrong while submitting the form",
+                confirmButtonText: 'Try Again',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log("User acknowledged the failure.");
+                    // Handle retry logic or additional actions here
+                }
+            });
         } finally {
             setLoading(false);
         }
