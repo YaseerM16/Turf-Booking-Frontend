@@ -78,7 +78,7 @@ const MyBooking: React.FC = () => {
             {/* Loading State */}
             {loading && <FireLoading renders={"Fetching Bookings"} />}
             {/* Main Content */}
-            <section className="py-12 bg-white">
+            <section className="py-12 px-8 bg-white">
                 <div className="max-w-6xl mx-auto">
                     {selectedBooking ? (
                         // Booking Details Section
@@ -180,13 +180,15 @@ const MyBooking: React.FC = () => {
                 </div>
             </section>
             {/* Pagination */}
-            <div className="flex justify-center items-center py-4">
-                <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalBooking!}
-                    onPageChange={handlePageChange}
-                />
-            </div>
+            {!(booking?.length === 0 || booking === null) &&
+                <div className="flex justify-center items-center py-4">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalBooking!}
+                        onPageChange={handlePageChange}
+                    />
+                </div>
+            }
         </div>)
     );
 };

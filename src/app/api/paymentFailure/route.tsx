@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 
 
 export async function POST() {
+
+    console.log("<<<<<<<<<<<<<PAYMENT Failure !!!!! Api Route in CAlled >>>>>>>>>>>");
+
     // const contentType = req.headers.get("content-type") || "";
     // const { searchParams } = req.nextUrl;
     // const slotsString = searchParams.get('slots');
@@ -36,6 +39,7 @@ export async function POST() {
     //     console.log("Error while SAVE-BOOKING", error);
     // }
     // console.log("BOOKINGDETS to SuccessPage :", bookingDetails);
+    console.log("Redirects to PayFail Page :)");
 
     redirect(`/paymentFailure`);
 

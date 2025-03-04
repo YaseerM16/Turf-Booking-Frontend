@@ -262,7 +262,7 @@ const TurfSlots: React.FC<TurfData> = ({ turf }) => {
                                                             onClick={() => setSelectedSlot(slot)}
                                                         >
                                                             {/* Slot Time */}
-                                                            <p className="p-3 mt-5 text-center font-semibold text-lg">
+                                                            <p className="p-3 text-center font-semibold text-lg">
                                                                 {slot.slot}
                                                             </p>
 

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Define public and protected routes
-export const companyPublicRoutes = ["/company/login", "/company/register"];
+export const companyPublicRoutes = ["/company/login", "/company/register", "/company/verifymail", "/checkmail"];
 export const companyProtectedRoutes = [
     "/company/dashboard",
     "/company/profile",

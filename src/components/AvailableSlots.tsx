@@ -286,22 +286,24 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                 </div>
                                 {selectedDay && (
                                     <div>
-                                        <h3 className="text-2xl flex font-semibold mb-4">
+                                        <h3 className="text-xl sm:text-2xl flex flex-wrap items-center font-semibold mb-4">
                                             Available Slots for
-                                            <span className="text-green-700 bg-yellow-200 font-bold px-3 py-2 rounded-full ml-2 shadow-lg">
+                                            <span className="text-green-700 bg-yellow-200 font-bold px-3 py-2 rounded-full ml-2 shadow-lg text-sm sm:text-base">
                                                 {date ? new Date(date).toLocaleDateString("en-US", {
                                                     weekday: "short",
                                                     month: "short",
                                                     day: "numeric",
                                                 }) : <div>loading..</div>}
                                             </span>
-                                            <div className="flex text-white bg-green-800 font-bold px-3 py-2 rounded-full ml-2 shadow-lg">
+                                            <div className="flex text-white bg-green-800 font-bold px-3 py-2 rounded-full ml-2 shadow-lg text-sm sm:text-base">
                                                 <BsCurrencyRupee className="mr-1" /> {price} / hour
                                             </div>
                                         </h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 max-w-5xl mx-auto bg-[url('./turf-background-image.jpg')] bg-cover bg-center bg-no-repeat p-6 rounded-lg shadow-lg backdrop-blur-md justify-items-center">
+
+                                        {/* Grid for Slots */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-y-6 gap-x-6 sm:gap-y-8 sm:gap-x-8 md:gap-y-10 md:gap-x-10 lg:gap-y-16 lg:gap-x-16 max-w-5xl mx-auto bg-[url('./turf-background-image.jpg')] bg-cover bg-center bg-no-repeat p-4 sm:p-6 md:p-8 lg:p-10 rounded-lg shadow-lg backdrop-blur-md justify-items-center">
                                             {loading ? (
-                                                <div className="absolute inset-0 flex justify-center items-center bg-white/70 rounded-lg p-8" style={{ height: '50vh' }}>
+                                                <div className="absolute inset-0 flex justify-center items-center bg-white/70 rounded-lg p-8 h-[50vh]">
                                                     <FireLoading renders={"Fetching Slots"} />
                                                 </div>
                                             ) : (
@@ -313,37 +315,35 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                                     ) : (
                                                         workingSlots.map((slot: SlotDetails) => {
                                                             const isSelected = selectedSlots.some((s) => s._id === slot._id);
-                                                            const isUnavailable = slot.isUnavail;  // Check for the isUnavail flag
+                                                            const isUnavailable = slot.isUnavail;
 
                                                             return (
                                                                 <button
                                                                     key={slot._id}
-                                                                    disabled={slot.isBooked || isUnavailable}  // Disable button if booked or unavailable
+                                                                    disabled={slot.isBooked || isUnavailable}
                                                                     onClick={() => toggleSlotSelection(slot)}
-                                                                    className={`relative flex flex-col items-center justify-between w-36 h-28 rounded-md transition-all duration-300
+                                                                    className={`relative flex flex-col items-center justify-between min-w-[4rem] sm:min-w-[4.5rem] md:min-w-[10rem] h-24 sm:h-28 rounded-md transition-all duration-300
                                                                         ${slot.isBooked
                                                                             ? "bg-red-300 text-gray-500 cursor-not-allowed"
                                                                             : isUnavailable
-                                                                                ? "bg-gray-400 text-gray-700 cursor-not-allowed"  // Grey for unavailable slots
+                                                                                ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                                                                                 : isSelected
                                                                                     ? "bg-yellow-400 text-blue-900 shadow-xl scale-105"
                                                                                     : "bg-green-200 text-green-900 hover:shadow-xl hover:scale-105"
                                                                         }`}
                                                                 >
                                                                     {/* Slot Time */}
-                                                                    {/* Slot Time */}
-                                                                    <p className="px-4 py-2 text-center font-extrabold text-xl text-green-900 rounded-lg w-fit mx-auto tracking-wider shadow-md">
+                                                                    <p className="px-3 py-1 text-center font-extrabold text-sm sm:text-xl text-green-900 rounded-lg w-fit mx-auto tracking-wider shadow-md">
                                                                         {slot.slot}
                                                                     </p>
 
-
                                                                     {/* Status Indicator */}
                                                                     <div
-                                                                        className={`absolute bottom-2 text-xs font-medium px-3 py-1 rounded-full
+                                                                        className={`absolute bottom-1 sm:bottom-2 text-xs font-medium px-2 sm:px-3 py-0.5 sm:py-1 rounded-full
                                                                             ${slot.isBooked
                                                                                 ? "bg-red-600 text-white"
                                                                                 : isUnavailable
-                                                                                    ? "bg-gray-500 text-white"  // Status for unavailable slots
+                                                                                    ? "bg-gray-500 text-white"
                                                                                     : isSelected
                                                                                         ? "bg-white text-green-700 border border-green-500"
                                                                                         : "bg-green-500 text-white"
@@ -359,6 +359,8 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
                                             )}
                                         </div>
                                     </div>
+
+
                                 )}
                             </div>
 

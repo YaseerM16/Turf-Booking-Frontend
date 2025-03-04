@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Sidebar from "../CompanySidebar";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import Header from "../CompanyHeader";
@@ -40,7 +40,17 @@ const TurfManagement: React.FC = () => {
         } catch (err: unknown) {
             console.log("Error fetching Turfs [] data:", err);
             if (err instanceof Error) {
-                toast.error((err as Error).message || "Something went wrong!");
+                // toast.error((err as Error).message || "Something went wrong!");
+                Swal.fire({
+                    position: "top-end",
+                    icon: "error",
+                    title: "Error!",
+                    text: (err as Error)?.message || "Something went wrong. Please try again.",
+                    showConfirmButton: true,
+                    confirmButtonText: "OK",
+                    timer: 3000,
+                    toast: true,
+                });
             }
         } finally {
             setLoading(false)

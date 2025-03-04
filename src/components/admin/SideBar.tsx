@@ -7,11 +7,14 @@ import { useRouter, usePathname } from "next/navigation";
 import Spinner from "../Spinner";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FiMenu, FiX } from "react-icons/fi";
 
 const Sidebar: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const router = useRouter()
     const pathname = usePathname();// Get router instance
+    const [isOpen, setIsOpen] = useState(false); // Sidebar toggle state
+
 
     const handleLogout = async () => {
         setLoading(true)
@@ -46,9 +49,28 @@ const Sidebar: React.FC = () => {
                 draggable
                 pauseOnHover
             />
-            <aside className="w-64 bg-green-300 text-white flex flex-col justify-between">
+            {/* Hamburger Button for Mobile */}
+            <button
+                className="md:hidden fixed top-4 left-4 z-50 bg-green-600 text-white p-2 rounded"
+                onClick={() => setIsOpen(true)}
+            >
+                <FiMenu size={24} />
+            </button>
+
+            {/* Sidebar */}
+            <aside className={`fixed inset-y-0 left-0 bg-green-300 text-white w-64 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 transition-transform duration-300 ease-in-out md:relative md:flex md:w-64 flex-col justify-between min-h-screen z-50`}>
+                {/* Close Button (Only for Mobile) */}
+                <button
+                    className="absolute top-4 right-4 md:hidden text-green-900"
+                    onClick={() => setIsOpen(false)}
+                >
+                    <FiX size={24} />
+                </button>
+
                 <div className="p-6">
-                    <h1 className="text-2xl text-green-900 font-bold mb-6">Turf Booking</h1>
+                    <h1 className="text-2xl text-green-900 font-bold mb-6 text-center md:text-left">
+                        Turf Booking
+                    </h1>
                     <nav>
                         <ul className="space-y-4">
                             <li
@@ -79,20 +101,34 @@ const Sidebar: React.FC = () => {
                             <li
                                 className={`${isActive('/admin/subscription-management')} px-4 py-2 rounded-md font-medium cursor-pointer transition duration-300 ease-in-out hover:bg-green-600 hover:text-white hover:shadow-lg hover:scale-105`}
                             >
-                                <Link href="/admin/subscription-management">Subcription Management</Link>
+                                <Link href="/admin/subscription-management">Subscription Management</Link>
                             </li>
                         </ul>
                     </nav>
                 </div>
-                <div className="p-6">
-                    {loading ? (<Spinner />) : (<button className="w-full bg-red-500 px-4 py-2 rounded-md font-medium hover:bg-red-600"
-                        onClick={() => handleLogout()}
-                    >
-                        Log Out
-                    </button>)}
 
+                <div className="p-6">
+                    {loading ? (
+                        <Spinner />
+                    ) : (
+                        <button
+                            className="w-full bg-red-500 px-4 py-2 rounded-md font-medium hover:bg-red-600 transition duration-300"
+                            onClick={() => handleLogout()}
+                        >
+                            Log Out
+                        </button>
+                    )}
                 </div>
             </aside>
+
+            {/* Overlay for Mobile */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black bg-opacity-50 md:hidden"
+                    onClick={() => setIsOpen(false)}
+                ></div>
+            )}
+
         </>
     );
 };

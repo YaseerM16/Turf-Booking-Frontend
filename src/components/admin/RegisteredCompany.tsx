@@ -119,65 +119,78 @@ const RegisteredCompanies: React.FC = () => {
                                     placeholder="Enter company name or email to search..."
                                 />
                             </div>
-                            {loading ? <FireLoading renders={"Retrieveing Registered Companies"} /> : (<table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-green-700 text-white">
-                                        <th className="px-4 py-3 text-center">#</th>
-                                        <th className="px-4 py-3 text-center">Company Name</th>
-                                        <th className="px-4 py-3 text-center">Email</th>
-                                        <th className="px-4 py-3 text-center">Phone</th>
-                                        <th className="px-4 py-3 text-center">Action</th>
-                                        <th className="px-4 py-3 text-center">Location</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {companies.map((company, index) => (
-                                        <tr
-                                            key={index}
-                                            className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"
-                                                } hover:bg-yellow-50`}
-                                        >
-                                            <td className="border px-4 py-3 text-center">{index + 1}</td>
-                                            <td className="border px-4 py-3 text-center">{company.companyname}</td>
-                                            <td className="border px-4 py-3 text-center">{company.companyemail}</td>
-                                            <td className="border px-4 py-3 text-center">{company.phone}</td>
-                                            <td className="border px-4 py-3 text-center">
-                                                <button
-                                                    className="text-white px-4 py-2 rounded-md font-medium bg-green-500 hover:bg-green-600 inline-block"
-                                                    onClick={() => handleApprove(company._id, company.companyemail)}
+                            {loading ? <FireLoading renders={"Retrieveing Registered Companies"} /> : (
+                                <div className="w-full overflow-x-auto">
+                                    <table className="w-full text-left border-collapse min-w-[700px]">
+                                        <thead>
+                                            <tr className="bg-green-700 text-white text-xs md:text-sm lg:text-base">
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-center">#</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-center">Company Name</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-center">Email</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-center">Phone</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-center whitespace-nowrap">Action</th>
+                                                <th className="px-2 md:px-4 py-2 md:py-3 text-center whitespace-nowrap">Location</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {companies.map((company, index) => (
+                                                <tr
+                                                    key={index}
+                                                    className={`${index % 2 === 0 ? "bg-gray-100" : "bg-white"} hover:bg-yellow-50 text-xs md:text-sm`}
                                                 >
-                                                    Approve
-                                                </button>
-                                            </td>
-                                            <td className="border px-4 py-3 text-center">
-                                                <MapComponent location={company.location} company={{ images: company?.profilePicture ? [company.profilePicture] : [], companyname: company?.companyname || "Turf company", phone: company?.phone || "N/A" }} />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>)}
+                                                    <td className="border px-2 md:px-4 py-2 md:py-3 text-center">{index + 1}</td>
+                                                    <td className="border px-2 md:px-4 py-2 md:py-3 text-center">{company.companyname}</td>
+                                                    <td className="border px-2 md:px-4 py-2 md:py-3 text-center truncate max-w-[90px] md:max-w-[150px] lg:max-w-none">
+                                                        {company.companyemail}
+                                                    </td>
+                                                    <td className="border px-2 md:px-4 py-2 md:py-3 text-center">{company.phone}</td>
+                                                    <td className="border px-2 md:px-4 py-2 md:py-3 text-center">
+                                                        <button
+                                                            className="text-white text-xs md:text-sm px-2 md:px-4 py-1 md:py-2 rounded-md font-medium bg-green-500 hover:bg-green-600"
+                                                            onClick={() => handleApprove(company._id, company.companyemail)}
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                    </td>
+                                                    <td className="border px-2 md:px-4 py-2 md:py-3 text-center">
+                                                        <MapComponent
+                                                            location={company.location}
+                                                            company={{
+                                                                images: company?.profilePicture ? [company.profilePicture] : [],
+                                                                companyname: company?.companyname || "Turf company",
+                                                                phone: company?.phone || "N/A"
+                                                            }}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
 
-                            <div className="flex justify-between items-center mt-4">
+                            <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-2 sm:gap-4">
                                 <button
                                     onClick={() => handlePageChange(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className="bg-green-700 text-white px-4 py-2 rounded-md font-medium disabled:bg-gray-400"
+                                    className="bg-green-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-md font-medium disabled:bg-gray-400 text-xs sm:text-sm"
                                 >
                                     Previous
                                 </button>
 
-                                <span className="text-gray-700 font-semibold">
+                                <span className="text-gray-700 font-semibold text-sm sm:text-base">
                                     Page {currentPage} of {totalPages}
                                 </span>
 
                                 <button
                                     onClick={() => handlePageChange(currentPage + 1)}
                                     disabled={currentPage === totalPages}
-                                    className="bg-green-700 text-white px-4 py-2 rounded-md font-medium disabled:bg-gray-400"
+                                    className="bg-green-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-md font-medium disabled:bg-gray-400 text-xs sm:text-sm"
                                 >
                                     Next
                                 </button>
                             </div>
+
                         </div>
                     </main>
                 </div>
