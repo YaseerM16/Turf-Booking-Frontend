@@ -239,7 +239,7 @@ const MyWallet: React.FC = () => {
                         ))}
                         </div> */}
                 {/* Pagination */}
-                {user?.isVerified && <div className="flex justify-center items-center">
+                {!(paginatedTransactions.length == 0) && <div className="flex justify-center items-center">
                     <Pagination
                         currentPage={currentPage}
                         totalPages={walletLength!}

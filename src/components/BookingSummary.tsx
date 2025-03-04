@@ -220,6 +220,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
         const total = selectedSlots.reduce((sum, slot) => sum + (slot.price ?? 0), 0);
         // setGrandTotal(total);
         setSubTotal(total)
+        setGrandTotal(total)
 
         console.log("SelectedSlots :", selectedSlots);
         console.log("Calculated Grand Total:", total);

@@ -431,28 +431,28 @@ const CompanyChatPage: React.FC = () => {
                     {/* Header */}
                     <Header />
 
-                    <div className="flex flex-grow mb-4 h-[600px]">
+                    <div className="flex h-screen">
                         {!selectedUser ? <Sidebar /> : <></>}
-                        {/* User List Section */}
-                        <div className="w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto">
-                            {loadingChats ?
+                        {/* Chat List (Sidebar) */}
+                        <div className="w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto max-h-screen">
+                            {loadingChats ? (
                                 <FireLoading renders={"Loading Chats"} />
-                                :
+                            ) : (
                                 <>
-                                    {/* Back Icon */}
+                                    <h2 className="text-lg font-semibold text-green-800 mb-4 text-center md:text-left">Chat Users</h2>
+                                    {/* Back Icon (Only for Mobile) */}
                                     <button className="text-green-800 text-2xl mb-2" onClick={() => setSelectedUser(null)}>
                                         <IoArrowBack />
                                     </button>
-                                    <h2 className="text-lg font-semibold text-green-800 mb-4">Chat Users</h2>
                                     <ul className="divide-y">
                                         {chats?.map((chat) => (
                                             <li
                                                 key={chat._id}
-                                                className={`p-4 rounded-md shadow-md cursor-pointer transition-all ${selectedUser === chat.userId._id ? 'bg-green-200' : 'bg-white'
+                                                className={`p-3 md:p-4 rounded-md shadow-md cursor-pointer transition-all ${selectedUser === chat.userId._id ? 'bg-green-200' : 'bg-white'
                                                     } hover:shadow-lg hover:bg-green-100`}
                                                 onClick={() => fetchChatMessages(chat._id, chat.userId._id)}
                                             >
-                                                <div className="flex items-center gap-4">
+                                                <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
                                                     {/* Profile Picture */}
                                                     <div className="w-12 h-12 flex-shrink-0 relative">
                                                         {chat.userId.profilePicture ? (
@@ -471,24 +471,21 @@ const CompanyChatPage: React.FC = () => {
                                                     </div>
 
                                                     {/* Chat Info */}
-                                                    <div className="flex-grow overflow-hidden">
+                                                    <div className="flex-grow overflow-hidden text-center md:text-left">
                                                         <h3 className="text-md font-medium text-green-800 truncate">{chat.userId.name}</h3>
-                                                        <div className="flex items-center space-x-2">
+                                                        <div className="flex items-center justify-center md:justify-start space-x-2">
                                                             <span className={`w-3 h-3 rounded-full ${isOnline(chat.userId._id) ? "bg-green-500" : "bg-gray-400"}`}></span>
-                                                            {/* <span>{chat.userId.name}</span> */}
                                                         </div>
                                                         <p className="text-sm text-green-600 truncate">{chat.lastMessage}</p>
                                                     </div>
 
-                                                    {/* Additional Info (Timestamp and Notification) */}
-                                                    <div className="flex flex-col items-end justify-center gap-1 ml-4">
-                                                        {/* Timestamp */}
-                                                        <span className="text-xs text-gray-500 whitespace-nowrap">
+                                                    {/* Timestamp & Notification */}
+                                                    <div className="flex md:flex-col items-center md:items-end justify-center gap-1 md:ml-4 text-xs">
+                                                        <span className="text-gray-500 whitespace-nowrap">
                                                             {new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                                                         </span>
-                                                        {/* Notification Count */}
                                                         {chat.isReadCc > 0 && (
-                                                            <span className="bg-green-500 text-white text-xs font-bold h-6 w-6 flex items-center justify-center rounded-full shadow-lg">
+                                                            <span className="bg-green-500 text-white text-xs font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg">
                                                                 {chat.isReadCc}
                                                             </span>
                                                         )}
@@ -498,9 +495,8 @@ const CompanyChatPage: React.FC = () => {
                                         ))}
                                     </ul>
                                 </>
-                            }
+                            )}
                         </div>
-
 
                         {/* Chat Section */}
                         {loadMessages ?

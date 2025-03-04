@@ -74,6 +74,7 @@ const ProfileComponent: React.FC = () => {
                 }
             }
         } catch (error: unknown) {
+            console.log("Error in frontCatch :", error);
             if (error instanceof AxiosError) {
                 if (error.status === 403) {
                     toast.error(`${error?.response?.data.message}` || "Something went wrong during update profile")

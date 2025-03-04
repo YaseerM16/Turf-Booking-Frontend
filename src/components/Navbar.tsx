@@ -9,6 +9,8 @@ import {
     FiLogOut,
     FiCreditCard,
     FiCalendar,
+    FiX,
+    FiMenu,
 } from "react-icons/fi";
 import GuestNavbar from "./user-auth/GuestNavbar";
 import { axiosInstance } from "@/utils/constants";
@@ -30,6 +32,8 @@ const Navbar: React.FC = () => {
     const router = useRouter()
     const dispatch = useAppDispatch()
     const user = useAppSelector(state => state.users?.user)
+    const [menuOpen, setMenuOpen] = useState(false); // Mobile menu state
+
 
     const [notifications, setNotifications] = useState<Notification[]>([]); // Change to an array
     const [showNotifications, setShowNotifications] = useState(false);
@@ -47,7 +51,7 @@ const Navbar: React.FC = () => {
                     setNotifications(data.notifications);
                 }
             } catch (error) {
-                console.error("Error fetching notifications:", error);
+                console.log("Error fetching notifications:", error);
             }
         };
 
@@ -255,7 +259,7 @@ const Navbar: React.FC = () => {
         <>
             <nav className="bg-gray-100 shadow-md">
                 {user ? (
-                    <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
                         {/* Logo Section */}
                         <div className="flex items-center space-x-4 cursor-pointer">
                             <Image
@@ -266,14 +270,13 @@ const Navbar: React.FC = () => {
                                 className="h-10 w-10 rounded-md shadow-md cursor-pointer"
                                 onClick={() => router.replace("/")}
                             />
-                            <span className="font-bold text-2xl text-green-700 tracking-wide">Turf Booking</span>
+                            <span className="font-bold text-xl sm:text-2xl text-green-700 tracking-wide">Turf Booking</span>
                         </div>
 
                         {/* Navigation Tabs */}
-                        <ul className="flex items-center space-x-8 text-sm font-medium">
-
+                        <ul className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium">
                             <li key={10} className="relative group" onClick={() => router.push("/")}>
-                                <span className={`flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer`}>
+                                <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
                                     <FiHome size={20} />
                                     <span>Home</span>
                                 </span>
@@ -293,25 +296,15 @@ const Navbar: React.FC = () => {
                                     <span className="absolute left-0 right-0 h-0.5 bg-green-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
                                 </li>
                             ))}
-                            <li
-                                key="notifications"
-                                className="relative group"
-                                onClick={() => setShowNotifications(!showNotifications)}
-                            >
+                            <li key="notifications" className="relative group" onClick={() => setShowNotifications(!showNotifications)}>
                                 <span className="flex items-center space-x-2 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
-                                    <span className="relative flex items-center space-x-2 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
-                                        <FiBell size={20} />
-                                        {/* {Object.values(notifications).length > 0 &&
-                                            Object.values(notifications).reduce((count, notif) => count + (notif.unreadCount || 0), 0) > 0 && (
-                                            )} */}
+                                    <FiBell size={20} />
+                                    <span>Notifications</span>
+                                    {notifications.reduce((sum, notif) => sum + (notif.unreadUserCount || 0), 0) > 0 && (
                                         <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full h-5 w-5 text-xs flex items-center justify-center transform translate-x-2 -translate-y-2">
-                                            {/* {Object.values(notifications).reduce((count, notif) => count + (notif.unreadCount || 0), 0)} */}
                                             {notifications.reduce((sum, notif) => sum + (notif.unreadUserCount || 0), 0)}
                                         </span>
-
-                                    </span>
-
-                                    <span>Notifications</span>
+                                    )}
                                 </span>
                                 {showNotifications && (
                                     <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-80 z-50">
@@ -332,7 +325,7 @@ const Navbar: React.FC = () => {
                                                         >
                                                             {/* Company Profile Image */}
                                                             <Image
-                                                                src={notif.company.profilePicture || "/logo.jpeg"} // Fallback to a default image
+                                                                src={notif.company.profilePicture || "/logo.jpeg"}
                                                                 alt={`${notif.companyname} Profile`}
                                                                 className="w-12 h-12 rounded-full object-cover"
                                                                 width={48}
@@ -341,7 +334,6 @@ const Navbar: React.FC = () => {
 
                                                             {/* Chat Content */}
                                                             <div className="flex-1">
-                                                                {/* Top Row: Company Name and Timestamp */}
                                                                 <div className="flex justify-between items-center">
                                                                     <p className="font-medium text-gray-900 text-sm">{notif.companyname}</p>
                                                                     <p className="text-xs text-gray-500">
@@ -352,20 +344,17 @@ const Navbar: React.FC = () => {
                                                                     </p>
                                                                 </div>
 
-                                                                {/* Bottom Row: Last Message and Unread Count */}
                                                                 <div className="flex justify-between items-center mt-1">
                                                                     <p className="text-sm text-gray-600 truncate w-3/4">
                                                                         {notif.userLastMessage || "No messages yet"}
                                                                     </p>
 
-                                                                    {/* Unread Count */}
                                                                     {notif.unreadUserCount > -1 && (
                                                                         <span className="bg-green-500 text-white text-xs font-semibold rounded-full px-2 py-1">
                                                                             {notif.unreadUserCount}
                                                                         </span>
                                                                     )}
                                                                 </div>
-
                                                             </div>
                                                         </li>
                                                     ))
@@ -373,14 +362,11 @@ const Navbar: React.FC = () => {
                                         </ul>
                                     </div>
                                 )}
-
                             </li>
-
                         </ul>
 
                         {/* Account Section */}
-                        <div className="flex items-center space-x-6">
-                            {/* Profile Icon */}
+                        <div className="flex items-center space-x-4 md:space-x-6">
                             <Image
                                 src={user.profilePicture || "/logo.jpeg"}
                                 alt="Profile"
@@ -389,10 +375,9 @@ const Navbar: React.FC = () => {
                                 className="h-10 w-10 rounded-full border-2 border-gray-300 shadow-md transition-transform transform hover:scale-110 cursor-pointer"
                                 onClick={() => router.replace("/profile")}
                             />
-                            {/* Logout Button */}
-                            {loading ?
+                            {loading ? (
                                 <Spinner />
-                                :
+                            ) : (
                                 <button
                                     className="flex items-center space-x-1 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 shadow"
                                     onClick={() => handleLogout()}
@@ -400,15 +385,39 @@ const Navbar: React.FC = () => {
                                     <FiLogOut size={18} />
                                     <span>Logout</span>
                                 </button>
-                            }
+                            )}
                         </div>
+
+                        {/* Hamburger Menu Button (Visible on Small Screens) */}
+                        <button className="md:hidden text-gray-700 focus:outline-none" onClick={() => setMenuOpen(!menuOpen)}>
+                            {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+                        </button>
+
+                        {/* Mobile Menu (Dropdown) */}
+                        {menuOpen && (
+                            <ul className="md:hidden absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start space-y-4 p-4 z-50">
+                                <li onClick={() => { router.push("/"); setMenuOpen(false); }} className="w-full text-gray-700 hover:text-green-600 p-2 cursor-pointer">
+                                    <FiHome size={20} className="inline mr-2" />
+                                    Home
+                                </li>
+                                {[{ icon: <FiGrid size={20} />, label: "Turfs", route: "/turfs" },
+                                { icon: <FiCreditCard size={20} />, label: "Wallet", route: "/my-wallet" },
+                                { icon: <FiMessageSquare size={20} />, label: "Messages", route: "/messages" },
+                                { icon: <FiCalendar size={20} />, label: "MyBookings", route: "/my-bookings" }]
+                                    .map((item, index) => (
+                                        <li key={index} onClick={() => { router.push(item.route); setMenuOpen(false); }} className="w-full text-gray-700 hover:text-green-600 p-2 cursor-pointer">
+                                            {item.icon}
+                                            <span className="ml-2">{item.label}</span>
+                                        </li>
+                                    ))}
+                            </ul>
+                        )}
                     </div>
                 ) : (
                     <GuestNavbar />
                 )}
             </nav>
         </>
-
     );
 };
 

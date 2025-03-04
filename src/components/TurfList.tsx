@@ -123,196 +123,139 @@ const TurfList: React.FC = () => {
                 draggable
                 pauseOnHover
             />
-            <div className="h-[120vh] bg-gradient-to-br from-green-200 via-yellow-100 to-green-50 flex flex-col">
+            <div className="min-h-screen bg-gradient-to-br from-green-200 via-yellow-100 to-green-50 flex flex-col">
                 {/* Header Section */}
-                <header className="bg-green-700 text-white p-6 shadow-md">
-                    <h1 className="text-3xl font-bold text-center">Find Your Perfect Turf</h1>
+                <header className="bg-green-700 text-white p-4 md:p-6 shadow-md">
+                    <h1 className="text-xl md:text-3xl font-bold text-center">Find Your Perfect Turf</h1>
                 </header>
 
                 {/* Search Bar */}
-                <div className="container w-11/12 md:w-3/4 mx-auto flex flex-col items-center py-4">
-                    <div className="flex items-center gap-4 bg-white rounded-lg shadow-lg p-4 w-full">
+                <div className="container w-11/12 md:w-3/4 mx-auto flex flex-col items-center py-3 md:py-4">
+                    <div className="flex items-center gap-2 md:gap-4 bg-white rounded-lg shadow-lg p-3 md:p-4 w-full">
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             type="text"
-                            placeholder="Search by Turf "
-                            className="flex-grow p-3 border-none rounded-md focus:outline-none text-gray-700"
+                            placeholder="Search by Turf"
+                            className="flex-grow p-2 md:p-3 border-none rounded-md focus:outline-none text-gray-700 text-sm md:text-base"
                         />
-                        <button className="px-6 py-3 bg-green-700 text-white font-medium rounded-md hover:bg-green-800 shadow-md">
+                        <button className="px-4 md:px-6 py-2 md:py-3 bg-green-700 text-white font-medium rounded-md hover:bg-green-800 shadow-md">
                             Search
                         </button>
                     </div>
                 </div>
 
-
-
-                <div className="container w-full md:w-[90%] mx-auto grid grid-cols-12 gap-x-6 gap-y-8 h-full">
+                <div className="container w-full md:w-[90%] mx-auto grid grid-cols-1 md:grid-cols-12 gap-x-4 md:gap-x-6 gap-y-6 h-full">
                     {/* Filters Sidebar */}
-                    <aside className="col-span-12 md:col-span-2 bg-white p-4 rounded-lg shadow-md h-full overflow-y-auto">
-                        <h2 className="text-lg font-bold text-green-700 mb-4">Filters</h2>
-                        <div className="space-y-6">
+                    <aside className="col-span-1 md:col-span-3 lg:col-span-2 bg-white p-3 md:p-4 rounded-lg shadow-md h-full max-h-[80vh] overflow-y-auto">
+                        <h2 className="text-lg md:text-xl font-bold text-green-700 mb-3 md:mb-4">Filters</h2>
+                        <div className="space-y-4">
                             {/* Type Filter */}
                             <div>
-                                <h3 className="text-green-600 font-medium mb-2">Type</h3>
+                                <h3 className="text-green-600 font-medium mb-1 md:mb-2">Type</h3>
                                 <div className="space-y-2">
-                                    <label className="flex items-center text-gray-700">
-                                        <input
-                                            type="checkbox"
-                                            className="mr-2 text-green-600"
-                                            onChange={() => handleTypeFilterChange("Open")}
-                                        />
+                                    <label className="flex items-center text-gray-700 text-sm md:text-base">
+                                        <input type="checkbox" className="mr-2 text-green-600" onChange={() => handleTypeFilterChange("Open")} />
                                         Open
                                     </label>
-                                    <label className="flex items-center text-gray-700">
-                                        <input
-                                            type="checkbox"
-                                            className="mr-2 text-green-600"
-                                            onChange={() => handleTypeFilterChange("Closed")}
-                                        />
+                                    <label className="flex items-center text-gray-700 text-sm md:text-base">
+                                        <input type="checkbox" className="mr-2 text-green-600" onChange={() => handleTypeFilterChange("Closed")} />
                                         Indoor
                                     </label>
                                 </div>
                             </div>
 
                             {/* Size Filter */}
-                            <h3 className="text-green-600 font-medium mb-2">Size</h3>
+                            <h3 className="text-green-600 font-medium mb-1 md:mb-2">Size</h3>
                             <div className="space-y-2">
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handleSizeFilterChange("5s")}
-                                    />
-                                    5s
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handleSizeFilterChange("7s")}
-                                    />
-                                    7s
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handleSizeFilterChange("11s")}
-                                    />
-                                    11s
-                                </label>
+                                {["5s", "7s", "11s"].map((size) => (
+                                    <label key={size} className="flex items-center text-gray-700 text-sm md:text-base">
+                                        <input type="checkbox" className="mr-2 text-green-600" onChange={() => handleSizeFilterChange(size)} />
+                                        {size}
+                                    </label>
+                                ))}
                             </div>
 
                             {/* Price Filter */}
-                            <h3 className="text-green-600 font-medium mb-2">Price</h3>
+                            <h3 className="text-green-600 font-medium mb-1 md:mb-2">Price</h3>
                             <div className="space-y-2">
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handlePriceFilterChange("500-1000")}
-                                    />
-                                    500 - 1000
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handlePriceFilterChange("1000-1300")}
-                                    />
-                                    1000 - 1300
-                                </label>
-                                <label className="flex items-center text-gray-700">
-                                    <input
-                                        type="checkbox"
-                                        className="mr-2 text-green-600"
-                                        onChange={() => handlePriceFilterChange("1200-1600")}
-                                    />
-                                    1200 - 1600
-                                </label>
+                                {["500-1000", "1000-1300", "1200-1600"].map((price) => (
+                                    <label key={price} className="flex items-center text-gray-700 text-sm md:text-base">
+                                        <input type="checkbox" className="mr-2 text-green-600" onChange={() => handlePriceFilterChange(price)} />
+                                        {price}
+                                    </label>
+                                ))}
                             </div>
                         </div>
                     </aside>
-                    {loading ?
-                        <div className="col-span-2 md:col-span-10">
-                            <FireLoading renders={"Fetching Turfs"} />
-                        </div>
-                        :
-                        <main className="col-span-12 md:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 cursor-pointer">
-                            {turfs && turfs.length > 0 ? (
-                                turfs.map((turf: TurfDetails, idx: number) => (
-                                    <div
-                                        key={turf._id || idx}
-                                        className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:scale-105"
-                                        style={{ height: "15rem", width: "20rem" }}
-                                        onClick={() => router.push(`/turfs/${turf._id}`)}
-                                    >
-                                        {/* Image Section */}
-                                        <div className="relative h-28">
-                                            <Image
-                                                src={turf.images[0] || "/logo.jpeg"}
-                                                alt={turf.turfName || "Turf"}
-                                                fill
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-                                                priority
-                                                className="object-cover rounded-t-lg"
-                                            />
 
-                                            <span className="absolute top-2 left-2 px-3 py-1 bg-green-700 text-white text-xs font-bold rounded-full shadow-lg">
-                                                ₹{turf.price}/hour
-                                            </span>
-                                        </div>
-
-                                        {/* Details Section */}
-                                        <div className="p-3 flex flex-col justify-between h-full">
-                                            {/* Turf Details */}
-                                            <div className="space-y-2">
-                                                <h3 className="text-md font-semibold text-green-700 truncate">
-                                                    {turf.turfName || `Turf Name #${idx + 1}`}
-                                                </h3>
-                                                <p
-                                                    className="text-xs text-gray-500 flex items-center gap-2 h-8 overflow-hidden"
-                                                    style={{ whiteSpace: "nowrap", textOverflow: "ellipsis" }}
-                                                >
-                                                    <FaMapMarkerAlt className="text-green-500" />
-                                                    {turf.address || `Turf City #${idx + 1}`}
-                                                </p>
-                                                <p className="text-xs text-gray-500 flex items-center gap-2">
-                                                    <FaClock className="text-green-500" />
-                                                    {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
-                                                </p>
-                                            </div>
-
-                                            {/* Book Now Button */}
-                                            <button
-                                                className="w-full py-2 bg-green-600 text-white text-sm font-medium rounded-md shadow-lg hover:bg-green-700 hover:shadow-xl transition-all"
-                                                onClick={() => router.push(`/turfs/${turf._id}`)}
-                                            >
-                                                Book Now
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-center col-span-3 text-gray-500">No turfs available</p>
-                            )}
-                        </main>}
                     {/* Turf Cards Section */}
+                    <main className="col-span-1 md:col-span-9 lg:col-span-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6 cursor-pointer">
+                        {loading ? (
+                            <div className="col-span-full flex justify-center">
+                                <FireLoading renders={"Fetching Turfs"} />
+                            </div>
+                        ) : turfs && turfs.length > 0 ? (
+                            turfs.map((turf: TurfDetails, idx: number) => (
+                                <div
+                                    key={turf._id || idx}
+                                    className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-2xl transition-transform transform hover:scale-105 w-full max-w-xs mx-auto md:mx-0"
+                                    onClick={() => router.push(`/turfs/${turf._id}`)}
+                                >
+                                    {/* Image Section */}
+                                    <div className="relative h-24 md:h-28">
+                                        <Image
+                                            src={turf.images[0] || "/logo.jpeg"}
+                                            alt={turf.turfName || "Turf"}
+                                            fill
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
+                                            priority
+                                            className="object-cover rounded-t-lg"
+                                        />
+                                        <span className="absolute top-1 left-1 px-2 py-1 bg-green-700 text-white text-xs font-bold rounded-full shadow-lg">
+                                            ₹{turf.price}/hour
+                                        </span>
+                                    </div>
 
+                                    {/* Details Section */}
+                                    <div className="p-2 md:p-3 flex flex-col justify-between h-full">
+                                        {/* Turf Details */}
+                                        <div className="space-y-1">
+                                            <h3 className="text-sm md:text-md font-semibold text-green-700 truncate">
+                                                {turf.turfName || `Turf Name #${idx + 1}`}
+                                            </h3>
+                                            <p className="text-xs text-gray-500 flex items-center gap-1 h-6 md:h-8 overflow-hidden truncate">
+                                                <FaMapMarkerAlt className="text-green-500" />
+                                                {turf.address || `Turf City #${idx + 1}`}
+                                            </p>
+                                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                                                <FaClock className="text-green-500" />
+                                                {turf.workingSlots.fromTime} - {turf.workingSlots.toTime}
+                                            </p>
+                                        </div>
 
+                                        {/* Book Now Button */}
+                                        <button
+                                            className="w-full py-1.5 md:py-2 bg-green-600 text-white text-xs md:text-sm font-medium rounded-md shadow-lg hover:bg-green-700 hover:shadow-xl transition-all"
+                                            onClick={() => router.push(`/turfs/${turf._id}`)}
+                                        >
+                                            Book Now
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-center col-span-full text-gray-500">No turfs available</p>
+                        )}
+                    </main>
                 </div>
-
 
                 {/* Pagination */}
-                <div className="flex justify-center items-center py-4">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalTurfs!}
-                        onPageChange={handlePageChange}
-                    />
+                <div className="flex justify-center items-center py-3 md:py-4">
+                    <Pagination currentPage={currentPage} totalPages={totalTurfs!} onPageChange={handlePageChange} />
                 </div>
             </div>
+
         </>
     );
 

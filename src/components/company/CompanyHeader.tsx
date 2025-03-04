@@ -45,28 +45,32 @@ const Header: React.FC = () => {
     };
 
     return (
-        <div className="bg-yellow-100 p-8 rounded-lg shadow-md flex justify-between items-center mb-2">
-            <div className="flex items-center space-x-6">
+        <div className="bg-yellow-100 p-6 md:p-8 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center mb-2 space-y-4 md:space-y-0">
+            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 text-center md:text-left">
                 <Image
                     src="/logo.jpeg"
                     alt="Profile"
                     className="h-16 w-16 rounded-full"
-                    width={64} // Adjust based on your desired dimensions
-                    height={64} // Adjust based on your desired dimensions
+                    width={64}
+                    height={64}
                 />
                 <div>
-                    <h1 className="text-3xl font-semibold">{company.company?.companyname || "Company Name"}</h1>
-                    <p className="text-gray-600 text-lg">Here is your company performance summary</p>
+                    <h1 className="text-2xl md:text-3xl font-semibold">{company.company?.companyname || "Company Name"}</h1>
+                    <p className="text-gray-600 text-base md:text-lg">Here is your company performance summary</p>
                 </div>
             </div>
-            {loading ? <Spinner /> : <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium text-lg"
-            >
-                Logout
-            </button>}
-
+            {loading ? (
+                <Spinner />
+            ) : (
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium text-base md:text-lg"
+                >
+                    Logout
+                </button>
+            )}
         </div>
+
     );
 };
 

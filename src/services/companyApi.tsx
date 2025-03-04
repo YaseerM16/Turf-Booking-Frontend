@@ -3,23 +3,24 @@ import axios, { AxiosError } from "axios";
 import { RegisterData } from "@/components/company/register/CompanyRegister"
 import { LoginData } from "@/components/company/CompanyLogin";
 import { Inputs } from "@/components/company/ForgotPassword";
+import { handleLogout } from "@/utils/companyAuthUtil";
 
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
     withCredentials: true,
 });
+
 axiosInstance.interceptors.response.use(
     (response) => response,
-    async (error: AxiosError) => {
-        // console.error("API Error:", error.response?.data || error.message);
-
-        if (error.response?.status === 403) {
-            window.location.href = "/company/login";
+    async (error) => {
+        if (error.response?.status === 403 && window.location.pathname !== "/login") {
+            console.log("Redirecting due to 403 error...");
+            await handleLogout(); // Call the function
+            window.location.href = "/company/login"; // Redirect to login
         }
-
         return Promise.reject(error);
-    })
-
+    }
+);
 
 
 /////////////   Auth   //////////////

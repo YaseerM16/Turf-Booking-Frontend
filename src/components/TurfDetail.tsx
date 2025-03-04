@@ -159,17 +159,17 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
 
 
                     {/* Supported Games and Facilities */}
-                    <div className="mt-12 flex gap-8">
+                    <div className="mt-12 flex flex-col md:flex-row gap-8">
                         {/* Supported Games */}
-                        <div className="bg-white rounded-lg shadow-lg p-8 flex-1">
-                            <h2 className="text-green-800 text-2xl font-bold border-b-2 border-green-600 pb-2">
+                        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 flex-1 w-full">
+                            <h2 className="text-green-800 text-xl md:text-2xl font-bold border-b-2 border-green-600 pb-2">
                                 Supported Games
                             </h2>
-                            <ul className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
                                 {turf?.supportedGames.map((game, idx) => (
                                     <li
                                         key={idx}
-                                        className="bg-green-100 text-green-800 font-medium text-lg p-4 rounded-lg shadow-md flex justify-center items-center"
+                                        className="bg-green-100 text-green-800 font-medium text-sm md:text-lg p-3 md:p-4 rounded-lg shadow-md flex justify-center items-center"
                                     >
                                         {game}
                                     </li>
@@ -178,15 +178,15 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                         </div>
 
                         {/* Facilities */}
-                        <div className="bg-white rounded-lg shadow-lg p-8 flex-1">
-                            <h2 className="text-green-800 text-2xl font-bold border-b-2 border-green-600 pb-2">
+                        <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 flex-1 w-full">
+                            <h2 className="text-green-800 text-xl md:text-2xl font-bold border-b-2 border-green-600 pb-2">
                                 Facilities
                             </h2>
-                            <ul className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-4">
+                            <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
                                 {turf?.facilities.map((facility, idx) => (
                                     <li
                                         key={idx}
-                                        className="bg-yellow-100 text-yellow-800 font-medium text-lg p-4 rounded-lg shadow-md flex justify-center items-center"
+                                        className="bg-yellow-100 text-yellow-800 font-medium text-sm md:text-lg p-3 md:p-4 rounded-lg shadow-md flex justify-center items-center"
                                     >
                                         {facility}
                                     </li>
@@ -194,6 +194,7 @@ const TurfDetail: React.FC<TurfDetailsProps> = ({ turf }) => {
                             </ul>
                         </div>
                     </div>
+
 
 
                     {/* Turf Gallery */}

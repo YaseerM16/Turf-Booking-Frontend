@@ -4,6 +4,8 @@ import { SignupData } from "@/components/user-auth/Register"
 import { LoginData } from "@/components/user-auth/LoginForm"
 import { SubscriptionPlan, User } from "@/utils/type";
 import { PaymentData } from "@/utils/PayUApiCalls";
+import { handleLogout } from "@/utils/authUtils"; // Import function
+
 
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
@@ -12,15 +14,47 @@ export const axiosInstance = axios.create({
 
 axiosInstance.interceptors.response.use(
     (response) => response,
-    async (error: AxiosError) => {
-        console.log("API Error:", error.response?.data || error.message);
-
-        if (error.response?.status === 401) {
-            window.location.href = "/login";
+    async (error) => {
+        if (error.response?.status === 403 && window.location.pathname !== "/login") {
+            console.log("Redirecting due to 403 error...");
+            await handleLogout(); // Call the function
         }
-
         return Promise.reject(error);
-    })
+    }
+);
+
+// export const handle403Error = async () => {
+//     try {
+//         // toast.error("Unauthorized access! Logging out...");
+//         const dispatch = useAppDispatch();
+//         const router = useRouter();
+
+//         const response = await axiosInstance.get("/api/v1/user/logout");
+
+//         if (response.data.loggedOut) {
+//             dispatch(logout());
+//             localStorage.removeItem("auth");
+
+//             // toast.warn("You're Logging Out ...!", {
+//             //     onClose: () => router.replace("/"),
+//             // });
+//             Swal.fire({
+//                 position: "top-end",
+//                 icon: "error",
+//                 title: "Error!",
+//                 text: "You're Blocked.",
+//                 showConfirmButton: true,
+//                 confirmButtonText: "OK",
+//                 timer: 3000,
+//                 toast: true,
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error during logout:", error);
+//     }
+// };
+
+
 
 
 /////////////   Auth   //////////////
@@ -110,7 +144,7 @@ export const updateProfileDetsApi = async (userId: string, updatedUser: User) =>
         console.log("ERORer by tre updarte Pro Dets :", error);
 
         if (error instanceof AxiosError) {
-            throw new Error(error?.response?.data.message)
+            throw error
         }
     }
 };
