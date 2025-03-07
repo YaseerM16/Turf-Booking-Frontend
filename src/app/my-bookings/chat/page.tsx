@@ -93,7 +93,7 @@ function ChatRoom() {
         console.log("SOCKET Initial");
 
         // Initialize the socket connection and store it in the ref
-        socketRef.current = io("http://localhost:5000");
+        socketRef.current = io("https://api.turfbooking.online");
 
         // Join the specified room
         socketRef.current.emit("joinRoom", roomId);
@@ -153,7 +153,7 @@ function ChatRoom() {
             if (!message.trim()) return; // Prevent sending empty messages
 
             if (!socketRef.current) {
-                socketRef.current = io("http://localhost:5000");
+                socketRef.current = io("https://api.turfbooking.online");
             }
 
             const timestamp = new Date().toISOString(); // Generate current timestamp
