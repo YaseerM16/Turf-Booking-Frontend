@@ -66,7 +66,7 @@ export const PayU = {
     merchantKey: '2PhDCt',
 };
 
-export const FRONTEND_DOMAIN = "http://localhost:3000";
+export const FRONTEND_DOMAIN = "https://www.turfbooking.online";
 export const BACKEND_USER_URL = "/api/v1/user"
 export const BACKEND_COMPANY_URL = "/api/v1/company"
 export const BACKEND_ADMIN_URL = "/api/v1/admin"
