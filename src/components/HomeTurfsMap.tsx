@@ -98,7 +98,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ turfs }) => {
             }
 
             const response = await fetch(
-                `https://api.olamaps.io/routing/v1/distanceMatrix?origins=${userLocation.current?.latitude}%2C${userLocation.current?.longitude}&destinations=${destinationsString}&api_key=5R9ZtwNGKa2RQ7O8232xZB9u2GMjXRzaos1MOYe3`,
+                `https://api.olamaps.io/routing/v1/distanceMatrix?origins=${userLocation.current?.latitude}%2C${userLocation.current?.longitude}&destinations=${destinationsString}&api_key=3Jt4Ax6H8hg6WEJdLehVpicXVlvApHAOe2yExXVU`,
                 {
                     method: 'GET',
                     headers: { 'X-Request-Id': 'XXX' }
@@ -293,7 +293,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ turfs }) => {
             // console.log("THE Location BIG Stringggg :", locationString);
 
             const olaMaps = new OlaMaps({
-                apiKey: "5R9ZtwNGKa2RQ7O8232xZB9u2GMjXRzaos1MOYe3",
+                apiKey: "3Jt4Ax6H8hg6WEJdLehVpicXVlvApHAOe2yExXVU",
             });
 
             // Create the map instance
