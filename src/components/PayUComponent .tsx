@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from "react";
-import { BookedData, FRONTEND_DOMAIN, PayU } from "@/utils/constants"
+import { BookedData, PayU } from "@/utils/constants"
 import { generateTxnId } from "@/utils/generateTxnld";
 import { toast } from "react-toastify";
 import PayUApiCalls, { PaymentData } from "@/utils/PayUApiCalls";
