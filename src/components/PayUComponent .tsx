@@ -29,8 +29,8 @@ const PayUComponent = ({ BookedData }: Props) => {
     const productinfo = BookedData?.productinfo || "";
     const udf1 = BookedData?.userId || "";
     const { name = "", email = "", phone = "" } = BookedData?.userDet || {};
-    const surl = `${FRONTEND_DOMAIN}/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData?.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
-    const furl = `${FRONTEND_DOMAIN}/api/paymentFailure`;
+    const surl = `https://www.turfbooking.online/api/paymentSuccess?slots=${encodeURIComponent(JSON.stringify(BookedData?.selectedSlots))}&token=${encodeURIComponent(accessToken!)}`;
+    const furl = `https://www.turfbooking.online/api/paymentFailure`;
     const udf2 = BookedData?.companyId || "nil";
     const udf3 = BookedData?.companyId || "nil";
     const udf4 = BookedData?.turfId || "nil";
