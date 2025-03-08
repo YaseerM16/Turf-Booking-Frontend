@@ -60,7 +60,11 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     //     )
                     // );
                     if (!socketRef.current) {
-                        socketRef.current = io("http://localhost:https://api.turfbooking.online");
+                        socketRef.current = io("https://www.turfbooking.online", {
+                            path: "/socket.io/",
+                            transports: ["websocket", "polling"], // Ensure both transports are enabled
+                            withCredentials: true
+                        });
                     }
 
                     socketRef.current.emit('deleteNotify', { message: data.message, roomId: selectedChat?.roomId })
@@ -75,7 +79,11 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     //     )
                     // );
                     if (!socketRef.current) {
-                        socketRef.current = io("http://localhost:https://api.turfbooking.online");
+                        socketRef.current = io("https://www.turfbooking.online", {
+                            path: "/socket.io/",
+                            transports: ["websocket", "polling"], // Ensure both transports are enabled
+                            withCredentials: true
+                        });
                     }
 
                     socketRef.current.emit('deleteNotify', { message: data.message, roomId: selectedChat?.roomId })
@@ -222,7 +230,11 @@ const ChatPage: React.FC<ChatPageProps> = () => {
 
             const timestamp = new Date().toISOString();
             if (!socketRef.current) {
-                socketRef.current = io("http://localhost:https://api.turfbooking.online");
+                socketRef.current = io("https://www.turfbooking.online", {
+                    path: "/socket.io/",
+                    transports: ["websocket", "polling"], // Ensure both transports are enabled
+                    withCredentials: true
+                });
             }
 
             // Emit the message event using the socket
@@ -281,7 +293,11 @@ const ChatPage: React.FC<ChatPageProps> = () => {
     useEffect(() => {
 
         // console.log("RomId Befroe :", selectedChat?.roomId);
-        socketRef.current = io("http://localhost:https://api.turfbooking.online");
+        socketRef.current = io("https://www.turfbooking.online", {
+            path: "/socket.io/",
+            transports: ["websocket", "polling"], // Ensure both transports are enabled
+            withCredentials: true
+        });
         if (socketRef.current !== null) {
             socketRef.current.emit("joinRoom", selectedChat?.roomId);
             socketRef.current.emit("userOnline", { roomId: selectedChat?.roomId, userId: user?._id });
@@ -469,7 +485,11 @@ const ChatPage: React.FC<ChatPageProps> = () => {
         if (selectedImages.length > 0) {
             const timestamp = new Date().toISOString();
             if (!socketRef.current) {
-                socketRef.current = io("http://localhost:https://api.turfbooking.online");
+                socketRef.current = io("https://www.turfbooking.online", {
+                    path: "/socket.io/",
+                    transports: ["websocket", "polling"], // Ensure both transports are enabled
+                    withCredentials: true
+                });
             }
             const imagesWithMetadata = selectedImages.map(file => ({
                 buffer: file,
