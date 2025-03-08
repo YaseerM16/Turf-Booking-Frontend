@@ -55,7 +55,7 @@ const CompanyChatPage: React.FC = () => {
                     //     )
                     // );
                     if (!socketRef.current) {
-                        socketRef.current = io("http://localhost:5000");
+                        socketRef.current = io("https://api.turfbooking.online");
                     }
 
                     socketRef.current.emit('deleteNotify', { message: data.message, roomId: chat })
@@ -65,7 +65,7 @@ const CompanyChatPage: React.FC = () => {
                 if (response.success) {
                     const { data } = response
                     if (!socketRef.current) {
-                        socketRef.current = io("http://localhost:5000");
+                        socketRef.current = io("https://api.turfbooking.online");
                     }
 
                     socketRef.current.emit('deleteNotify', { message: data.message, roomId: chat })
@@ -183,7 +183,7 @@ const CompanyChatPage: React.FC = () => {
         // console.log("SOCKET Initial");
 
         // console.log("RomId Befroe :", chat);
-        socketRef.current = io("http://localhost:5000");
+        socketRef.current = io("https://api.turfbooking.online");
         if (socketRef.current !== null) {
             socketRef.current.emit("joinRoom", chat);
             socketRef.current.emit("userOnline", { roomId: chat, userId: company?._id });
@@ -348,7 +348,7 @@ const CompanyChatPage: React.FC = () => {
             if (!newMessage.trim()) return;
             const timestamp = new Date().toISOString();
             if (!socketRef.current) {
-                socketRef.current = io("http://localhost:5000");
+                socketRef.current = io("https://api.turfbooking.online");
             }
             socketRef.current.emit('sendMessage', { roomId: chat, content: newMessage, senderId: company?._id, sender: "company", receiverId: selectedUser, timestamp });
             setNewMessage('');
@@ -387,7 +387,7 @@ const CompanyChatPage: React.FC = () => {
         if (selectedImages.length > 0) {
             const timestamp = new Date().toISOString();
             if (!socketRef.current) {
-                socketRef.current = io("http://localhost:5000");
+                socketRef.current = io("https://api.turfbooking.online");
             }
             const imagesWithMetadata = selectedImages.map(file => ({
                 buffer: file,

@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
         // }
 
         if (!socketRef.current) {
-            socketRef.current = io("http://localhost:5000");
+            socketRef.current = io("https://api.turfbooking.online");
         }
 
 
