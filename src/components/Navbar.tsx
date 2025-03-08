@@ -65,7 +65,6 @@ const Navbar: React.FC = () => {
         if (!socketRef.current) {
             socketRef.current = io("https://www.turfbooking.online", {
                 path: "/socket.io/",
-                transports: ["websocket", "polling"], // Ensure both transports are enabled
                 withCredentials: true
             });
         }
