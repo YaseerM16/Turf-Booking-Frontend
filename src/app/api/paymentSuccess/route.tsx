@@ -20,8 +20,8 @@ export async function POST(req: NextRequest) {
             slots = null;
         }
     }
-    // console.log("SEARCH Params -->> Toekn :", accessToken);
-    // console.log("SEARCH Params -->> SSLOT :", slots);
+    console.log("SEARCH Params -->> Toekn :", accessToken);
+    console.log("SEARCH Params -->> SSLOT :", slots);
 
     const formData = await req.formData();
     const data: Partial<PaymentData> = {};
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
             console.log("Error while SAVE-BOOKING :", error);
         }
     }
-    // console.log("BOOKINGDETS to SuccessPage :", bookingDetails);
+    console.log("BOOKINGDETS to SuccessPage :", bookingDetails);
 
     redirect(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(bookingDetails))}`);
 

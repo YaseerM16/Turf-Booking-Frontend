@@ -11,6 +11,8 @@ const BookingDetailsComponent: React.FC = () => {
 
     useEffect(() => {
         const bookingDetsRaw = searchParams?.get("bookingDets");
+        console.log("BookingsDETS :", bookingDetsRaw);
+
         if (bookingDetsRaw) {
             try {
                 const decodedDets = decodeURIComponent(bookingDetsRaw);
