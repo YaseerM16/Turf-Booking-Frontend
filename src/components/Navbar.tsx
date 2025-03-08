@@ -66,6 +66,7 @@ const Navbar: React.FC = () => {
             socketRef.current = io("https://www.turfbooking.online", {
                 path: "/socket.io/",
                 withCredentials: true
+
             });
         }
 
