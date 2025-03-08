@@ -60,7 +60,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     //     )
                     // );
                     if (!socketRef.current) {
-                        socketRef.current = io("https://www.turfbooking.online", {
+                        socketRef.current = io("https://api.turfbooking.online", {
                             path: "/socket.io/",
                             transports: ["websocket", "polling"], // Ensure both transports are enabled
                             withCredentials: true
@@ -79,7 +79,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     //     )
                     // );
                     if (!socketRef.current) {
-                        socketRef.current = io("https://www.turfbooking.online", {
+                        socketRef.current = io("https://api.turfbooking.online", {
                             path: "/socket.io/",
                             transports: ["websocket", "polling"], // Ensure both transports are enabled
                             withCredentials: true
@@ -230,7 +230,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
 
             const timestamp = new Date().toISOString();
             if (!socketRef.current) {
-                socketRef.current = io("https://www.turfbooking.online", {
+                socketRef.current = io("https://api.turfbooking.online", {
                     path: "/socket.io/",
                     transports: ["websocket", "polling"], // Ensure both transports are enabled
                     withCredentials: true
@@ -293,7 +293,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
     useEffect(() => {
 
         // console.log("RomId Befroe :", selectedChat?.roomId);
-        socketRef.current = io("https://www.turfbooking.online", {
+        socketRef.current = io("https://api.turfbooking.online", {
             path: "/socket.io/",
             transports: ["websocket", "polling"], // Ensure both transports are enabled
             withCredentials: true
@@ -485,7 +485,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
         if (selectedImages.length > 0) {
             const timestamp = new Date().toISOString();
             if (!socketRef.current) {
-                socketRef.current = io("https://www.turfbooking.online", {
+                socketRef.current = io("https://api.turfbooking.online", {
                     path: "/socket.io/",
                     transports: ["websocket", "polling"], // Ensure both transports are enabled
                     withCredentials: true
