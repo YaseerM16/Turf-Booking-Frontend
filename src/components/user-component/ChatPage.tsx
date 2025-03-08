@@ -660,9 +660,9 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                                                                 <p className="italic opacity-70">Deleted by you</p>
                                                             ) : msg.deletedForSender && user?._id !== msg.senderId ? (
                                                                 <p className="italic opacity-70">Deleted by Compnany</p>
-                                                            ) : msg.deletedForReceiver && user?._id !== msg.receiverId ? (
-                                                                <p className="italic opacity-70">Deleted by you</p>
                                                             ) : msg.deletedForReceiver && user?._id === msg.receiverId ? (
+                                                                <p className="italic opacity-70">Deleted by you</p>
+                                                            ) : msg.deletedForReceiver && user?._id !== msg.receiverId ? (
                                                                 <p className="leading-relaxed cursor-pointer">{msg.content}</p>
                                                             )
                                                                 : msg.isImage ? (
