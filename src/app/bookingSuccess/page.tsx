@@ -7,6 +7,7 @@ import { BookingDetails } from "@/utils/constants";
 
 const BookingDetailsComponent: React.FC = () => {
     const searchParams = useSearchParams();
+    //sfsdf
     const [bookingDets, setBookingDets] = useState<BookingDetails | null>(null);
 
     useEffect(() => {
