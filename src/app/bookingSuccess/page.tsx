@@ -1,27 +1,34 @@
 "use client";
 
 import { Suspense, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ReadonlyURLSearchParams, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { BookingDetails } from "@/utils/constants";
 
 const BookingDetailsComponent: React.FC = () => {
-    const searchParams = useSearchParams();
+    const searchParams = useSearchParams() as ReadonlyURLSearchParams;
     const [bookingDets, setBookingDets] = useState<BookingDetails | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        const bookingDetsRaw = searchParams?.get("bookingDets");
-        console.log("BookingsDETS :", bookingDetsRaw);
+        setIsClient(true);
+    }, []);
 
-        if (bookingDetsRaw) {
-            try {
-                const decodedDets = decodeURIComponent(bookingDetsRaw);
-                setBookingDets(JSON.parse(decodedDets));
-            } catch (error) {
-                console.error("Failed to parse booking details:", error);
+    useEffect(() => {
+        if (isClient) {
+            const bookingDetsRaw = searchParams.get("bookingDets");
+            console.log("BookingsDETS :", bookingDetsRaw);
+
+            if (bookingDetsRaw) {
+                try {
+                    const decodedDets = decodeURIComponent(bookingDetsRaw);
+                    setBookingDets(JSON.parse(decodedDets));
+                } catch (error) {
+                    console.error("Failed to parse booking details:", error);
+                }
             }
         }
-    }, [searchParams]);
+    }, [isClient, searchParams]);
 
     return bookingDets ? (
         <div className="space-y-8">
