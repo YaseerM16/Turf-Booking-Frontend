@@ -123,24 +123,33 @@ const LoginForm: React.FC = () => {
             draggable
             pauseOnHover
         />
-        <div className="flex h-screen">
-            {/* Left Section */}
-            <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
-                <div className="text-center pt-8">
+        <div className="h-screen w-full sm:flex">
+            {/* Left Section - Form with Dynamic Background */}
+            <div
+                className="relative flex flex-col justify-center items-center p-6 w-full h-screen 
+               sm:w-1/2 sm:bg-green-50 bg-cover bg-center sm:bg-none 
+               bg-[url('/turf-background-image.jpg')]"
+            >
+                {/* Overlay for better text visibility on small screens */}
+                <div className="absolute inset-0 bg-black/30 sm:hidden"></div>
+
+                {/* Content */}
+                <div className="relative z-10 text-center">
                     <Image
                         src="/logo.jpeg"
                         alt="Logo"
-                        width={64} // Specify width (h-16 = 16 x 4 = 64px)
-                        height={64} // Specify height (h-16 = 16 x 4 = 64px)
+                        width={64}
+                        height={64}
                         className="mx-auto mb-4"
-                        priority // Optional: Ensures the image is preloaded for better performance
+                        priority
                     />
-                    <h2 className="text-xl font-medium text-gray-800">
+                    <h2 className="text-xl font-medium text-gray-800 sm:text-gray-900">
                         Welcome Back to <span className="text-green-600">TURF</span>
                     </h2>
                 </div>
 
-                <div className="mt-8 w-3/4">
+                {/* Form or Additional Content */}
+                <div className="relative z-10 mt-8 w-3/4">
                     <h3 className="text-2xl font-semibold text-gray-900 mb-4">Log In</h3>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="mb-4">
@@ -216,7 +225,7 @@ const LoginForm: React.FC = () => {
                     </form>
                 </div>
 
-                <footer className="mt-8 text-gray-600 text-sm flex items-center justify-between">
+                <footer className="mt-8 text-gray-600 text-sm flex flex-col sm:flex-row items-center sm:justify-between w-full max-w-xs sm:max-w-md">
                     <p>© 2020 TURF. All rights reserved.</p>
                     <p>
                         <a href="/terms" className="underline">
@@ -226,11 +235,9 @@ const LoginForm: React.FC = () => {
                 </footer>
             </div>
 
-            {/* Right Section */}
-            <div
-                className="w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]"
-            >
-                <div className="flex justify-center items-center h-full">
+            {/* Right Section (Hidden on Small Screens) */}
+            <div className="hidden sm:flex w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]">
+                <div className="flex justify-center items-center h-full w-full">
                     <div className="bg-white p-4 rounded-full shadow-lg">
                         <Image
                             src="/logo.jpeg"
@@ -243,6 +250,7 @@ const LoginForm: React.FC = () => {
                     </div>
                 </div>
             </div>
+
         </div>
     </>);
 };

@@ -69,9 +69,6 @@ const TurfList: React.FC = () => {
         throttledFetchTurfs(currentPage, searchQuery, memoizedTypeFilters, memoizedSizeFilters, memoizedPriceFilters)
     }, [currentPage, searchQuery, memoizedTypeFilters, memoizedSizeFilters, memoizedPriceFilters, throttledFetchTurfs]);
 
-    console.log("HELLO From ");
-
-
     // const handleApplyFilter = () => {
     //     // const filters = {
     //     //     type: typeFilters,
