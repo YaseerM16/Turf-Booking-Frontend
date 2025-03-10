@@ -77,7 +77,6 @@ const MyWallet: React.FC = () => {
         }
     }, [user?._id, getTheWallet]);
     // console.log("CUURENT VAlance :", currentBalance);
-    // console.log("CUURENT TRans :", transactions);
 
     const getVerifyMail = async () => {
         try {
