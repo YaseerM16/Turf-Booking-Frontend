@@ -1,6 +1,4 @@
 "use client";
-export const dynamic = "error";  // ✅ Prevents pre-rendering
-
 import { useCallback, useEffect, useState } from "react";
 import FireLoading from "../FireLoading";
 import ViewBookingDetails from "./ViewBookingDetails";

@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 // import { BookingDetails } from "@/utils/constants";
 import BookingDetailsComponent from "@/components/BookingDetailsComp";
 
+<<<<<<< HEAD
 // const BookingDetailsComponent: React.FC = () => {
 //     const searchParams = useSearchParams();
 //     const [bookingDets, setBookingDets] = useState<BookingDetails | null>(null);
@@ -21,6 +22,24 @@ import BookingDetailsComponent from "@/components/BookingDetailsComp";
 //             }
 //         }
 //     }, [searchParams]);
+=======
+const BookingDetailsComponent: React.FC = () => {
+    const searchParams = useSearchParams();
+    //sfsdf
+    const [bookingDets, setBookingDets] = useState<BookingDetails | null>(null);
+
+    useEffect(() => {
+        const bookingDetsRaw = searchParams?.get("bookingDets");
+        if (bookingDetsRaw) {
+            try {
+                const decodedDets = decodeURIComponent(bookingDetsRaw);
+                setBookingDets(JSON.parse(decodedDets));
+            } catch (error) {
+                console.error("Failed to parse booking details:", error);
+            }
+        }
+    }, [searchParams]);
+>>>>>>> parent of 975bccf (tryin to fix build errors)
 
 //     return bookingDets ? (
 //         <div className="space-y-8">

@@ -1,5 +1,4 @@
 "use client";
-export const dynamic = "error";  // ✅ Prevents pre-rendering
 
 import React, { useState, useEffect, useCallback } from 'react';
 import FireLoading from '../FireLoading';
