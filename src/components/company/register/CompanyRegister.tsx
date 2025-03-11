@@ -100,16 +100,10 @@ const CompanyRegistration: React.FC = () => {
 
     return (<>
         <ToastContainer position="top-center" autoClose={1000} hideProgressBar={true} />
-        <div className="h-screen w-full sm:flex">
-            {/* Left Section - Form with Dynamic Background */}
-            <div
-                className="relative flex flex-col justify-center items-center p-3 w-full overflow-auto min-h-screen
-               sm:w-1/2 sm:bg-green-50 bg-cover bg-center sm:bg-none sm:overflow-auto
-               bg-[url('/turf-background-image.jpg')]"
-            >
-                {/* Overlay for better text visibility on small screens */}
-                <div className="absolute inset-0 bg-black/30 sm:hidden"></div>
-                {/* <div className="relative z-10 text-center pb-5 hidden sm:block">
+        <div className="flex h-screen">
+            {/* Left Section */}
+            <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center overflow-auto min-h-screen">
+                <div className="text-center pt-12 mt-5">
                     <Image
                         src="/logo.jpeg"
                         alt="Logo"
@@ -121,9 +115,9 @@ const CompanyRegistration: React.FC = () => {
                     <h2 className="text-xl font-medium text-gray-800">
                         Welcome to <span className="text-green-600">TURF</span>
                     </h2>
-                </div> */}
+                </div>
 
-                <div className="relative z-10 mt-2 w-3/4">
+                <div className="mt-8 w-3/4">
                     <h3 className="text-2xl font-semibold text-gray-900 mb-4">Company Registration</h3>
                     <form onSubmit={handleSubmit(onSubmit)}>
                         {/* Company Name */}
@@ -265,9 +259,11 @@ const CompanyRegistration: React.FC = () => {
                 </footer>
             </div>
 
-            {/* Right Section (Hidden on Small Screens) */}
-            <div className="hidden sm:flex w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]">
-                <div className="flex justify-center items-center h-full w-full">
+            {/* Right Section */}
+            <div
+                className="w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]"
+            >
+                <div className="flex justify-center items-center h-full">
                     <div className="bg-white p-4 rounded-full shadow-lg">
                         <Image
                             src="/logo.jpeg"

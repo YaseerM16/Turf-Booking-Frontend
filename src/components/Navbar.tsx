@@ -292,10 +292,8 @@ const Navbar: React.FC = () => {
                         </div>
 
                         {/* Navigation Tabs */}
-                        <ul
-                            className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium"
-                            style={{ display: isLargeScreen ? 'flex' : 'none' }}
-                        >                            <li key={10} className="relative group" onClick={() => router.push("/")}>
+                        <ul className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium">
+                            <li key={10} className="relative group" onClick={() => router.push("/")}>
                                 <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
                                     <FiHome size={20} />
                                     <span>Home</span>
@@ -377,8 +375,7 @@ const Navbar: React.FC = () => {
                                                                 </div>
                                                             </div>
                                                         </li>
-                                                    )
-                                                    )
+                                                    ))
                                             )}
                                         </ul>
                                     </div>
@@ -410,21 +407,13 @@ const Navbar: React.FC = () => {
                         </div>
 
                         {/* Hamburger Menu Button (Visible on Small Screens) */}
-                        {!isLargeScreen && (
-                            <button
-                                className="text-gray-700 focus:outline-none"
-                                onClick={() => setMenuOpen(!menuOpen)}
-                            >
-                                {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
-                            </button>
-                        )}
+                        <button className="md:hidden text-gray-700 focus:outline-none" onClick={() => setMenuOpen(!menuOpen)}>
+                            {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+                        </button>
 
                         {/* Mobile Menu (Dropdown) */}
                         {menuOpen && (
-                            <ul
-                                className="md:hidden absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start space-y-4 p-4 z-50"
-                                style={{ display: !isLargeScreen ? 'flex' : 'none' }}
-                            >
+                            <ul className="md:hidden absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start space-y-4 p-4 z-50">
                                 <li onClick={() => { router.push("/"); setMenuOpen(false); }} className="w-full text-gray-700 hover:text-green-600 p-2 cursor-pointer">
                                     <FiHome size={20} className="inline mr-2" />
                                     Home
