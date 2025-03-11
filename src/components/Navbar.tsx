@@ -256,12 +256,16 @@ const Navbar: React.FC = () => {
     }
 
     // console.log("Notification ;", notifications);
-    const [isLargeScreen, setIsLargeScreen] = useState(window.innerWidth >= 970);
+    const [isLargeScreen, setIsLargeScreen] = useState(false);
 
     useEffect(() => {
+        // This code only runs on the client
         const handleResize = () => {
             setIsLargeScreen(window.innerWidth >= 970);
         };
+
+        // Set the initial value after mounting
+        handleResize();
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
