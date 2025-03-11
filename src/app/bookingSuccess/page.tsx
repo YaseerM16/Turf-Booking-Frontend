@@ -7,11 +7,12 @@ import { BookingDetails } from "@/utils/constants";
 
 const BookingDetailsComponent: React.FC = () => {
     const searchParams = useSearchParams();
-    //sfsdf
     const [bookingDets, setBookingDets] = useState<BookingDetails | null>(null);
 
     useEffect(() => {
         const bookingDetsRaw = searchParams?.get("bookingDets");
+        console.log("BookingsDETS :", bookingDetsRaw);
+
         if (bookingDetsRaw) {
             try {
                 const decodedDets = decodeURIComponent(bookingDetsRaw);

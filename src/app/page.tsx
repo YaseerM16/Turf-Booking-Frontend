@@ -1,4 +1,6 @@
 "use client"
+export const dynamic = "error";  // ✅ Prevents pre-rendering
+
 import Navbar from "@/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
