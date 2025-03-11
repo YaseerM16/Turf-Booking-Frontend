@@ -256,20 +256,19 @@ const Navbar: React.FC = () => {
     }
 
     // console.log("Notification ;", notifications);
-    const [isLargeScreen, setIsLargeScreen] = useState(false);
+    const [isLargeScreen, setIsLargeScreen] = useState<boolean>(false);
 
     useEffect(() => {
-        // This code only runs on the client
         const handleResize = () => {
             setIsLargeScreen(window.innerWidth >= 970);
         };
 
-        // Set the initial value after mounting
-        handleResize();
+        handleResize(); // Set initial state on mount
 
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
 
 
 
@@ -292,8 +291,10 @@ const Navbar: React.FC = () => {
                         </div>
 
                         {/* Navigation Tabs */}
-                        <ul className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium">
-                            <li key={10} className="relative group" onClick={() => router.push("/")}>
+                        <ul
+                            className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium"
+                            style={{ display: isLargeScreen ? 'flex' : 'none' }}
+                        >                            <li key={10} className="relative group" onClick={() => router.push("/")}>
                                 <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
                                     <FiHome size={20} />
                                     <span>Home</span>
@@ -375,7 +376,8 @@ const Navbar: React.FC = () => {
                                                                 </div>
                                                             </div>
                                                         </li>
-                                                    ))
+                                                    )
+                                                    )
                                             )}
                                         </ul>
                                     </div>
@@ -407,13 +409,21 @@ const Navbar: React.FC = () => {
                         </div>
 
                         {/* Hamburger Menu Button (Visible on Small Screens) */}
-                        <button className="md:hidden text-gray-700 focus:outline-none" onClick={() => setMenuOpen(!menuOpen)}>
-                            {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
-                        </button>
+                        {!isLargeScreen && (
+                            <button
+                                className="ml-5 text-gray-700 focus:outline-none"
+                                onClick={() => setMenuOpen(!menuOpen)}
+                            >
+                                {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+                            </button>
+                        )}
 
                         {/* Mobile Menu (Dropdown) */}
                         {menuOpen && (
-                            <ul className="md:hidden absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start space-y-4 p-4 z-50">
+                            <ul
+                                className="md:hidden absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start space-y-4 p-4 z-50"
+                                style={{ display: !isLargeScreen ? 'flex' : 'none' }}
+                            >
                                 <li onClick={() => { router.push("/"); setMenuOpen(false); }} className="w-full text-gray-700 hover:text-green-600 p-2 cursor-pointer">
                                     <FiHome size={20} className="inline mr-2" />
                                     Home
@@ -428,6 +438,74 @@ const Navbar: React.FC = () => {
                                             <span className="ml-2">{item.label}</span>
                                         </li>
                                     ))}
+                                <li key="notifications" className="relative group" onClick={() => setShowNotifications(!showNotifications)}>
+                                    <span className="flex items-center space-x-2 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
+                                        <FiBell size={20} />
+                                        <span>Notifications</span>
+                                        {notifications.reduce((sum, notif) => sum + (notif.unreadUserCount || 0), 0) > 0 && (
+                                            <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full h-5 w-5 text-xs flex items-center justify-center transform translate-x-2 -translate-y-2">
+                                                {notifications.reduce((sum, notif) => sum + (notif.unreadUserCount || 0), 0)}
+                                            </span>
+                                        )}
+                                    </span>
+                                    {showNotifications && (
+                                        <div className="absolute right-0 mt-2 bg-white shadow-lg rounded-md w-80 z-50">
+                                            <div className="p-4 border-b">
+                                                <h3 className="text-lg font-semibold">Notifications</h3>
+                                            </div>
+                                            <ul className="max-h-80 overflow-auto">
+                                                {notifications.length === 0 ? (
+                                                    <li className="p-4 text-gray-500 text-sm">No new notifications</li>
+                                                ) : (
+                                                    notifications
+                                                        .filter((notif) => notif.userLastMessage)
+                                                        .map((notif) => (
+                                                            <li
+                                                                key={notif.roomId}
+                                                                className="p-4 border-b hover:bg-gray-100 cursor-pointer flex items-center space-x-4"
+                                                                onClick={() => deleteNotificationFunc(notif.roomId, notif.company)}
+                                                            >
+                                                                {/* Company Profile Image */}
+                                                                <Image
+                                                                    src={notif.company.profilePicture || "/logo.jpeg"}
+                                                                    alt={`${notif.companyname} Profile`}
+                                                                    className="w-12 h-12 rounded-full object-cover"
+                                                                    width={48}
+                                                                    height={48}
+                                                                />
+
+                                                                {/* Chat Content */}
+                                                                <div className="flex-1">
+                                                                    <div className="flex justify-between items-center">
+                                                                        <p className="font-medium text-gray-900 text-sm">{notif.companyname}</p>
+                                                                        <p className="text-xs text-gray-500">
+                                                                            {new Date(notif.updatedAt).toLocaleTimeString([], {
+                                                                                hour: "2-digit",
+                                                                                minute: "2-digit",
+                                                                            })}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="flex justify-between items-center mt-1">
+                                                                        <p className="text-sm text-gray-600 truncate w-3/4">
+                                                                            {notif.userLastMessage || "No messages yet"}
+                                                                        </p>
+
+                                                                        {notif.unreadUserCount > -1 && (
+                                                                            <span className="bg-green-500 text-white text-xs font-semibold rounded-full px-2 py-1">
+                                                                                {notif.unreadUserCount}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </li>
+                                                        )
+                                                        )
+                                                )}
+                                            </ul>
+                                        </div>
+                                    )}
+                                </li>
                             </ul>
                         )}
                     </div>

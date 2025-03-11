@@ -121,10 +121,16 @@ const CompanyVerifyMail: React.FC = () => {
                 draggable
                 pauseOnHover
             />
-            <div className="flex h-screen">
-                {/* Left Section */}
-                <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
-                    <div className="text-center pt-8">
+            <div className="h-screen w-full sm:flex">
+                {/* Left Section - Form with Dynamic Background */}
+                <div
+                    className="relative flex flex-col justify-center items-center p-6 w-full h-screen 
+               sm:w-1/2 sm:bg-green-50 bg-cover bg-center sm:bg-none 
+               bg-[url('/turf-background-image.jpg')]"
+                >
+                    {/* Overlay for better text visibility on small screens */}
+                    <div className="absolute inset-0 bg-black/30 sm:hidden"></div>
+                    <div className="relative z-10 text-center pt-8">
 
                         <Image
                             src="/logo.jpeg"
@@ -149,7 +155,7 @@ const CompanyVerifyMail: React.FC = () => {
                         {loading ? (
                             <div>Loading...</div>
                         ) : (
-                            <>
+                            <div className="relative z-10">
                                 {!verificationFailed ? (
                                     <button
                                         onClick={handleVerifyEmail}
@@ -165,7 +171,7 @@ const CompanyVerifyMail: React.FC = () => {
                                         Resend Verification Email
                                     </button>
                                 )}
-                            </>
+                            </div>
                         )}
                     </div>
 
@@ -179,11 +185,9 @@ const CompanyVerifyMail: React.FC = () => {
                     </footer>
                 </div>
 
-                {/* Right Section */}
-                <div
-                    className="w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]"
-                >
-                    <div className="flex justify-center items-center h-full">
+                {/* Right Section (Hidden on Small Screens) */}
+                <div className="hidden sm:flex w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]">
+                    <div className="flex justify-center items-center h-full w-full">
                         <div className="bg-white p-4 rounded-full shadow-lg">
                             <Image
                                 src="/logo.jpeg"

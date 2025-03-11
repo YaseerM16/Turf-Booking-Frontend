@@ -41,10 +41,16 @@ const LoginEmailSent: React.FC = () => {
                 pauseOnHover
             />
             <AuthNavbar />
-            <div className="flex h-screen">
-                {/* Left Section */}
-                <div className="w-1/2 bg-green-50 flex flex-col justify-center items-center">
-                    <div className="text-center pt-8">
+            <div className="h-screen w-full sm:flex">
+                {/* Left Section - Form with Dynamic Background */}
+                <div
+                    className="relative flex flex-col justify-center items-center p-6 w-full h-screen 
+               sm:w-1/2 sm:bg-green-50 bg-cover bg-center sm:bg-none 
+               bg-[url('/turf-background-image.jpg')]"
+                >
+                    {/* Overlay for better text visibility on small screens */}
+                    <div className="absolute inset-0 bg-black/30 sm:hidden"></div>
+                    <div className="relative z-10 text-center pt-8">
                         <Image
                             src="/logo.jpeg"
                             alt="Logo"
@@ -62,11 +68,11 @@ const LoginEmailSent: React.FC = () => {
                             <h3 className="text-2xl font-semibold text-gray-900 mb-4">
                                 Verify Your Email
                             </h3>
-                            <p className="text-gray-600 mb-6">
+                            <p className="text-brown mb-6">
                                 We&apos;ve sent a verification email to your registered email address.
                                 Please check your inbox and follow the link to proceed.
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-brown">
                                 If you didn&apos;t receive the email, please check your spam folder or try again later.
                             </p>
                         </div>
@@ -74,16 +80,16 @@ const LoginEmailSent: React.FC = () => {
                             <h3 className="text-2xl font-semibold text-gray-900 mb-4">
                                 Reset Password Email Sent
                             </h3>
-                            <p className="text-gray-600 mb-6">
+                            <p className="text-brown mb-6">
                                 We&apos;ve sent a password reset email to your registered email address.
                                 Please check your inbox and follow the link to reset your password.
                             </p>
-                            <p className="text-gray-600">
+                            <p className="text-brown">
                                 If you didn&apos;t receive the email, please check your spam folder or try again later.
                             </p>
                         </div>
                     }
-                    <footer className="mt-8 text-gray-600 text-sm flex items-center justify-between">
+                    <footer className="mt-8 text-brown text-sm flex items-center justify-between">
                         <p>© 2020 TURF. All rights reserved.</p>
                         <p>
                             <a href="/terms" className="underline">
@@ -93,24 +99,18 @@ const LoginEmailSent: React.FC = () => {
                     </footer>
                 </div>
 
-                {/* Right Section */}
-                <div
-                    className="w-1/2 bg-cover bg-center"
-                    style={{
-                        backgroundImage: `url('/turf-background-image.jpg')`,
-                    }}
-                >
-                    <div className="flex justify-center items-center h-full">
+                {/* Right Section (Hidden on Small Screens) */}
+                <div className="hidden sm:flex w-1/2 bg-cover bg-center bg-[url('/turf-background-image.jpg')]">
+                    <div className="flex justify-center items-center h-full w-full">
                         <div className="bg-white p-4 rounded-full shadow-lg">
                             <Image
                                 src="/logo.jpeg"
                                 alt="Turf Logo"
-                                width={128} // Match the size of h-32 (32 * 4 = 128px)
-                                height={128} // Match the size of w-32 (32 * 4 = 128px)
+                                width={128} // h-32 = 32 x 4 = 128px
+                                height={128} // w-32 = 32 x 4 = 128px
                                 className="object-cover rounded-full"
-                                priority // Use this for above-the-fold images to prioritize loading
+                                priority // Optional: Use if this image is critical for above-the-fold content
                             />
-
                         </div>
                     </div>
                 </div>
