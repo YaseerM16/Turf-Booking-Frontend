@@ -26,7 +26,7 @@ const ProfilePage = () => {
         } catch (error) {
             console.error("Error fetching Turfs [] data:", error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }, [turfId]);
 
@@ -37,9 +37,7 @@ const ProfilePage = () => {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen">
-                {loading ? <FireLoading renders={'Fetching Turf Details'} /> : <TurfDetail turf={turf} />}
-            </div>
+            {loading ? <FireLoading renders={'Fetching Turf Details'} /> : <TurfDetail turf={turf} />}
             <Footer />
         </>
     );

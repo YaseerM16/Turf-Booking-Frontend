@@ -141,7 +141,7 @@ export default function Home() {
   }, [fetchPlans, fetchTurfs, fetchTopTurfs]);
 
   return (
-    <div className="min-h-[100dvh] bg-green-50 overflow-x-hidden">
+    <div className="min-h-screen bg-green-50">
       <Navbar />
 
       {/* Hero Section */}
