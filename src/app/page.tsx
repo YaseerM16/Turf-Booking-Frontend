@@ -83,7 +83,7 @@ export default function Home() {
       }
 
     } catch (err) {
-      console.error("Error fetching user data:", err);
+      // console.error("Error fetching user data:", err);
       Swal.fire({
         position: "top-end",
         icon: "error",

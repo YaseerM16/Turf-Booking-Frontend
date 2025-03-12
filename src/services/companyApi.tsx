@@ -13,7 +13,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 403 && window.location.pathname !== "/login") {
+        if ((error.response?.status === 403 || error.response?.status === 401) && window.location.pathname !== "/login") {
             console.log("Redirecting due to 403 error...");
             await handleLogout(); // Call the function
             window.location.href = "/company/login"; // Redirect to login
@@ -274,9 +274,9 @@ export const getLastMonthRevenues = async (companyId: string, page: number, limi
     }
 }
 
-export const getRevenuesByInterval = async (companyId: string, fromDate: Date, toDate: Date) => {
+export const getRevenuesByInterval = async (companyId: string, fromDate: Date, toDate: Date, page: number, limit: number) => {
     try {
-        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-revenues-by-interval/${companyId}/?fromDate=${fromDate}&toDate=${toDate}`)
+        const response = await axiosInstance.get(`${BACKEND_COMPANY_URL}/get-revenues-by-interval/${companyId}/?fromDate=${fromDate}&toDate=${toDate}&page=${page}&limit=${limit}`)
         return response.data
     } catch (error) {
         console.log("ERRor while get revenues by range in sales report ::: ", error);
