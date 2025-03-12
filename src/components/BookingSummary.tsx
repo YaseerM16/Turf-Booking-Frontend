@@ -8,7 +8,7 @@ import { BsCurrencyRupee } from "react-icons/bs";
 import PayUComponent from "./PayUComponent ";
 import { useAppSelector } from "@/store/hooks";
 import { BookedData } from "@/utils/constants";
-import { bookSlotsByWalletApi, checkForSubscription, getWalletBalanceApi } from "@/services/userApi";
+import { bookSlotsByWalletApi, checkForSubscription, checkSlotAvailability, getWalletBalanceApi } from "@/services/userApi";
 import Swal from "sweetalert2";
 import { generateTxnId } from "@/utils/generateTxnld";
 import { useRouter } from "next/navigation";
@@ -80,44 +80,56 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                 paymentTransactionId: txnid,
             };
 
-            const response = await bookSlotsByWalletApi(userDet?._id as string, bookingDets);
-
+            const response = await checkSlotAvailability(selectedSlots)
             if (response.success) {
-                const { data } = response
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Booking Confirmed!',
-                    text: 'Your slot has been successfully booked.',
-                    confirmButtonText: 'OK',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        router.replace(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`)
-                        console.log("Booking successful!", data.isBookingCompleted)
-                        // Add any additional actions after confirmation, like redirecting or updating UI
-                        // redirect(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`);
+                // console.log("Response of the Check Availability Api : -> ", response)
 
-                    }
-                });
+                const response = await bookSlotsByWalletApi(userDet?._id as string, bookingDets);
+
+                if (response.success) {
+                    const { data } = response
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Booking Confirmed!',
+                        text: 'Your slot has been successfully booked.',
+                        confirmButtonText: 'OK',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            router.replace(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`)
+                            console.log("Booking successful!", data.isBookingCompleted)
+                            // Add any additional actions after confirmation, like redirecting or updating UI
+                            // redirect(`/bookingSuccess?bookingDets=${encodeURIComponent(JSON.stringify(data.isBookingCompleted))}`);
+
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Booking Failed!',
+                        text: `Failed to book your slot. Reason: ${'Unknown error.'}`,
+                        confirmButtonText: 'Try Again',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            console.log("User acknowledged the failure.");
+                            // Handle retry logic or additional actions here
+                        }
+                    });
+                }
             } else {
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Booking Failed!',
-                    text: `Failed to book your slot. Reason: ${'Unknown error.'}`,
-                    confirmButtonText: 'Try Again',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        console.log("User acknowledged the failure.");
-                        // Handle retry logic or additional actions here
-                    }
+                    icon: 'warning',
+                    title: 'Some slots are unavailable !',
+                    text: `${response.message}` || 'Something went wrong while processing your booking. Please try again later.',
+                    confirmButtonText: 'OK',
                 });
             }
         } catch (error) {
-            console.error("Error during booking:", error);
+            console.log("Error during booking:", error);
 
             Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: 'Something went wrong while processing your booking. Please try again later.',
+                icon: 'warning',
+                title: 'Some slots are unavailable or booked in-between!',
+                text: `${error} Refresh the page and try again.!` || 'Something went wrong while processing your booking. Please try again later.',
                 confirmButtonText: 'OK',
             });
         }
@@ -333,6 +345,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                                 onClick={() => {
                                     handlePaymentSelection("wallet")
                                     handlePayWithWallet()
+                                    setShowPayU(false)
                                 }
                                 }
                             >
@@ -349,6 +362,7 @@ const BookingSummary: React.FC<BookingSummaryProps> = ({
                                 onClick={() => {
                                     handlePaymentSelection("payu")
                                     toggleSetPayU()
+                                    setWalletPay(false)
                                 }}
                             >
                                 <SiPyup size={24} />

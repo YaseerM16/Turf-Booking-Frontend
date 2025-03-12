@@ -7,6 +7,9 @@ import { toast } from "react-toastify";
 import PayUApiCalls, { PaymentData } from "@/utils/PayUApiCalls";
 import Cookies from "js-cookie";
 import 'react-toastify/dist/ReactToastify.css';
+import { checkSlotAvailability } from "@/services/userApi";
+import { SlotDetails } from "@/utils/type";
+import Swal from "sweetalert2";
 
 
 type Props = {
@@ -16,7 +19,7 @@ const accessToken = Cookies.get("token")
 
 const PayUComponent = ({ BookedData }: Props) => {
     // console.log("BookedData prop :", BookedData);
-
+    const formRef = useRef<HTMLFormElement | null>(null);
     const [hash, setHash] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null); // State to track error
     // const userDet = JSON.parse(localStorage.getItem("auth") as string);
@@ -93,14 +96,33 @@ const PayUComponent = ({ BookedData }: Props) => {
 
 
 
-    const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        if (hash) {
-            event.currentTarget.submit();
-        } else {
-            setError("Hash not generated yet, form submission blocked.");
-            console.error("Hash not generated yet, form submission blocked.");
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        try {
+            event.preventDefault();
+            const response = await checkSlotAvailability(BookedData?.selectedSlots as SlotDetails[])
+            if (response.success) {
+                if (hash) {
+                    formRef.current?.submit(); // Use formRef instead of event.currentTarget
+                } else {
+                    setError("Hash not generated yet, form submission blocked.");
+                    console.error("Hash not generated yet, form submission blocked.");
+                }
+            } else {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Some slots are unavailable !',
+                    text: `${response.message}` || 'Something went wrong while processing your booking. Please try again later.',
+                    confirmButtonText: 'OK',
+                });
+            }
+        } catch (error) {
+            console.log("Error in the PayU Payment Proceed :", error);
+            Swal.fire({
+                icon: 'warning',
+                title: 'Some slots are unavailable or booked in-between!',
+                text: `${error} Refresh the page and try again.!` || 'Something went wrong while processing your booking. Please try again later.',
+                confirmButtonText: 'OK',
+            });
         }
     };
 
@@ -109,7 +131,8 @@ const PayUComponent = ({ BookedData }: Props) => {
             {/* Conditionally render error messages */}
             {error && <div className="mb-4 text-red-500 font-medium">{error}</div>}
 
-            <form action="https://test.payu.in/_payment" method="post" onSubmit={handleFormSubmit}>
+            <form ref={formRef}
+                action="https://test.payu.in/_payment" method="post" onSubmit={handleFormSubmit}>
                 <input type="hidden" name="key" value={key} />
                 <input type="hidden" name="txnid" value={txnid} />
                 <input type="hidden" name="productinfo" value={productinfo} />

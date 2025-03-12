@@ -2,7 +2,7 @@ import { BACKEND_USER_URL } from "@/utils/constants";
 import axios, { AxiosError } from "axios";
 import { SignupData } from "@/components/user-auth/Register"
 import { LoginData } from "@/components/user-auth/LoginForm"
-import { SubscriptionPlan, User } from "@/utils/type";
+import { SlotDetails, SubscriptionPlan, User } from "@/utils/type";
 import { PaymentData } from "@/utils/PayUApiCalls";
 import { handleLogout } from "@/utils/authUtils"; // Import function
 
@@ -15,7 +15,7 @@ export const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
-        if (error.response?.status === 403 && window.location.pathname !== "/login") {
+        if ((error.response?.status === 403 || error.response?.status === 401) && window.location.pathname !== "/login") {
             console.log("Redirecting due to 403 error...");
             await handleLogout(); // Call the function
         }
@@ -321,6 +321,19 @@ export const getBookingsApi = async (userId: string, page: number, limit: number
         }
     }
 };
+
+// "/check-slots-availability"
+export const checkSlotAvailability = async (slots: SlotDetails[]) => {
+    try {
+        const response = await axiosInstance.post(`${BACKEND_USER_URL}/check-slots-availability`, slots);
+        return response.data;
+    } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
 
 
 ///////////// Verification //////////////
