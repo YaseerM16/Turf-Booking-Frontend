@@ -52,11 +52,11 @@ const SalesReport: React.FC = () => {
                 const { data } = response
                 const { revenues } = data
                 console.log("Revenues Success:", revenues.totalTurfCount.totalTurfs);
-                setSummary({
-                    totalBookings: revenues.totalBookings,
-                    totalRevenue: revenues.totalRevenue,
-                    totalTurfs: revenues.totalTurfCount.totalTurfs
-                });
+                // setSummary({
+                //     totalBookings: revenues.totalBookings,
+                //     totalRevenue: revenues.totalRevenue,
+                //     totalTurfs: revenues.totalTurfCount.totalTurfs
+                // });
                 setRevenues(revenues.result);
                 setTotalRevenues(prev => (prev !== Math.ceil(response.data.revenues.totalBookings / revenuesPerPage) ? Math.ceil(response.data.revenues.totalBookings / revenuesPerPage) : prev) || null)
             }
