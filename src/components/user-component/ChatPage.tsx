@@ -603,7 +603,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                             <>
                                 <main className="flex-1 flex flex-col overflow-y-auto">
                                     {/* Chat Header */}
-                                    <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200">
+                                    <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200 sticky top-0 w-full z-10">
                                         <div className="flex items-center">
                                             {/* Back Icon (Only for Mobile) */}
                                             <button className="text-green-800 text-2xl mb-2" onClick={() => setSelectedChat(null)}>
