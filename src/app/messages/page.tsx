@@ -5,7 +5,6 @@ import {
     FiHome,
     FiGrid,
     FiMessageSquare,
-    FiBell,
     FiLogOut,
     FiCreditCard,
     FiCalendar,
