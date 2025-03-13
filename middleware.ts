@@ -7,6 +7,18 @@ console.error("HIIIII  FRoommmyy fht YYYSSSSRRRRRRR ");
 
 export function middleware(req: NextRequest) {
     const currentPath = req.nextUrl.pathname;
+    const userRoutes = [
+        "/profile",
+        "/my-bookings",
+        "/my-wallet",
+        "/messages",
+        "/bookingSuccess",
+        "/login",
+        "/signup",
+        "/verifymail",
+        "/checkmail",
+        "/forgotpassword",
+    ];
 
     if (currentPath.startsWith("/admin")) {
         return adminMiddleware(req);
@@ -14,16 +26,7 @@ export function middleware(req: NextRequest) {
     if (currentPath.startsWith("/company")) {
         return companyMiddleware(req);
     }
-    if (currentPath.startsWith("/profile") ||
-        currentPath.startsWith("/my-bookings") ||
-        currentPath.startsWith("/my-wallet") ||
-        currentPath.startsWith("/messages") ||
-        currentPath.startsWith("/bookingSuccess") ||
-        currentPath.startsWith("/login") ||
-        currentPath.startsWith("/signup") ||
-        currentPath.startsWith("/verifymail") ||
-        currentPath.startsWith("/checkmail") ||
-        currentPath.startsWith("/forgotpassword")) {
+    if (userRoutes.includes(currentPath)) {
         return userMiddleware(req);
     }
 
