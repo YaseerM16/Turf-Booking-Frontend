@@ -77,27 +77,10 @@
 //     ],
 // };
 
-
 import { NextRequest, NextResponse } from "next/server";
-import { userMiddleware, userPublicRoutes, userProtectedRoutes } from "./middleware/userMiddleware";
-import { companyMiddleware, companyPublicRoutes, companyProtectedRoutes } from "./middleware/companyMiddleware";
-import { adminMiddleware, adminProtectedRoutes, adminPublicRoutes } from "./middleware/adminMiddleware";
-
-export function middleware(req: NextRequest) {
-    const currentPath = req.nextUrl.pathname;
-
-    if (currentPath.startsWith("/admin")) {
-        return adminMiddleware(req);
-    }
-    if (currentPath.startsWith("/company")) {
-        return companyMiddleware(req);
-    }
-    if (currentPath.startsWith("/")) {
-        return userMiddleware(req);
-    }
-
-    return NextResponse.next();
-}
+import { userMiddleware } from "./middleware/userMiddleware";
+import { companyMiddleware } from "./middleware/companyMiddleware";
+import { adminMiddleware } from "./middleware/adminMiddleware";
 
 export const config = {
     matcher: [
@@ -116,6 +99,32 @@ export const config = {
     ],
 };
 
+export function middleware(req: NextRequest) {
+    const currentPath = req.nextUrl.pathname;
+
+    if (currentPath.startsWith("/admin")) {
+        return adminMiddleware(req);
+    }
+    if (currentPath.startsWith("/company")) {
+        return companyMiddleware(req);
+    }
+    if (currentPath.startsWith("/profile") ||
+        currentPath.startsWith("/my-bookings") ||
+        currentPath.startsWith("/my-wallet") ||
+        currentPath.startsWith("/messages") ||
+        currentPath.startsWith("/bookingSuccess") ||
+        currentPath.startsWith("/login") ||
+        currentPath.startsWith("/signup") ||
+        currentPath.startsWith("/verifymail") ||
+        currentPath.startsWith("/checkmail") ||
+        currentPath.startsWith("/forgotpassword")) {
+        return userMiddleware(req);
+    }
+
+    return NextResponse.next();
+}
+
+export const runtime = "edge"; // ✅ Define runtime here
 
 // const allRoutes = [
 //     ...userPublicRoutes.concat(
