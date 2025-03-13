@@ -82,22 +82,22 @@ import { userMiddleware } from "./middleware/userMiddleware";
 import { companyMiddleware } from "./middleware/companyMiddleware";
 import { adminMiddleware } from "./middleware/adminMiddleware";
 
-export const config = {
-    matcher: [
-        "/profile",
-        "/my-bookings",
-        "/my-wallet",
-        "/messages",
-        "/bookingSuccess",
-        "/login",
-        "/signup",
-        "/verifymail",
-        "/checkmail",
-        "/forgotpassword",
-        "/admin/:path*",
-        "/company/:path*"
-    ],
-};
+// export const config = {
+//     matcher: [
+//         "/profile",
+//         "/my-bookings",
+//         "/my-wallet",
+//         "/messages",
+//         "/bookingSuccess",
+//         "/login",
+//         "/signup",
+//         "/verifymail",
+//         "/checkmail",
+//         "/forgotpassword",
+//         "/admin/:path*",
+//         "/company/:path*"
+//     ],
+// };
 
 export function middleware(req: NextRequest) {
     const currentPath = req.nextUrl.pathname;
