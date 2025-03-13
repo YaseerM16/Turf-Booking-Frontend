@@ -7,6 +7,8 @@ export const userProtectedRoutes = ["turfbooking.online/profile", "/profile", "t
 
 export function userMiddleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
+    console.log("Token in the UserMiddleware :", token);
+
     const currentPath = req.nextUrl.pathname;
 
     let isUserAuthenticated = false;
@@ -15,6 +17,8 @@ export function userMiddleware(req: NextRequest) {
     if (token) {
         try {
             const decodedToken = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
+            console.log("This is DeCODEd TOk :", decodedToken);
+
             isUserAuthenticated = decodedToken?.userRole === "user";
         } catch (err) {
             console.error("Error decoding token:", err);
