@@ -12,6 +12,8 @@ import autoTable from "jspdf-autotable";
 import DatePicker from "react-datepicker";
 import Pagination from "../Pagination";
 import Table from "../Table";
+import FireLoading from "../FireLoading";
+
 
 
 interface Revenue {
@@ -52,11 +54,11 @@ const SalesReport: React.FC = () => {
                 const { data } = response
                 const { revenues } = data
                 console.log("Revenues Success:", revenues.totalTurfCount.totalTurfs);
-                // setSummary({
-                //     totalBookings: revenues.totalBookings,
-                //     totalRevenue: revenues.totalRevenue,
-                //     totalTurfs: revenues.totalTurfCount.totalTurfs
-                // });
+                setSummary({
+                    totalBookings: revenues.totalBookings,
+                    totalRevenue: revenues.totalRevenue,
+                    totalTurfs: revenues.totalTurfCount.totalTurfs
+                });
                 setRevenues(revenues.result);
                 setTotalRevenues(prev => (prev !== Math.ceil(response.data.revenues.totalBookings / revenuesPerPage) ? Math.ceil(response.data.revenues.totalBookings / revenuesPerPage) : prev) || null)
             }
@@ -128,22 +130,42 @@ const SalesReport: React.FC = () => {
 
     const downloadPDF = () => {
         const doc = new jsPDF();
+
+        // Title
+        doc.setFontSize(16);
         doc.text("Sales Report", 14, 10);
 
+        // Date Range
+        doc.setFontSize(12);
+        doc.text(`From: ${fromDate ? fromDate.toLocaleDateString() : "N/A"}`, 14, 20);
+        doc.text(`To: ${toDate ? toDate.toLocaleDateString() : "N/A"}`, 100, 20);
+
+        // Summary Section
+        doc.setFontSize(12);
+        doc.text(`Total Bookings: ${summary.totalBookings}`, 14, 30);
+        doc.text(`Total Revenue: ₹${summary.totalRevenue}`, 14, 40);
+        doc.text(`Total Turfs: ${summary.totalTurfs}`, 14, 50);
+
+        // Revenue Table
         const tableData = revenues.map((rev) => [
             rev.date,
             rev.turfName,
             `₹${rev.revenue}`,
         ]);
 
-        autoTable(doc, { // ✅ Correct autoTable usage
+        autoTable(doc, {
             head: [["Date", "Turf Name", "Revenue (Rs.)"]],
             body: tableData,
-            startY: 20,
+            startY: 60, // Below summary
         });
 
+        // Page Number
+        doc.text(`Page: ${currentPage}`, 180, doc.internal.pageSize.height - 10);
+
+        // Save PDF
         doc.save("Sales_Report.pdf");
     };
+
 
     // Reset filter when clearing date range
     const clearFilter = () => {
@@ -169,8 +191,8 @@ const SalesReport: React.FC = () => {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col">
                     <Header />
-                    <div className="bg-gray-100 flex-1 overflow-y-auto">
-                        <div className="bg-white p-3 rounded-lg shadow-md">
+                    <div className="bg-gray-100 flex-1 overflow-y-auto mx-3">
+                        <div className="bg-white p-2 rounded-lg shadow-md">
                             <div className="flex justify-between items-center mb-4">
                                 <h1 className="text-3xl font-semibold text-gray-800">Sales Report</h1>
                                 <button
@@ -181,88 +203,64 @@ const SalesReport: React.FC = () => {
                                 </button>
                             </div>
 
-                            <p className="text-gray-600 text-lg mb-4">Here is the list of your last 30 days revenue details</p>
-                            {/* Filter Section */}
-                            <div className="flex flex-col items-center gap-4 mb-8 w-full">
-                                <div className="flex flex-wrap justify-center sm:justify-start gap-3 w-full">
-                                    <DatePicker
-                                        selected={fromDate}
-                                        onChange={(date) => setFromDate(date)}
-                                        placeholderText="From Date"
-                                        className="w-full sm:w-auto px-4 py-2 border rounded-md text-sm"
-                                    />
-                                    <DatePicker
-                                        selected={toDate}
-                                        onChange={(date) => setToDate(date)}
-                                        placeholderText="To Date"
-                                        className="w-full sm:w-auto px-4 py-2 border rounded-md text-sm"
-                                    />
-                                    <button
-                                        className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-                                        onClick={fetchRevenueByRanges}
-                                    >
-                                        Apply
-                                    </button>
-                                    <button
-                                        className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-md hover:bg-blue-600 transition"
-                                        onClick={clearFilter}
-                                    >
-                                        Clear
-                                    </button>
+                            {!fromDate && <p className="text-gray-600 text-lg">Here is the list of your last 30 days revenue details</p>}
+                            {/* Filter & Summary Section */}
+                            <div className="flex flex-col sm:flex-row items-start gap-4 w-full">
+
+                                {/* Filter Section */}
+                                <div className="flex flex-col gap-4 w-full sm:w-1/2 mt-5 bg-white p-4 rounded-xl shadow-md">
+                                    <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                                        <DatePicker
+                                            selected={fromDate}
+                                            onChange={(date) => setFromDate(date)}
+                                            placeholderText="From Date"
+                                            className="w-full sm:w-auto px-4 py-2 border rounded-md text-sm"
+                                        />
+                                        <DatePicker
+                                            selected={toDate}
+                                            onChange={(date) => setToDate(date)}
+                                            placeholderText="To Date"
+                                            className="w-full sm:w-auto px-4 py-2 border rounded-md text-sm"
+                                        />
+                                        <button
+                                            className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+                                            onClick={fetchRevenueByRanges}
+                                        >
+                                            Apply
+                                        </button>
+                                        <button
+                                            className="w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                                            onClick={clearFilter}
+                                        >
+                                            Clear
+                                        </button>
+                                    </div>
                                 </div>
+
+                                {/* Summary Section */}
+                                <div className="grid grid-cols-3 gap-3 w-full sm:w-1/2 bg-white p-2 mb-2 rounded-xl shadow-md">
+                                    <div className="flex flex-col items-center justify-center bg-green-100 p-3 rounded-md shadow">
+                                        <h3 className="text-base font-medium text-gray-700">Total Bookings</h3>
+                                        <p className="text-xl font-bold text-green-600">{summary.totalBookings}</p>
+                                    </div>
+                                    <div className="flex flex-col items-center justify-center bg-yellow-100 p-3 rounded-md shadow">
+                                        <h3 className="text-base font-medium text-gray-700">Total Revenue</h3>
+                                        <p className="text-xl font-bold text-yellow-600">₹{summary.totalRevenue}</p>
+                                    </div>
+                                    <div className="flex flex-col items-center justify-center bg-blue-100 p-3 rounded-md shadow">
+                                        <h3 className="text-base font-medium text-gray-700">Total Turfs</h3>
+                                        <p className="text-xl font-bold text-blue-600">{summary.totalTurfs}</p>
+                                    </div>
+                                </div>
+
                             </div>
 
-                            {/* Summary Section */}
-                            <div className="grid grid-cols-3 gap-4 p-6 bg-white rounded-2xl shadow-md">
-                                <div className="flex flex-col items-center justify-center bg-green-100 p-4 rounded-lg shadow">
-                                    <h3 className="text-lg font-semibold text-gray-700">Total Bookings</h3>
-                                    <p className="text-2xl font-bold text-green-600">{summary.totalBookings}</p>
-                                </div>
-                                <div className="flex flex-col items-center justify-center bg-yellow-100 p-4 rounded-lg shadow">
-                                    <h3 className="text-lg font-semibold text-gray-700">Total Revenue</h3>
-                                    <p className="text-2xl font-bold text-yellow-600">₹{summary.totalRevenue}</p>
-                                </div>
-                                <div className="flex flex-col items-center justify-center bg-blue-100 p-4 rounded-lg shadow">
-                                    <h3 className="text-lg font-semibold text-gray-700">Total Turfs</h3>
-                                    <p className="text-2xl font-bold text-blue-600">{summary.totalTurfs}</p>
-                                </div>
-                            </div>
+
 
 
                             {loading ? (
-                                <p className="text-center text-gray-500">Loading...</p>
+                                <FireLoading renders="Fetching Statistics..." />
                             ) : (
-                                // <div className="overflow-x-auto">
-                                //     <table className="w-full border-collapse border border-gray-300">
-                                //         <thead>
-                                //             <tr className="bg-green-600 text-white">
-                                //                 <th className="border border-gray-300 px-4 py-2">Date</th>
-                                //                 <th className="border border-gray-300 px-4 py-2">Turf Name</th>
-                                //                 <th className="border border-gray-300 px-4 py-2">Revenue (₹)</th>
-                                //             </tr>
-                                //         </thead>
-                                //         <tbody>
-                                //             {revenues.length > 0 ? (
-                                //                 revenues.map((rev, index) => (
-                                //                     <tr key={index} className="border border-gray-300 text-center">
-                                //                         <td className="border px-4 py-2">{rev.date}</td>
-                                //                         <td className="border px-4 py-2">{rev.turfName}</td>
-                                //                         <td className="border px-4 py-2">Rs.{rev.revenue}</td>
-                                //                         {/* <td className="border px-4 py-2">
-                                //                         {rev.location.latitude.toFixed(3)}, {rev.location.longitude.toFixed(3)}
-                                //                     </td> */}
-                                //                     </tr>
-                                //                 ))
-                                //             ) : (
-                                //                 <tr>
-                                //                     <td colSpan={4} className="text-center py-4 text-gray-500">
-                                //                         No revenue data available.
-                                //                     </td>
-                                //                 </tr>
-                                //             )}
-                                //         </tbody>
-                                //     </table>
-                                // </div>
                                 <>
                                     <Table columns={[{ key: "date", label: "DATE" }, { key: "turfName", label: "TurfName" }, { key: "revenue", label: "Revenue" },]}
                                         data={revenues || []}></Table>

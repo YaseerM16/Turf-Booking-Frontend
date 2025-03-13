@@ -9,7 +9,7 @@ import { deleteNotification, getChats, messageDeleteForEveryone, messageDeleteFo
 import { ChatRoom, Message } from "@/utils/type";
 import { useSearchParams } from "next/navigation";
 import EmojiPicker from 'emoji-picker-react';  // Import emoji picker
-import { IoSend } from "react-icons/io5"; // Import send icon
+import { IoArrowBack, IoSend } from "react-icons/io5"; // Import send icon
 import { format, isToday, isYesterday, parseISO } from "date-fns";
 
 interface Company {
@@ -532,7 +532,10 @@ const ChatPage: React.FC<ChatPageProps> = () => {
 
             <div className="h-screen bg-green-50 flex mb-4 h-[600px]">
                 {/* Sidebar */}
-                <aside className="w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto">
+                <aside
+                    className={`w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto 
+                    ${selectedChat ? "hidden" : "block"} md:block`}
+                >
                     {loadingChats ?
                         <FireLoading renders={"Loading Chats"} />
                         :
@@ -597,10 +600,14 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     :
                     <>
                         {selectedChat ?
-                            <main className="h-screen flex-1 flex flex-col h-[600px]">
+                            <main className="flex-1 h-screen md:h-auto flex flex-col">
                                 {/* Chat Header */}
                                 <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200">
                                     <div className="flex items-center">
+                                        {/* Back Icon (Only for Mobile) */}
+                                        <button className="text-green-800 text-2xl mb-2" onClick={() => setSelectedChat(null)}>
+                                            <IoArrowBack />
+                                        </button>
                                         <div className="h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
                                             <Image
                                                 src={selectedChat.Company.profilePicture ? selectedChat.Company.profilePicture : "/logo.jpeg"}
@@ -627,8 +634,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                                 </header>
 
                                 {/* Messages */}
-                                {/* Messages */}
-                                <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar bg-green-50">
+                                <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar bg-green-50 p-4 md:p-6">
                                     <div>
                                         {Object.entries(groupedMessages).map(([dateLabel, msgs]) => (
                                             <div key={dateLabel}>
@@ -786,7 +792,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
 
 
                                 {/* Input Section */}
-                                <div className="bg-gray-100 px-6 py-4 border-t border-gray-200 rounded-b-lg shadow-md">
+                                <div className="bg-gray-100 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4">
                                     {/* Image Preview Section */}
                                     {selectedImages.length > 0 && (
                                         <div className="flex gap-2 mb-2">
@@ -857,8 +863,6 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                                         </button>
                                     </div>
                                 </div>
-
-
                             </main>
 
                             :

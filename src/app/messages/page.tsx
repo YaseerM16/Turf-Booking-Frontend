@@ -9,6 +9,8 @@ import {
     FiLogOut,
     FiCreditCard,
     FiCalendar,
+    FiX,
+    FiMenu,
 } from "react-icons/fi";
 // import GuestNavbar from "./user-auth/GuestNavbar";
 import { axiosInstance } from "@/utils/constants";
@@ -125,14 +127,27 @@ const Navbar: React.FC = () => {
     }
 
     // console.log("Notification ;", notifications);
+    const [menuOpen, setMenuOpen] = useState(false); // Mobile menu state
 
+    const [isLargeScreen, setIsLargeScreen] = useState<boolean>(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsLargeScreen(window.innerWidth >= 970);
+        };
+
+        handleResize(); // Set initial state on mount
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
 
     return (
         <>
             <nav className="bg-gray-100 shadow-md">
                 {user ? (
-                    <div className="max-w-7xl mx-auto px-6 flex justify-between items-center h-16">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
                         {/* Logo Section */}
                         <div className="flex items-center space-x-4 cursor-pointer">
                             <Image
@@ -143,14 +158,15 @@ const Navbar: React.FC = () => {
                                 className="h-10 w-10 rounded-md shadow-md cursor-pointer"
                                 onClick={() => router.replace("/")}
                             />
-                            <span className="font-bold text-2xl text-green-700 tracking-wide">Turf Booking</span>
+                            <span className="font-bold text-xl sm:text-2xl text-green-700 tracking-wide">Turf Booking</span>
                         </div>
 
                         {/* Navigation Tabs */}
-                        <ul className="flex items-center space-x-8 text-sm font-medium">
-
-                            <li key={10} className="relative group" onClick={() => router.push("/")}>
-                                <span className={`flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer`}>
+                        <ul
+                            className="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-medium"
+                            style={{ display: isLargeScreen ? 'flex' : 'none' }}
+                        >                            <li key={10} className="relative group" onClick={() => router.push("/")}>
+                                <span className="flex items-center space-x-1 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
                                     <FiHome size={20} />
                                     <span>Home</span>
                                 </span>
@@ -170,31 +186,10 @@ const Navbar: React.FC = () => {
                                     <span className="absolute left-0 right-0 h-0.5 bg-green-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></span>
                                 </li>
                             ))}
-                            <li
-                                key="notifications"
-                                className="relative group"
-                            >
-                                <span className="flex items-center space-x-2 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
-                                    {/* Bell Icon */}
-                                    {/* Notification Badge */}
-                                    <span className="relative flex items-center space-x-2 text-gray-700 hover:text-green-600 transition duration-200 cursor-pointer">
-                                        <FiBell size={20} />
-                                        {/* {Object.values(notifications).some((notif) => notif.unreadCount > 0) && (
-                                            <span className="absolute top-0 right-0 bg-red-600 text-white rounded-full h-5 w-5 text-xs flex items-center justify-center transform translate-x-2 -translate-y-2">
-                                                {Object.values(notifications).reduce((count, notif) => count + notif.unreadCount, 0)}
-                                            </span>
-                                        )} */}
-                                    </span>
-
-                                    <span>Notifications</span>
-                                </span>
-                            </li>
-
                         </ul>
 
                         {/* Account Section */}
-                        <div className="flex items-center space-x-6">
-                            {/* Profile Icon */}
+                        <div className="flex items-center space-x-4 md:space-x-6">
                             <Image
                                 src={user.profilePicture || "/logo.jpeg"}
                                 alt="Profile"
@@ -203,10 +198,9 @@ const Navbar: React.FC = () => {
                                 className="h-10 w-10 rounded-full border-2 border-gray-300 shadow-md transition-transform transform hover:scale-110 cursor-pointer"
                                 onClick={() => router.replace("/profile")}
                             />
-                            {/* Logout Button */}
-                            {loading ?
+                            {loading ? (
                                 <Spinner />
-                                :
+                            ) : (
                                 <button
                                     className="flex items-center space-x-1 bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 shadow"
                                     onClick={() => handleLogout()}
@@ -214,8 +208,41 @@ const Navbar: React.FC = () => {
                                     <FiLogOut size={18} />
                                     <span>Logout</span>
                                 </button>
-                            }
+                            )}
                         </div>
+
+                        {/* Hamburger Menu Button (Visible on Small Screens) */}
+                        {!isLargeScreen && (
+                            <button
+                                className="ml-5 text-gray-700 focus:outline-none"
+                                onClick={() => setMenuOpen(!menuOpen)}
+                            >
+                                {menuOpen ? <FiX size={28} /> : <FiMenu size={28} />}
+                            </button>
+                        )}
+
+                        {/* Mobile Menu (Dropdown) */}
+                        {menuOpen && (
+                            <ul
+                                className="md:hidden absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-start space-y-4 p-4 z-50"
+                                style={{ display: !isLargeScreen ? 'flex' : 'none' }}
+                            >
+                                <li onClick={() => { router.push("/"); setMenuOpen(false); }} className="w-full text-gray-700 hover:text-green-600 p-2 cursor-pointer">
+                                    <FiHome size={20} className="inline mr-2" />
+                                    Home
+                                </li>
+                                {[{ icon: <FiGrid size={20} />, label: "Turfs", route: "/turfs" },
+                                { icon: <FiCreditCard size={20} />, label: "Wallet", route: "/my-wallet" },
+                                { icon: <FiMessageSquare size={20} />, label: "Messages", route: "/messages" },
+                                { icon: <FiCalendar size={20} />, label: "MyBookings", route: "/my-bookings" }]
+                                    .map((item, index) => (
+                                        <li key={index} onClick={() => { router.push(item.route); setMenuOpen(false); }} className="w-full text-gray-700 hover:text-green-600 p-2 cursor-pointer">
+                                            {item.icon}
+                                            <span className="ml-2">{item.label}</span>
+                                        </li>
+                                    ))}
+                            </ul>
+                        )}
                     </div>
                 ) : (
                     <GuestNavbar />
