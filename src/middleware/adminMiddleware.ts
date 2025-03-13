@@ -8,7 +8,6 @@ export const adminProtectedRoutes = [
     "/admin/approved-companies",
     "/admin/sales-report",
     "/admin/subscription-management",
-    "/admin/sales-report"
 ];
 
 export function adminMiddleware(req: NextRequest) {
@@ -17,7 +16,6 @@ export function adminMiddleware(req: NextRequest) {
 
     let isAdminUser = false;
 
-    // ✅ Decode token and verify admin role before checking routes
     if (token) {
         try {
             const decodedToken = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
@@ -28,19 +26,14 @@ export function adminMiddleware(req: NextRequest) {
         }
     }
 
-    // ✅ If the user is authenticated and on a **public route**, redirect to `/admin/dashboard`
-    if (isAdminUser && adminPublicRoutes.some((route) => currentPath.startsWith(route))) {
+    // ✅ Fix: Use `includes()` for exact match
+    if (isAdminUser && adminPublicRoutes.includes(currentPath)) {
         return NextResponse.redirect(new URL("/admin/dashboard", req.url));
     }
 
-    // ✅ If the user is on a **protected route**
-    if (adminProtectedRoutes.some((route) => currentPath.startsWith(route))) {
-        // ❌ If not logged in or not an admin user, redirect to login
-        if (!isAdminUser) {
-            return NextResponse.redirect(new URL("/admin/login", req.url));
-        }
+    if (adminProtectedRoutes.includes(currentPath) && !isAdminUser) {
+        return NextResponse.redirect(new URL("/admin/login", req.url));
     }
 
-    // ✅ Allow access for all other requests
     return NextResponse.next();
 }

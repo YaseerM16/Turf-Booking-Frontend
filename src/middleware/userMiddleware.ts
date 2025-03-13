@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Define public and protected routes
 export const userPublicRoutes = ["/login", "/signup", "/verifymail", "/checkmail", "/forgotpassword"];
-export const userProtectedRoutes = ["turfbooking.online/profile", "/profile", "turfbooking.online/my-bookings", "/my-bookings", "/my-wallet", "/messages", "/bookingSuccess"];
+export const userProtectedRoutes = ["/profile", "/my-bookings", "/my-wallet", "/messages", "/bookingSuccess"];
 
 export function userMiddleware(req: NextRequest) {
     const token = req.cookies.get("token")?.value;
