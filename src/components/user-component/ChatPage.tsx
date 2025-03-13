@@ -530,7 +530,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
     return (
         <Suspense fallback={<div>Loading...</div>}>
 
-            <div className="h-screen bg-green-50 flex mb-4 h-[600px]">
+            <div className="h-screen bg-green-50 flex flex-col">
                 {/* Sidebar */}
                 <aside
                     className={`w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto 
@@ -600,274 +600,276 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     :
                     <>
                         {selectedChat ?
-                            <main className="flex-1 h-screen md:h-auto flex flex-col">
-                                {/* Chat Header */}
-                                <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200">
-                                    <div className="flex items-center">
-                                        {/* Back Icon (Only for Mobile) */}
-                                        <button className="text-green-800 text-2xl mb-2" onClick={() => setSelectedChat(null)}>
-                                            <IoArrowBack />
-                                        </button>
-                                        <div className="h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
-                                            <Image
-                                                src={selectedChat.Company.profilePicture ? selectedChat.Company.profilePicture : "/logo.jpeg"}
-                                                alt={selectedChat.Company.companyname}
-                                                width={40}
-                                                height={40}
-                                                className="object-cover"
-                                            />
-                                        </div>
-                                        <h3 className="font-semibold text-gray-800">{selectedChat.Company.companyname}</h3>
-
-                                        <div className="ml-4 flex flex items-center gap-2">
-                                            <div className="flex items-center gap-1">
-                                                <span
-                                                    className={`w-3 h-3 rounded-full shadow-md ${isOnline(selectedChat.Company._id) ? "bg-green-500" : "bg-gray-400"
-                                                        }`}
-                                                ></span>
-                                                <span className="text-sm text-gray-600">
-                                                    {isOnline(selectedChat.Company._id) ? "Online" : "Offline"}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </header>
-
-                                {/* Messages */}
-                                <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar bg-green-50 p-4 md:p-6">
-                                    <div>
-                                        {Object.entries(groupedMessages).map(([dateLabel, msgs]) => (
-                                            <div key={dateLabel}>
-                                                {/* Date Separator */}
-                                                <div className="relative flex items-center my-6">
-                                                    <div className="flex-grow border-t border-gray-300"></div>
-                                                    <span className="px-4 text-gray-600 text-xs bg-white shadow-md rounded-full py-1">
-                                                        {dateLabel}
-                                                    </span>
-                                                    <div className="flex-grow border-t border-gray-300"></div>
-                                                </div>
-
-
-                                                {msgs.map((msg) => (
-                                                    <div
-                                                        key={msg._id}
-                                                        className={`group flex ${msg.senderId === user?._id ? "justify-end" : "justify-start"
-                                                            } mb-4 mx-6`}
-                                                    >
-                                                        <div
-                                                            className={`relative p-4 text-sm ${msg.senderId === user?._id
-                                                                ? "bg-green-800 text-white"
-                                                                : "bg-gray-300 text-gray-800"
-                                                                } rounded-xl shadow-lg max-w-[75%] break-words group-hover:opacity-100`}
-                                                            onClick={() => handleDeleteClick(msg._id)}
-                                                        >
-                                                            {/* Handle deleted messages */}
-                                                            {msg.deletedForSender && user?._id === msg.senderId ? (
-                                                                <p className="italic opacity-70">Deleted by you</p>
-                                                            ) : msg.deletedForSender && user?._id !== msg.senderId ? (
-                                                                <p className="italic opacity-70">Deleted by Compnany</p>
-                                                            ) : msg.deletedForReceiver && user?._id === msg.receiverId ? (
-                                                                <p className="italic opacity-70">Deleted by you</p>
-                                                            ) : msg.deletedForReceiver && user?._id !== msg.receiverId ? (
-                                                                <p className="leading-relaxed cursor-pointer">{msg.content}</p>
-                                                            )
-                                                                : msg.isImage ? (
-                                                                    <Image
-                                                                        src={msg.content}
-                                                                        alt="Message Image"
-                                                                        width={220}
-                                                                        height={220}
-                                                                        objectFit="contain"
-                                                                        className="rounded-lg mb-2 cursor-pointer"
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            handleImageClick(msg.content)
-                                                                        }}
-                                                                    />
-                                                                ) : (
-                                                                    <p className="leading-relaxed cursor-pointer">{msg.content}</p>
-                                                                )}
-
-                                                            {/* Message Time */}
-                                                            <p
-                                                                className={`text-xs mt-1 text-right ${msg.senderId === user?._id ? "text-white" : "text-gray-500"
-                                                                    }`}
-                                                            >
-                                                                {msg.createdAt
-                                                                    ? new Date(msg.createdAt).toLocaleTimeString([], {
-                                                                        hour: "2-digit",
-                                                                        minute: "2-digit",
-                                                                    })
-                                                                    : new Date().toLocaleTimeString([], {
-                                                                        hour: "2-digit",
-                                                                        minute: "2-digit",
-                                                                    })}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Full Image Modal */}
-                                    {isModalOpen && (
-                                        <div
-                                            className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-75 flex justify-center items-center z-50"
-                                            onClick={handleCloseModal} // Close the modal when clicking anywhere on the screen
-                                        >
-                                            <div
-                                                className="relative"
-                                                onClick={(e) => e.stopPropagation()} // Prevent click from closing when clicking on the image
-                                            >
+                            <>
+                                <main className="flex-1 flex flex-col overflow-y-auto">
+                                    {/* Chat Header */}
+                                    <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200">
+                                        <div className="flex items-center">
+                                            {/* Back Icon (Only for Mobile) */}
+                                            <button className="text-green-800 text-2xl mb-2" onClick={() => setSelectedChat(null)}>
+                                                <IoArrowBack />
+                                            </button>
+                                            <div className="h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
                                                 <Image
-                                                    src={currentImage} // Full-size image URL
-                                                    alt="Full Image"
-                                                    width={700} // Adjust as per your requirements
-                                                    height={700} // Adjust as per your requirements
-                                                    objectFit="contain"
-                                                    className="rounded-lg"
+                                                    src={selectedChat.Company.profilePicture ? selectedChat.Company.profilePicture : "/logo.jpeg"}
+                                                    alt={selectedChat.Company.companyname}
+                                                    width={40}
+                                                    height={40}
+                                                    className="object-cover"
                                                 />
-                                                <button
-                                                    onClick={handleCloseModal} // Close button to close the modal
-                                                    className="absolute top-4 right-4 text-white text-2xl"
-                                                >
-                                                    ✖
-                                                </button>
+                                            </div>
+                                            <h3 className="font-semibold text-gray-800">{selectedChat.Company.companyname}</h3>
+
+                                            <div className="ml-4 flex flex items-center gap-2">
+                                                <div className="flex items-center gap-1">
+                                                    <span
+                                                        className={`w-3 h-3 rounded-full shadow-md ${isOnline(selectedChat.Company._id) ? "bg-green-500" : "bg-gray-400"
+                                                            }`}
+                                                    ></span>
+                                                    <span className="text-sm text-gray-600">
+                                                        {isOnline(selectedChat.Company._id) ? "Online" : "Offline"}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-                                    )}
-                                    {showDeletePopup && selectedMessage && (
-                                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
-                                            <div className="bg-white p-4 rounded-lg shadow-md w-64">
-                                                <p className="text-center text-gray-800 mb-4">Delete message?</p>
+                                    </header>
 
-                                                {/* If the user is the sender, show both options */}
-                                                {messages.find((msg) => msg._id === selectedMessage)?.senderId === user?._id ? (
-                                                    <>
-                                                        <button
-                                                            onClick={() => deleteMessage(selectedMessage, true)}
-                                                            className="w-full bg-red-600 text-white py-2 rounded-md mb-2 hover:bg-red-700"
+                                    {/* Messages */}
+                                    <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar bg-green-50 p-4 md:p-6">
+                                        <div>
+                                            {Object.entries(groupedMessages).map(([dateLabel, msgs]) => (
+                                                <div key={dateLabel}>
+                                                    {/* Date Separator */}
+                                                    <div className="relative flex items-center my-6">
+                                                        <div className="flex-grow border-t border-gray-300"></div>
+                                                        <span className="px-4 text-gray-600 text-xs bg-white shadow-md rounded-full py-1">
+                                                            {dateLabel}
+                                                        </span>
+                                                        <div className="flex-grow border-t border-gray-300"></div>
+                                                    </div>
+
+
+                                                    {msgs.map((msg) => (
+                                                        <div
+                                                            key={msg._id}
+                                                            className={`group flex ${msg.senderId === user?._id ? "justify-end" : "justify-start"
+                                                                } mb-4 mx-6`}
                                                         >
-                                                            Delete for Everyone
-                                                        </button>
+                                                            <div
+                                                                className={`relative p-4 text-sm ${msg.senderId === user?._id
+                                                                    ? "bg-green-800 text-white"
+                                                                    : "bg-gray-300 text-gray-800"
+                                                                    } rounded-xl shadow-lg max-w-[75%] break-words group-hover:opacity-100`}
+                                                                onClick={() => handleDeleteClick(msg._id)}
+                                                            >
+                                                                {/* Handle deleted messages */}
+                                                                {msg.deletedForSender && user?._id === msg.senderId ? (
+                                                                    <p className="italic opacity-70">Deleted by you</p>
+                                                                ) : msg.deletedForSender && user?._id !== msg.senderId ? (
+                                                                    <p className="italic opacity-70">Deleted by Compnany</p>
+                                                                ) : msg.deletedForReceiver && user?._id === msg.receiverId ? (
+                                                                    <p className="italic opacity-70">Deleted by you</p>
+                                                                ) : msg.deletedForReceiver && user?._id !== msg.receiverId ? (
+                                                                    <p className="leading-relaxed cursor-pointer">{msg.content}</p>
+                                                                )
+                                                                    : msg.isImage ? (
+                                                                        <Image
+                                                                            src={msg.content}
+                                                                            alt="Message Image"
+                                                                            width={220}
+                                                                            height={220}
+                                                                            objectFit="contain"
+                                                                            className="rounded-lg mb-2 cursor-pointer"
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleImageClick(msg.content)
+                                                                            }}
+                                                                        />
+                                                                    ) : (
+                                                                        <p className="leading-relaxed cursor-pointer">{msg.content}</p>
+                                                                    )}
+
+                                                                {/* Message Time */}
+                                                                <p
+                                                                    className={`text-xs mt-1 text-right ${msg.senderId === user?._id ? "text-white" : "text-gray-500"
+                                                                        }`}
+                                                                >
+                                                                    {msg.createdAt
+                                                                        ? new Date(msg.createdAt).toLocaleTimeString([], {
+                                                                            hour: "2-digit",
+                                                                            minute: "2-digit",
+                                                                        })
+                                                                        : new Date().toLocaleTimeString([], {
+                                                                            hour: "2-digit",
+                                                                            minute: "2-digit",
+                                                                        })}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Full Image Modal */}
+                                        {isModalOpen && (
+                                            <div
+                                                className="fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-75 flex justify-center items-center z-50"
+                                                onClick={handleCloseModal} // Close the modal when clicking anywhere on the screen
+                                            >
+                                                <div
+                                                    className="relative"
+                                                    onClick={(e) => e.stopPropagation()} // Prevent click from closing when clicking on the image
+                                                >
+                                                    <Image
+                                                        src={currentImage} // Full-size image URL
+                                                        alt="Full Image"
+                                                        width={700} // Adjust as per your requirements
+                                                        height={700} // Adjust as per your requirements
+                                                        objectFit="contain"
+                                                        className="rounded-lg"
+                                                    />
+                                                    <button
+                                                        onClick={handleCloseModal} // Close button to close the modal
+                                                        className="absolute top-4 right-4 text-white text-2xl"
+                                                    >
+                                                        ✖
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {showDeletePopup && selectedMessage && (
+                                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+                                                <div className="bg-white p-4 rounded-lg shadow-md w-64">
+                                                    <p className="text-center text-gray-800 mb-4">Delete message?</p>
+
+                                                    {/* If the user is the sender, show both options */}
+                                                    {messages.find((msg) => msg._id === selectedMessage)?.senderId === user?._id ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => deleteMessage(selectedMessage, true)}
+                                                                className="w-full bg-red-600 text-white py-2 rounded-md mb-2 hover:bg-red-700"
+                                                            >
+                                                                Delete for Everyone
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteMessage(selectedMessage)}
+                                                                className="w-full bg-gray-300 text-gray-800 py-2 rounded-md hover:bg-gray-400"
+                                                            >
+                                                                Delete for Me
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        // If the user is the receiver, show only "Delete for Me"
                                                         <button
                                                             onClick={() => deleteMessage(selectedMessage)}
                                                             className="w-full bg-gray-300 text-gray-800 py-2 rounded-md hover:bg-gray-400"
                                                         >
                                                             Delete for Me
                                                         </button>
-                                                    </>
-                                                ) : (
-                                                    // If the user is the receiver, show only "Delete for Me"
+                                                    )}
+
                                                     <button
-                                                        onClick={() => deleteMessage(selectedMessage)}
-                                                        className="w-full bg-gray-300 text-gray-800 py-2 rounded-md hover:bg-gray-400"
+                                                        onClick={() => setShowDeletePopup(false)}
+                                                        className="w-full mt-2 text-gray-500 hover:text-gray-700"
                                                     >
-                                                        Delete for Me
-                                                    </button>
-                                                )}
-
-                                                <button
-                                                    onClick={() => setShowDeletePopup(false)}
-                                                    className="w-full mt-2 text-gray-500 hover:text-gray-700"
-                                                >
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Show Emoji Picker */}
-                                    {showEmojiPicker && (
-                                        <div className="absolute bottom-16 right-4 z-50">
-                                            <EmojiPicker onEmojiClick={handleEmojiClick} />
-                                        </div>
-                                    )}
-                                    <div ref={messagesEndRef} />
-                                </div>
-
-
-
-
-                                {/* Input Section */}
-                                <div className="bg-gray-100 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4">
-                                    {/* Image Preview Section */}
-                                    {selectedImages.length > 0 && (
-                                        <div className="flex gap-2 mb-2">
-                                            {selectedImages.map((image, index) => (
-                                                <div key={index} className="relative">
-                                                    <Image
-                                                        src={URL.createObjectURL(image)}
-                                                        alt="preview"
-                                                        className="w-16 h-16 rounded-lg object-cover"
-                                                        width={48}
-                                                        height={48}
-                                                    />
-                                                    <button
-                                                        onClick={() => removeImage(index)}
-                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
-                                                    >
-                                                        ✕
+                                                        Cancel
                                                     </button>
                                                 </div>
-                                            ))}
-                                            {/* Send Button for Images */}
-                                            <div className="flex items-center">
-                                                <button
-                                                    onClick={handleImageSend}
-                                                    className="bg-green-600 text-white p-1 w-8 h-8 flex items-center justify-center rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
-                                                >
-                                                    <IoSend size={20} />
-                                                </button>
                                             </div>
+                                        )}
 
-
-                                        </div>
-                                    )}
-
-                                    {/* Input Section */}
-                                    <div className="flex items-center gap-4">
-                                        {/* Emoji Button */}
-                                        <button className="text-2xl text-gray-600 hover:text-gray-800 transition-all duration-300" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-                                            😊
-                                        </button>
-
-                                        {/* Image Button */}
-                                        <label htmlFor="image-upload" className="text-2xl text-gray-600 hover:text-gray-800 cursor-pointer transition-all duration-300">
-                                            📷
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id="image-upload"
-                                            accept="image/*"
-                                            multiple
-                                            onChange={handleImageUpload}
-                                            className="hidden"
-                                        />
-
-                                        <input
-                                            type="text"
-                                            placeholder="Type a message..."
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            className="flex-1 px-4 py-3 bg-white text-gray-800 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
-                                        />
-
-                                        <button
-                                            onClick={handleSendMessage}
-                                            className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
-                                        >
-                                            Send
-                                        </button>
+                                        {/* Show Emoji Picker */}
+                                        {showEmojiPicker && (
+                                            <div className="absolute bottom-16 right-4 z-50">
+                                                <EmojiPicker onEmojiClick={handleEmojiClick} />
+                                            </div>
+                                        )}
+                                        <div ref={messagesEndRef} />
                                     </div>
+
+
+                                    <div className="bg-gray-100 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4">
+                                        {/* Image Preview Section */}
+                                        {selectedImages.length > 0 && (
+                                            <div className="flex gap-2 mb-2">
+                                                {selectedImages.map((image, index) => (
+                                                    <div key={index} className="relative">
+                                                        <Image
+                                                            src={URL.createObjectURL(image)}
+                                                            alt="preview"
+                                                            className="w-16 h-16 rounded-lg object-cover"
+                                                            width={48}
+                                                            height={48}
+                                                        />
+                                                        <button
+                                                            onClick={() => removeImage(index)}
+                                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs"
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                                {/* Send Button for Images */}
+                                                <div className="flex items-center">
+                                                    <button
+                                                        onClick={handleImageSend}
+                                                        className="bg-green-600 text-white p-1 w-8 h-8 flex items-center justify-center rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
+                                                    >
+                                                        <IoSend size={20} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                    </div>
+                                </main>
+                                {/* Input Section */}
+                                <div className="bg-gray-100 px-4 md:px-2 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4 sticky bottom-0 w-full max-w-full">
+                                    {/* Emoji Button */}
+                                    <button className="text-xl text-gray-600 hover:text-gray-800 transition-all duration-300" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                                        😊
+                                    </button>
+
+                                    {/* Image Button */}
+                                    <label htmlFor="image-upload" className="text-2xl text-gray-600 hover:text-gray-800 cursor-pointer transition-all duration-300">
+                                        📷
+                                    </label>
+                                    <input
+                                        type="file"
+                                        id="image-upload"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleImageUpload}
+                                        className="hidden"
+                                    />
+
+                                    <input
+                                        type="text"
+                                        placeholder="Type a message..."
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        className="flex-1 px-4 py-3 bg-white text-gray-800 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
+                                    />
+
+                                    <button
+                                        onClick={handleSendMessage}
+                                        className="px-3 py-3 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
+                                    >
+                                        <IoSend size={20} />
+                                        {/* <div className="flex items-center">
+                                            <button
+                                                onClick={handleImageSend}
+                                                className="bg-green-600 text-white p-1 w-8 h-8 flex items-center justify-center rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
+                                            >
+                                            </button>
+                                        </div> */}
+                                    </button>
                                 </div>
-                            </main>
-
+                            </>
                             :
-
-                            <div className="flex items-center justify-center flex-1 text-yellow-600">
+                            <div className="hidden md:flex items-center justify-center flex-1 text-yellow-600">
                                 Select a Company to start chatting
                             </div>
                         }
