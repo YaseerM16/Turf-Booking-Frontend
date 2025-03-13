@@ -124,7 +124,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
 }
 
-export const runtime = "edge"; // ✅ Define runtime here
+export const runtime = "experimental-edge"; // ✅ Fix: Use "experimental-edge" instead of "edge"
 
 // const allRoutes = [
 //     ...userPublicRoutes.concat(
