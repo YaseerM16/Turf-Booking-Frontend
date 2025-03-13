@@ -530,7 +530,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
     return (
         <Suspense fallback={<div>Loading...</div>}>
 
-            <div className="h-screen bg-green-50 flex flex-col">
+            <div className="h-screen bg-green-50 flex">
                 {/* Sidebar */}
                 <aside
                     className={`w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto 
@@ -601,7 +601,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     <>
                         {selectedChat ?
                             <>
-                                <main className="flex-1 flex flex-col overflow-y-auto">
+                                <main className="flex-1 flex-col overflow-y-auto">
                                     {/* Chat Header */}
                                     <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200 sticky top-0 w-full z-10">
                                         <div className="flex items-center">
@@ -824,49 +824,49 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                                         )}
 
                                     </div>
-                                </main>
-                                {/* Input Section */}
-                                <div className="bg-gray-100 px-4 md:px-2 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4 sticky bottom-0 w-full max-w-full">
-                                    {/* Emoji Button */}
-                                    <button className="text-xl text-gray-600 hover:text-gray-800 transition-all duration-300" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-                                        😊
-                                    </button>
+                                    {/* Input Section */}
+                                    <div className="bg-gray-100 px-4 md:px-2 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4 sticky bottom-0 w-full max-w-full">
+                                        {/* Emoji Button */}
+                                        <button className="text-xl text-gray-600 hover:text-gray-800 transition-all duration-300" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                                            😊
+                                        </button>
 
-                                    {/* Image Button */}
-                                    <label htmlFor="image-upload" className="text-2xl text-gray-600 hover:text-gray-800 cursor-pointer transition-all duration-300">
-                                        📷
-                                    </label>
-                                    <input
-                                        type="file"
-                                        id="image-upload"
-                                        accept="image/*"
-                                        multiple
-                                        onChange={handleImageUpload}
-                                        className="hidden"
-                                    />
+                                        {/* Image Button */}
+                                        <label htmlFor="image-upload" className="text-2xl text-gray-600 hover:text-gray-800 cursor-pointer transition-all duration-300">
+                                            📷
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="image-upload"
+                                            accept="image/*"
+                                            multiple
+                                            onChange={handleImageUpload}
+                                            className="hidden"
+                                        />
 
-                                    <input
-                                        type="text"
-                                        placeholder="Type a message..."
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        className="flex-1 px-4 py-3 bg-white text-gray-800 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
-                                    />
+                                        <input
+                                            type="text"
+                                            placeholder="Type a message..."
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            className="flex-1 px-4 py-3 bg-white text-gray-800 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 shadow-sm"
+                                        />
 
-                                    <button
-                                        onClick={handleSendMessage}
-                                        className="px-3 py-3 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
-                                    >
-                                        <IoSend size={20} />
-                                        {/* <div className="flex items-center">
+                                        <button
+                                            onClick={handleSendMessage}
+                                            className="px-3 py-3 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
+                                        >
+                                            <IoSend size={20} />
+                                            {/* <div className="flex items-center">
                                             <button
                                                 onClick={handleImageSend}
                                                 className="bg-green-600 text-white p-1 w-8 h-8 flex items-center justify-center rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
                                             >
                                             </button>
                                         </div> */}
-                                    </button>
-                                </div>
+                                        </button>
+                                    </div>
+                                </main>
                             </>
                             :
                             <div className="hidden md:flex items-center justify-center flex-1 text-yellow-600">
