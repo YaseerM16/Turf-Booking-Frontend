@@ -101,13 +101,18 @@ export function middleware(req: NextRequest) {
 
 export const config = {
     matcher: [
-        ...userPublicRoutes.concat(
-            userProtectedRoutes,
-            companyPublicRoutes,
-            companyProtectedRoutes,
-            adminPublicRoutes,
-            adminProtectedRoutes
-        ),
+        "/profile",
+        "/my-bookings",
+        "/my-wallet",
+        "/messages",
+        "/bookingSuccess",
+        "/login",
+        "/signup",
+        "/verifymail",
+        "/checkmail",
+        "/forgotpassword",
+        "/admin/:path*",
+        "/company/:path*"
     ],
 };
 
