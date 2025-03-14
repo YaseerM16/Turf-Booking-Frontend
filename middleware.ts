@@ -19,18 +19,18 @@ export function middleware(req: NextRequest) {
             isUserAuthenticated = decodedToken?.userRole === "user";
         } catch (err) {
             console.error("Error decoding token:", err);
-            return NextResponse.redirect(new URL("/login", req.url));
+            return NextResponse.redirect(new URL("/login", req.url), { headers: req.headers });
         }
     }
 
     // ✅ Redirect authenticated users away from public routes
     if (isUserAuthenticated && userPublicRoutes.includes(currentPath)) {
-        return NextResponse.redirect(new URL("/", req.url));
+        return NextResponse.redirect(new URL("/", req.url), { headers: req.headers });
     }
 
     // ✅ Protect user routes
     if (userProtectedRoutes.includes(currentPath) && !isUserAuthenticated) {
-        return NextResponse.redirect(new URL("/login", req.url));
+        return NextResponse.redirect(new URL("/login", req.url), { headers: req.headers });
     }
 
     return NextResponse.next();
