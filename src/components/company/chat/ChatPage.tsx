@@ -427,17 +427,20 @@ const CompanyChatPage: React.FC = () => {
     return (
         <>
             <Suspense fallback={<div>Loading...</div>}>
-                <div className="h-screen flex flex-col bg-green-50">
-                    {/* Header */}
-                    <Header />
-
-                    <div className="flex h-screen">
-                        {!selectedUser ? <Sidebar /> : <></>}
+                {/* <div className="h-screen flex flex-col bg-green-50"> */}
+                {/* Header */}
+                <div className="flex h-screen overflow-hidden w-full">
+                    <Sidebar />
+                    <div className="flex-1 flex flex-col h-screen overflow-auto">
+                        <Header />
                         {/* Chat List (Sidebar) */}
-                        <div className="w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto max-h-screen">
+                        <aside
+                            className={`w-full md:w-1/4 bg-green-50 border-r border-green-200 p-4 overflow-y-auto 
+                            ${selectedUser ? "hidden" : "block"} md:block h-full max-h-screen`}
+                        >
                             {loadingChats ? (
                                 <FireLoading renders={"Loading Chats"} />
-                            ) : (
+                            ) :
                                 <>
                                     <h2 className="text-lg font-semibold text-green-800 mb-4 text-center md:text-left">Chat Users</h2>
                                     {/* Back Icon (Only for Mobile) */}
@@ -448,55 +451,55 @@ const CompanyChatPage: React.FC = () => {
                                         {chats?.map((chat) => (
                                             <li
                                                 key={chat._id}
-                                                className={`p-3 md:p-4 rounded-md shadow-md cursor-pointer transition-all ${selectedUser === chat.userId._id ? 'bg-green-200' : 'bg-white'
+                                                className={`flex items-center p-4 hover:bg-green-50 cursor-pointer relative transition duration-300 ${selectedUser === chat.userId._id ? 'bg-green-200' : 'bg-white'
                                                     } hover:shadow-lg hover:bg-green-100`}
                                                 onClick={() => fetchChatMessages(chat._id, chat.userId._id)}
                                             >
-                                                <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4">
-                                                    {/* Profile Picture */}
-                                                    <div className="w-12 h-12 flex-shrink-0 relative">
-                                                        {chat.userId.profilePicture ? (
-                                                            <Image
-                                                                src={chat.userId.profilePicture}
-                                                                alt={chat.userId.name}
-                                                                width={48}
-                                                                height={48}
-                                                                className="rounded-full shadow-md object-cover"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-12 h-12 bg-green-100 flex items-center justify-center rounded-full">
-                                                                <span className="text-green-700 font-bold">U</span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Chat Info */}
-                                                    <div className="flex-grow overflow-hidden text-center md:text-left">
-                                                        <h3 className="text-md font-medium text-green-800 truncate">{chat.userId.name}</h3>
-                                                        <div className="flex items-center justify-center md:justify-start space-x-2">
-                                                            <span className={`w-3 h-3 rounded-full ${isOnline(chat.userId._id) ? "bg-green-500" : "bg-gray-400"}`}></span>
+                                                {/* <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4"> */}
+                                                {/* Profile Picture */}
+                                                <div className="h-12 w-12 bg-gray-200 rounded-full overflow-hidden flex-shrink-0 relative">
+                                                    {chat.userId.profilePicture ? (
+                                                        <Image
+                                                            src={chat.userId.profilePicture}
+                                                            alt={chat.userId.name}
+                                                            width={48}
+                                                            height={48}
+                                                            className="rounded-full shadow-md object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-12 h-12 bg-green-100 flex items-center justify-center rounded-full">
+                                                            <span className="text-green-700 font-bold">U</span>
                                                         </div>
-                                                        <p className="text-sm text-green-600 truncate">{chat.lastMessage}</p>
-                                                    </div>
-
-                                                    {/* Timestamp & Notification */}
-                                                    <div className="flex md:flex-col items-center md:items-end justify-center gap-1 md:ml-4 text-xs">
-                                                        <span className="text-gray-500 whitespace-nowrap">
-                                                            {new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
-                                                        </span>
-                                                        {chat.isReadCc > 0 && (
-                                                            <span className="bg-green-500 text-white text-xs font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg">
-                                                                {chat.isReadCc}
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                    )}
                                                 </div>
+
+                                                {/* Chat Info */}
+                                                <div className="ml-4 flex-grow overflow-hidden">
+                                                    <h3 className="text-md font-medium text-green-800 truncate">{chat.userId.name}</h3>
+                                                    <div className="flex items-center justify-center md:justify-start space-x-2">
+                                                        <span className={`w-3 h-3 rounded-full ${isOnline(chat.userId._id) ? "bg-green-500" : "bg-gray-400"}`}></span>
+                                                    </div>
+                                                    <p className="text-sm text-green-600 truncate">{chat.lastMessage}</p>
+                                                </div>
+
+                                                {/* Timestamp & Notification */}
+                                                <div className="flex flex-col items-end justify-center gap-1 ml-4">
+                                                    <span className="text-gray-500 whitespace-nowrap">
+                                                        {new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                                                    </span>
+                                                    {chat.isReadCc > 0 && (
+                                                        <span className="bg-green-500 text-white text-xs font-bold h-5 w-5 flex items-center justify-center rounded-full shadow-lg">
+                                                            {chat.isReadCc}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {/* </div> */}
                                             </li>
                                         ))}
                                     </ul>
                                 </>
-                            )}
-                        </div>
+                            }
+                        </aside>
 
                         {/* Chat Section */}
                         {loadMessages ?
@@ -507,11 +510,36 @@ const CompanyChatPage: React.FC = () => {
                             <>
                                 {selectedUser ? (
                                     <main className="h-screen flex-1 flex flex-col h-[600px]">
-                                        <div className="border-b border-green-200 pb-4 mb-4">
-                                            <h2 className="text-lg font-semibold text-green-800">
-                                                Chat with {chats?.find((u) => u.userId._id === selectedUser)?.userId.name}
-                                            </h2>
-                                        </div>
+                                        <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200 sticky top-0 w-full z-10">
+                                            <div className="flex items-center">
+                                                {/* Back Icon (Only for Mobile) */}
+                                                <button className="text-green-800 text-2xl mb-2" onClick={() => setSelectedUser(null)}>
+                                                    <IoArrowBack />
+                                                </button>
+                                                <div className="h-10 w-10 bg-gray-200 rounded-full overflow-hidden">
+                                                    <Image
+                                                        src={chats?.find((u) => u.userId._id === selectedUser)?.userId.profilePicture || "/logo.jpeg"}
+                                                        alt={selectedUser}
+                                                        width={40}
+                                                        height={40}
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                                <h3 className="font-semibold text-gray-800">{chats?.find((u) => u.userId._id === selectedUser)?.userId.name}</h3>
+
+                                                <div className="ml-4 flex flex items-center gap-2">
+                                                    <div className="flex items-center gap-1">
+                                                        <span
+                                                            className={`w-3 h-3 rounded-full shadow-md ${isOnline(selectedUser) ? "bg-green-500" : "bg-gray-400"
+                                                                }`}
+                                                        ></span>
+                                                        <span className="text-sm text-gray-600">
+                                                            {isOnline(selectedUser) ? "Online" : "Offline"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </header>
 
                                         {/* Chat Messages */}
                                         {/* Messages */}
@@ -686,9 +714,9 @@ const CompanyChatPage: React.FC = () => {
                                             )}
 
                                             {/* Input Section */}
-                                            <div className="flex items-center gap-4">
+                                            <div className="bg-gray-100 px-4 md:px-2 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4 sticky bottom-0 w-full max-w-full">
                                                 {/* Emoji Button */}
-                                                <button className="text-2xl text-gray-600 hover:text-gray-800 transition-all duration-300" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                                                <button className="text-xl text-gray-600 hover:text-gray-800 transition-all duration-300" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                                                     😊
                                                 </button>
 
@@ -715,15 +743,15 @@ const CompanyChatPage: React.FC = () => {
 
                                                 <button
                                                     onClick={handleSendMessage}
-                                                    className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
+                                                    className="px-3 py-3 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 transition-all duration-300"
                                                 >
-                                                    Send
+                                                    <IoSend size={20} />
                                                 </button>
                                             </div>
                                         </div>
                                     </main>
                                 ) : (
-                                    <div className="flex items-center justify-center flex-1 text-yellow-600">
+                                    <div className="hidden md:flex items-center justify-center flex-1 text-yellow-600">
                                         Select a user to start chatting
                                     </div>
                                 )}

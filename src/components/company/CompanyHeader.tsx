@@ -45,33 +45,40 @@ const Header: React.FC = () => {
     };
 
     return (
-        <div className="bg-yellow-100 p-6 md:p-8 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center mb-2 space-y-4 md:space-y-0">
-            <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 text-center md:text-left">
+        <div className="bg-yellow-100 p-6 md:p-8 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center mb-4 space-y-6 md:space-y-0">
+            {/* Profile & Company Info */}
+            <div className="flex flex-col md:flex-row items-center md:space-x-6 text-center md:text-left">
                 <Image
                     src="/logo.jpeg"
                     alt="Profile"
-                    className="h-16 w-16 rounded-full"
-                    width={64}
-                    height={64}
+                    className="h-20 w-20 md:h-24 md:w-24 rounded-full object-cover"
+                    width={96}
+                    height={96}
                 />
                 <div>
-                    <h1 className="text-2xl md:text-3xl font-semibold">{company.company?.companyname || "Company Name"}</h1>
-                    <p className="text-gray-600 text-base md:text-lg">Here is your company performance summary</p>
+                    <h1 className="text-xl md:text-2xl font-semibold">{company.company?.companyname || "Company Name"}</h1>
+                    <p className="text-gray-600 text-sm md:text-base">
+                        Here is your company performance summary
+                    </p>
                 </div>
             </div>
-            {loading ? (
-                <Spinner />
-            ) : (
-                <button
-                    onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium text-base md:text-lg"
-                >
-                    Logout
-                </button>
-            )}
-        </div>
 
+            {/* Logout Button */}
+            <div className="w-full md:w-auto flex justify-center md:justify-end">
+                {loading ? (
+                    <Spinner />
+                ) : (
+                    <button
+                        onClick={handleLogout}
+                        className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 md:px-6 md:py-3 rounded-lg font-medium text-sm md:text-base transition duration-300"
+                    >
+                        Logout
+                    </button>
+                )}
+            </div>
+        </div>
     );
+
 };
 
 export default Header;

@@ -601,7 +601,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                     <>
                         {selectedChat ?
                             <>
-                                <main className="flex-1 flex-col overflow-y-auto">
+                                <main className="flex-1 overflow-y-auto">
                                     {/* Chat Header */}
                                     <header className="flex items-center justify-between p-4 bg-white shadow-sm border-b border-gray-200 sticky top-0 w-full z-10">
                                         <div className="flex items-center">
