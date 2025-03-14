@@ -352,7 +352,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
     return (
         <>
             <ToastContainer position="bottom-center" autoClose={2400} hideProgressBar={true} />
-            <div>
+            <div >
                 {/* Company Registration Form */}
                 <div>
                     {/* Existing form fields */}
@@ -382,15 +382,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                             width: '100%',
                             height: '100vh',
                             backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            paddingLeft: "18%",
-                            paddingTop: "150px", // Optional top padding
+                            // paddingLeft: "5%",
+                            paddingTop: "10px", // Optional top padding
                         }}
                     >
                         <div
                             style={{
-                                width: '90%',
-                                maxWidth: '1000px',
-                                height: '500px',
+                                // width: '90%',
+                                height: '600px',
+                                // maxWidth: '1000px',
+                                width: '100%',
+                                // height: '100vh',
                                 backgroundColor: '#fff',
                                 borderRadius: '10px',
                                 overflow: 'hidden',
@@ -407,7 +409,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                                 onFocus={() => setDropdownVisible(true)}
                                 style={{
                                     padding: '12px',
-                                    width: '320px',
+                                    width: '90%', // Make it flexible
+                                    maxWidth: '400px', // Limit max width
                                     borderRadius: '8px',
                                     border: '1px solid #ddd',
                                     boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
@@ -419,6 +422,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ mapView, onConfrimAndClose,
                                     zIndex: 2,
                                 }}
                             />
+
                             {/* Dropdown Suggestions */}
                             {isDropdownVisible && searchResults.length > 0 && (
                                 <ul
