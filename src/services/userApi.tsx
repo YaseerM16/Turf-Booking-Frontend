@@ -9,6 +9,11 @@ import { handleLogout } from "@/utils/authUtils"; // Import function
 
 export const axiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_HOST,
+    headers: {
+        "Cache-Control": "no-store",  // Prevents caching
+        "Pragma": "no-cache",
+        "Expires": "0",
+    },
     withCredentials: true,
 });
 
