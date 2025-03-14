@@ -38,5 +38,5 @@ export function middleware(req: NextRequest) {
 
 // ✅ Apply middleware to all pages
 export const config = {
-    matcher: "/:path*",
+    matcher: "/((?!_next|api|favicon.ico).*)", // Prevents middleware from running on Next.js internals
 };
