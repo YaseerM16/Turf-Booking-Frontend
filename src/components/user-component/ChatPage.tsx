@@ -7,10 +7,11 @@ import { useAppSelector } from "@/store/hooks";
 import FireLoading from "../FireLoading";
 import { deleteNotification, getChats, messageDeleteForEveryone, messageDeleteForMe, onGetMessages, updateNotifications } from "@/services/userApi";
 import { ChatRoom, Message } from "@/utils/type";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import EmojiPicker from 'emoji-picker-react';  // Import emoji picker
 import { IoArrowBack, IoSend } from "react-icons/io5"; // Import send icon
 import { format, isToday, isYesterday, parseISO } from "date-fns";
+import Cookies from "js-cookie";
 
 interface Company {
     companyname: string;
@@ -24,6 +25,7 @@ type ChatPageProps = {
     navbarSocket: React.RefObject<Socket | null>;
 };
 const ChatPage: React.FC<ChatPageProps> = () => {
+    const router = useRouter()
     const [loadingChats, setLoadingChats] = useState(false)
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState<Message[]>([]);
@@ -47,6 +49,14 @@ const ChatPage: React.FC<ChatPageProps> = () => {
         setSelectedMessage(msgId);
         setShowDeletePopup(true);
     };
+
+    useEffect(() => {
+        const token = Cookies.get("token"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const deleteMessage = async (msgId: string, forEveryone: boolean = false) => {
         try {

@@ -4,8 +4,11 @@ import FireLoading from "../FireLoading";
 import ViewBookingDetails from "./ViewBookingDetails";
 import { useAppSelector } from "@/store/hooks";
 import { SlotDetails, TurfDetails } from "@/utils/type";
+import { useRouter } from "next/navigation";
 import { getBookingsApi } from "@/services/userApi"
 import Pagination from "../Pagination";
+import Cookies from "js-cookie";
+
 
 export interface Booking {
     totalAmount: number;
@@ -27,10 +30,19 @@ const MyBooking: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalBooking, setTotalBooking] = useState<number | null>(null)
     // const [totalBooking,setTotalB]
+    const router = useRouter()
     const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null); // For toggling between details and booking list
     // const userDet = typeof window !== "undefined" ? JSON.parse(localStorage.getItem("auth") || "{}") : null;
     const bookingPerPage = 6
     // console.log("Bookings :", booking);
+
+    useEffect(() => {
+        const token = Cookies.get("token"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);

@@ -1,6 +1,6 @@
 "use client";
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import EditProfileModal from './EditProfileModal';
 import { useRouter } from "next/navigation";
 import { User } from '@/utils/type';
@@ -12,6 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import Image from 'next/image';
 import axios, { AxiosError } from 'axios';
 import { getPreSignedURL, getVerificationMail, updateProfileDetsApi } from '@/services/userApi';
+import Cookies from "js-cookie";
+
 
 const ProfileComponent: React.FC = () => {
     const user = useAppSelector(state => state.users.user)
@@ -20,6 +22,14 @@ const ProfileComponent: React.FC = () => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [spinLoading, setSinLoading] = useState(false);
+
+    useEffect(() => {
+        const token = Cookies.get("token"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const handleEditProfile = () => {
         setModalOpen(true);

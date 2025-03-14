@@ -10,6 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import Spinner from '../Spinner';
 import "react-toastify/dist/ReactToastify.css";
 import Pagination from '../Pagination';
+import Cookies from "js-cookie";
 
 
 const MyWallet: React.FC = () => {
@@ -25,6 +26,15 @@ const MyWallet: React.FC = () => {
     const user = useAppSelector((state) => state.users.user);
     const transactionPerPage = 6
     // console.log("USER :", user);
+
+    useEffect(() => {
+        const token = Cookies.get("token"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/login"); // Redirect to login if token is missing
+        }
+    }, []);
+
     const getTheWallet = useCallback(async (userId: string) => {
         try {
             setLoading(true);
