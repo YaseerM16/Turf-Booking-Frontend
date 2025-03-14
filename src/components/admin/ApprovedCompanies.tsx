@@ -2,9 +2,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Sidebar from "./SideBar";
 import { axiosInstance } from "@/utils/constants";
-import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
-import "react-toastify/dist/ReactToastify.css";
 import FireLoading from "../FireLoading";
 import { Company } from "@/utils/type"
 import MapComponent from "../OlaMapComponent";
@@ -119,7 +117,6 @@ const ApprovedCompanies: React.FC = () => {
 
     return (
         <>
-            <ToastContainer position="top-center" autoClose={1000} />
             <div className="flex min-h-screen">
                 <Sidebar />
                 <div className="flex-1 flex flex-col">
