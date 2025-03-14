@@ -1,34 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { userMiddleware } from "./src/middleware/userMiddleware";
-import { companyMiddleware } from "./src/middleware/companyMiddleware";
-import { adminMiddleware } from "./src/middleware/adminMiddleware";
-console.error("HIIIII  FRoommmyy fht YYYSSSSRRRRRRR ");
-console.error("HIIIII  FRoommmyy fht YYYSSSSRRRRRRR ");
 
+export const userPublicRoutes = ["/login", "/signup", "/verifymail", "/checkmail", "/forgotpassword"];
+export const userProtectedRoutes = ["/profile", "/my-bookings", "/my-wallet", "/messages", "/bookingSuccess"];
 
-export function middleware(req: NextRequest) {
+export function userMiddleware(req: NextRequest) {
+    const token = req.cookies.get("token")?.value;
     const currentPath = req.nextUrl.pathname;
-    const userRoutes = [
-        "/profile",
-        "/my-bookings",
-        "/my-wallet",
-        "/messages",
-        "/bookingSuccess",
-        "/login",
-        "/signup",
-        "/verifymail",
-        "/checkmail",
-        "/forgotpassword",
-    ];
 
-    if (currentPath.startsWith("/admin")) {
-        return adminMiddleware(req);
+    console.log("UserMiddleware executed for:", currentPath);
+    console.log("Token in the UserMiddleware:", token);
+
+    let isUserAuthenticated = false;
+
+    if (token) {
+        try {
+            const decodedToken = JSON.parse(Buffer.from(token.split(".")[1], "base64").toString());
+            console.log("Decoded Token:", decodedToken);
+
+            isUserAuthenticated = decodedToken?.userRole === "user";
+        } catch (err) {
+            console.error("Error decoding token:", err);
+            return NextResponse.redirect(new URL("/login", req.url));
+        }
     }
-    if (currentPath.startsWith("/company")) {
-        return companyMiddleware(req);
+
+    // ✅ Redirect authenticated users away from public routes
+    if (isUserAuthenticated && userPublicRoutes.includes(currentPath)) {
+        return NextResponse.redirect(new URL("/", req.url));
     }
-    if (userRoutes.includes(currentPath)) {
-        return userMiddleware(req);
+
+    // ✅ Protect user routes
+    if (userProtectedRoutes.includes(currentPath) && !isUserAuthenticated) {
+        return NextResponse.redirect(new URL("/login", req.url));
     }
 
     return NextResponse.next();
