@@ -25,13 +25,13 @@ export const SERVER_ADMIN_URL = `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/v1/a
 export const SERVER_NOTIFICATION_URL = `${process.env.NEXT_PUBLIC_SERVER_HOST}/api/v1/notification`
 
 
-export const APIKEY = process.env.NEXT_PUBLIC_APIKEY
-export const AUTH_DOMAIN = process.env.NEXT_PUBLIC_AUTH_DOMAIN
-export const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID
-export const STORAGE_BUCKET = process.env.NEXT_PUBLIC_STORAGE_BUCKET
-export const MESSAGING_SENDER_ID = process.env.MESSAGING_SENDER_ID
-export const MESSAGING_APP_ID = process.env.MESSAGING_APP_ID
-export const MEASUREMENT_ID = process.env.MEASUREMENT_ID
+export const APIKEY = "AIzaSyCeto7xiyE3iD_sFhx4RxgDH9PBwBkoE6U"
+export const AUTH_DOMAIN = "turf-booking-auth.firebaseapp.com"
+export const PROJECT_ID = "turf-booking-auth"
+export const STORAGE_BUCKET = "turf-booking-auth.firebasestorage.app"
+export const MESSAGING_SENDER_ID = "134744432092"
+export const MESSAGING_APP_ID = "1:134744432092:web:7c7753601544afb4114319"
+export const MEASUREMENT_ID = "G-84MXNGDL4H"
 
 
 export const availableFacilities = [
