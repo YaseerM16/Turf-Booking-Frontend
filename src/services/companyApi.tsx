@@ -16,7 +16,7 @@ axiosInstance.interceptors.response.use(
         if ((error.response?.status === 403 || error.response?.status === 401) && window.location.pathname !== "/login") {
             console.log("Redirecting due to 403 error...");
             await handleLogout(); // Call the function
-            window.location.href = "/company/login"; // Redirect to login
+            // window.location.href = "/company/login"; // Redirect to login
         }
         return Promise.reject(error);
     }

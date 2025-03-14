@@ -252,15 +252,6 @@ const ProfileComponent: React.FC = () => {
                                         readOnly
                                     />
                                 </div>
-                                {/* Password */}
-                                <div className="text-center p-4 bg-green-50 rounded-lg shadow-md border border-green-300 flex flex-col items-center justify-center">
-                                    <label className="block text-sm font-bold text-green-800 mb-2">
-                                        Password
-                                    </label>
-                                    <button className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md shadow-md">
-                                        Change Password
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>

@@ -20,8 +20,9 @@ export const handleLogout = async () => {
                 confirmButtonText: "OK",
                 timer: 3000,
                 toast: true,
+            }).then(() => {
+                window.location.href = "/company/login"; // Redirect only after Swal closes
             });
-            window.location.href = "/company/login"; // Redirect to login
         }
     } catch (error) {
         console.error("Logout failed:", error);

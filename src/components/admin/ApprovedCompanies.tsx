@@ -9,6 +9,7 @@ import FireLoading from "../FireLoading";
 import { Company } from "@/utils/type"
 import MapComponent from "../OlaMapComponent";
 import Image from "next/image";
+import { toggleCompanyBlock } from "@/services/adminApi";
 
 
 const ApprovedCompanies: React.FC = () => {
@@ -76,17 +77,27 @@ const ApprovedCompanies: React.FC = () => {
                 timerProgressBar: true,
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    setLoading(true);
-                    console.log("Email :", email);
-                    console.log("CompanID :", companyId);
+                    const response = await toggleCompanyBlock(email, companyId)
 
-                    const { data } = await axiosInstance.get(
-                        `/api/v1/admin/company-toggle-block?email=${email}&companyId=${companyId}`
-                    );
+                    if (response.success) {
+                        const { data } = response;
+                        console.log("there's a response of UserBlockToggle :", data);
 
-                    if (data?.success) {
-                        toast.success("Company Block Status Toggled successfully ✅", { onClose: () => fetchCompanies(currentPage, searchQuery, filter) })
-                        console.log("Response Data :- ", data);
+                        setCompanies((prevUsers) =>
+                            prevUsers.map((company) =>
+                                company._id === data.company._id ? { ...company, ...data.company } : company
+                            )
+                        );
+                        Swal.fire({
+                            icon: 'success',
+                            title: "Success",
+                            text: "Company Block Status Toggled successfully ✅",
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2000, // 2 seconds
+                            timerProgressBar: true,
+                        });
                     }
 
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
@@ -100,12 +111,8 @@ const ApprovedCompanies: React.FC = () => {
                     });
                 }
             });
-
-
         } catch (error) {
-            console.error("Error fetching user data:", error);
-        } finally {
-            setLoading(false);
+            console.error("Error fetching Company data:", error);
         }
     };
 

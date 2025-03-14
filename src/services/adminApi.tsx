@@ -36,6 +36,19 @@ export const toggleUserBlock = async (email: string, userId: string) => {
     }
 };
 
+// - Block Company
+export const toggleCompanyBlock = async (email: string, companyId: string) => {
+    try {
+        const response = await axiosInstance.get(`${BACKEND_ADMIN_URL}/company-toggle-block?email=${email}&companyId=${companyId}`);
+        return response.data;
+    } catch (error: unknown) {
+        console.log("Error in CmpRegApi error:", error);
+        if (error instanceof AxiosError) {
+            throw new Error(error?.response?.data.message)
+        }
+    }
+};
+
 
 
 //// Dashboard
