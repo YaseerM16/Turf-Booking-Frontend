@@ -198,13 +198,20 @@ const AvailableSlots: React.FC<TurfDetailsProps> = ({ turf, setShow }) => {
             const response = await getSlotsByDayApi(turfId, day, date)
             if (response?.success) {
                 const { data } = response
+                const currentDate = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
                 const currentHour = new Date().getHours(); // Get current hour in 24-hour format
 
-                // Filter slots based on the current hour
+                // Check if the provided 'date' is today
+                const isToday = new Date(date).toISOString().split("T")[0] === currentDate;
+
+                // Filter slots
                 const filteredSlots = data.slots.slots.filter((slot: SlotDetails) => {
                     const slotHour = parseInt(slot.slot.split(":")[0]); // Extract hour from slot time
-                    return slotHour >= currentHour; // Keep slots from the current hour onwards
+
+                    // Apply time filtering only if the date is today
+                    return !isToday || slotHour >= currentHour;
                 });
+
 
                 // Convert to 12-hour AM/PM format
                 const formattedSlots = filteredSlots.map((slot: SlotDetails) => ({
