@@ -281,7 +281,7 @@ const Register: React.FC = () => {
                                         className="rounded-md"
                                     />
                                 </div>
-                                <span className="text-sm font-medium">Login with Google</span>
+                                <span className="text-sm font-medium">Sign up with Google</span>
                             </button>
                         </div>
 

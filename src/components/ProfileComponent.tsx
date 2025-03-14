@@ -232,7 +232,7 @@ const ProfileComponent: React.FC = () => {
                                             {!user?.isVerified && <button
                                                 type="button"
                                                 className="mt-3 px-3 py-1.5 text-sm font-medium bg-gradient-to-r from-green-500 to-green-600 text-white rounded-md shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-offset-1"
-                                                onClick={() => getVerifyMail()}
+                                                onClick={getVerifyMail}
                                             >
                                                 Verify Mail
                                             </button>}
