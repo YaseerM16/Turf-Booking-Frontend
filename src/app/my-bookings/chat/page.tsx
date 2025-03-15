@@ -189,8 +189,7 @@ function ChatRoom() {
             <div className="flex flex-col w-3/4 h-3/4 bg-gray-100 text-gray-800 rounded-lg shadow-lg">
                 {/* Header */}
                 <div className="p-4 bg-green-700 rounded-t-lg shadow-md flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-white">Chat Room</h1>
-                    <span className="text-gray-200 text-sm italic">Online</span>
+                    <h1 className="text-2xl font-bold text-white">Chat With Turf (view chats in Messages tab)</h1>
                 </div>
 
                 {/* Chat Messages Section */}
