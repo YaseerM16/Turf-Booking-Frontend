@@ -127,7 +127,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
 
     useEffect(() => {
         if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+            messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
         }
     }, [messages]);
 
@@ -645,7 +645,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                                     </header>
 
                                     {/* Messages */}
-                                    <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar bg-green-50 p-4 md:p-6">
+                                    <div className="h-screen flex-1 overflow-y-auto space-y-4 no-scrollbar bg-green-50 p-4 md:p-6">
                                         <div>
                                             {Object.entries(groupedMessages).map(([dateLabel, msgs]) => (
                                                 <div key={dateLabel}>
@@ -800,7 +800,7 @@ const ChatPage: React.FC<ChatPageProps> = () => {
                                     </div>
 
 
-                                    <div className="bg-gray-100 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center space-x-3 md:space-x-4">
+                                    <div className="bg-gray-100 px-4 md:px-6 py-3 md:py-4 border-t border-gray-200 rounded-b-lg shadow-md flex items-center fixed bottom-0 space-x-3 md:space-x-4">
                                         {/* Image Preview Section */}
                                         {selectedImages.length > 0 && (
                                             <div className="flex gap-2 mb-2">
