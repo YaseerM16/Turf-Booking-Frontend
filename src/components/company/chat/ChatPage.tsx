@@ -6,7 +6,7 @@ import Header from "@/components/company/CompanyHeader";
 import Sidebar from "@/components/company/CompanySidebar";
 import { deleteNotification, getChatLists, getChatMessages, updateNotifications } from "@/services/companyApi";
 import { useAppSelector } from "@/store/hooks";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChatRoom, Message } from "@/utils/type"
 import Swal from "sweetalert2";
 import FireLoading from "@/components/FireLoading";
@@ -14,10 +14,11 @@ import EmojiPicker from 'emoji-picker-react';  // Import emoji picker
 import { IoSend } from "react-icons/io5"; // Import send icon
 import { IoArrowBack } from "react-icons/io5";
 import { messageDeleteForEveryone, messageDeleteForMe } from "@/services/userApi";
-
+import Cookies from "js-cookie";
 
 
 const CompanyChatPage: React.FC = () => {
+    const router = useRouter()
     const [selectedUser, setSelectedUser] = useState<string | null>(null);
     const [newMessage, setNewMessage] = useState('');
     const company = useAppSelector(state => state.companies.company)
@@ -37,6 +38,14 @@ const CompanyChatPage: React.FC = () => {
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
     const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
     const [showDeletePopup, setShowDeletePopup] = useState<boolean>(false);
+
+    useEffect(() => {
+        const token = Cookies.get("CompanyToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/company/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const handleDeleteClick = (msgId: string) => {
         setSelectedMessage(msgId);

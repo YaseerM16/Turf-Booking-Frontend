@@ -10,10 +10,12 @@ import Sidebar from "./SideBar";
 import { getDashboardData, getMonthlyRevenue, getRevenuesByRange } from "@/services/adminApi";
 import Swal from "sweetalert2";
 import FireLoading from "../FireLoading";
+import { useRouter } from "next/navigation";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
-
+import Cookies from "js-cookie";
 
 const AdminDashboard: React.FC = () => {
+    const router = useRouter()
     const [loading, setLoading] = useState<boolean>(true);
     const [filter, setFilter] = useState<string>("7days");
     const [monthlyRevenue, setMonthlyRevenue] = useState<{ month: string, revenue: number }[]>([])
@@ -31,6 +33,14 @@ const AdminDashboard: React.FC = () => {
         upcomingBookings: 0,
         totalBookings: 0,
     });
+
+    useEffect(() => {
+        const token = Cookies.get("AdminToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/admin/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const getDashBoardMetrics = useCallback(async () => {
         try {

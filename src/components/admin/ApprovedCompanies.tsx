@@ -8,9 +8,12 @@ import { Company } from "@/utils/type"
 import MapComponent from "../OlaMapComponent";
 import Image from "next/image";
 import { toggleCompanyBlock } from "@/services/adminApi";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 
 const ApprovedCompanies: React.FC = () => {
+    const router = useRouter()
     const [companies, setCompanies] = useState<Company[] | []>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -18,6 +21,14 @@ const ApprovedCompanies: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null); // For the modal display
     const [filter, setFilter] = useState<string>("all");
+
+    useEffect(() => {
+        const token = Cookies.get("AdminToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/admin/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const companiesPerPage = 10;
 

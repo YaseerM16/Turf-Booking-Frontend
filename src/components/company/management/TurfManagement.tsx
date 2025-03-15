@@ -12,7 +12,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { TurfDetails } from "@/utils/type";
 import Spinner from "@/components/Spinner";
 import { blockTurf, getTurfs, unbBlockTurf } from "@/services/TurfApis";
-
+import Cookies from "js-cookie";
 
 const TurfManagement: React.FC = () => {
     const router = useRouter()
@@ -22,6 +22,14 @@ const TurfManagement: React.FC = () => {
     const [loadingBlock, setLoadingBlock] = useState<Record<string, boolean>>({});
 
     const company = useAppSelector((state) => state.companies);
+
+    useEffect(() => {
+        const token = Cookies.get("CompanyToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/company/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     async function fetchTurfs(companyId: string) {
         try {

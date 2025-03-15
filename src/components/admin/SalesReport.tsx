@@ -9,6 +9,8 @@ import Pagination from "../Pagination";
 import Sidebar from "./SideBar";
 import { getLastMonthRevenues, getRevenuesByDateRange } from "@/services/adminApi";
 import FireLoading from "../FireLoading";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 
 interface Revenue {
@@ -24,6 +26,7 @@ interface Revenue {
 
 
 const SalesReport: React.FC = () => {
+    const router = useRouter()
     const [loading, setLoading] = useState(false);
     // const [spinLoading, setSpinLoading] = useState<boolean>(false)
     const [revenues, setRevenues] = useState<Revenue[] | []>([])
@@ -35,6 +38,14 @@ const SalesReport: React.FC = () => {
     const [fromDateError, setFromDateError] = useState<string | null>(null);
     const [toDateError, setToDateError] = useState<string | null>(null);
     const revenuesPerPage = 6
+
+    useEffect(() => {
+        const token = Cookies.get("AdminToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/admin/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
 
     const handlePageChange = (page: number) => {

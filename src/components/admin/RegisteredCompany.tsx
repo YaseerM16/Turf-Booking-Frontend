@@ -10,9 +10,12 @@ import FireLoading from "../FireLoading";
 import MapComponent from "../OlaMapComponent";
 import { Company } from "@/utils/type";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 
 const RegisteredCompanies: React.FC = () => {
+    const router = useRouter()
     const [companies, setCompanies] = useState<Company[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -21,6 +24,14 @@ const RegisteredCompanies: React.FC = () => {
 
     const [selectedCompany, setSelectedCompany] = useState<Company | null>(null); // For the modal display
     const companiesPerPage = 10;
+
+    useEffect(() => {
+        const token = Cookies.get("AdminToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/admin/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const fetchUsers = async (page: number, searchQry: string) => {
         try {

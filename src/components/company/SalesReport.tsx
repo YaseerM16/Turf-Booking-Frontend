@@ -13,7 +13,8 @@ import DatePicker from "react-datepicker";
 import Pagination from "../Pagination";
 import Table from "../Table";
 import FireLoading from "../FireLoading";
-
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 
 interface Revenue {
@@ -24,6 +25,7 @@ interface Revenue {
 }
 const SalesReport: React.FC = () => {
     const [loading, setLoading] = useState(false);
+    const router = useRouter()
     // const [spinLoading, setSpinLoading] = useState<boolean>(false)
     const [revenues, setRevenues] = useState<Revenue[] | []>([])
     const [fromDate, setFromDate] = useState<Date | null>(null);
@@ -42,6 +44,14 @@ const SalesReport: React.FC = () => {
     };
 
     const company = useAppSelector((state) => state.companies.company);
+
+    useEffect(() => {
+        const token = Cookies.get("CompanyToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/company/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const fetchRevenues = useCallback(async (companyId: string) => {
         if (isFiltered) return; // Prevent fetching when filtered

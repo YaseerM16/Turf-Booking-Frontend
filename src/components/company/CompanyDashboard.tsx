@@ -17,6 +17,8 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { NextArrow, PrevArrow } from "@/utils/Arrows";
 import Image from "next/image";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 
 // export const carouselSettings = {
@@ -66,6 +68,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const CompanyDashboard: React.FC = () => {
     const company = useAppSelector((state) => state.companies.company);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const router = useRouter()
     // const [loadingDash, setLoadingDash] = useState<boolean>(false);
     // const [loadingTurfs, setLoadingTurfs] = useState<boolean>(false);
     // console.log("loadin trfs :", loadingDash);
@@ -95,6 +98,14 @@ const CompanyDashboard: React.FC = () => {
     // setTurfFilter("7days")
     const [selectedTurf, setSelectedTurf] = useState<null | TurfDetails>(null);
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const token = Cookies.get("CompanyToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/company/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     useEffect(() => {
         if (scrollContainerRef.current) {

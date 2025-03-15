@@ -13,7 +13,7 @@ import { Company } from '@/utils/type';
 import EditProfileModal from './EditProfileModal';
 import Image from 'next/image';
 import { companyLogOut, eidtProfileDets, uploadProfileImg } from '@/services/companyApi';
-
+import Cookies from 'js-cookie';
 
 const CompanyProfile: React.FC = () => {
     const dispatch = useAppDispatch()
@@ -22,6 +22,14 @@ const CompanyProfile: React.FC = () => {
     const [isModalOpen, setModalOpen] = useState(false);
 
     const company = useAppSelector((state) => state.companies);
+
+    useEffect(() => {
+        const token = Cookies.get("CompanyToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/company/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     useEffect(() => {
         const storedCompany = localStorage.getItem("companyAuth");

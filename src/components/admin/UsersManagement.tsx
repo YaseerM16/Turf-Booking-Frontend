@@ -7,9 +7,12 @@ import Pagination from "../Pagination";
 import FireLoading from "../FireLoading";
 import { User } from "@/utils/type";
 import { toggleUserBlock } from "@/services/adminApi";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 
 const UserManagement: React.FC = () => {
+    const router = useRouter()
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -18,6 +21,14 @@ const UserManagement: React.FC = () => {
     const [filter, setFilter] = useState<string>("all"); // "all", "active", "inactive"
 
     const usersPerPage = 10;
+
+    useEffect(() => {
+        const token = Cookies.get("AdminToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/admin/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
     const fetchUsers = async (page: number, searchQuery: string, filter: string) => {
         try {
@@ -103,7 +114,7 @@ const UserManagement: React.FC = () => {
                 }
             });
         } catch (error) {
-            console.error("Error fetching user data:", error);
+            console.log("Error fetching user data:", error);
         }
     };
 

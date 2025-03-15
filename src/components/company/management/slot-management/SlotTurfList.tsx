@@ -8,6 +8,7 @@ import Header from "../../CompanyHeader";
 import { TurfDetails } from "@/utils/type"
 import Image from "next/image";
 import { getTurfs } from "@/services/TurfApis";
+import Cookies from "js-cookie";
 
 
 const SlotTurfList: React.FC = () => {
@@ -16,6 +17,15 @@ const SlotTurfList: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [turfs, setTurfs] = useState<TurfDetails[]>([]);
     console.log("Turfs :", turfs);
+
+
+    useEffect(() => {
+        const token = Cookies.get("CompanyToken"); // Replace 'authToken' with your actual cookie name
+
+        if (!token) {
+            router.push("/company/login"); // Redirect to login if token is missing
+        }
+    }, []);
 
 
     const fetchTurfs = useCallback(async () => {
